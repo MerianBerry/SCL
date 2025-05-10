@@ -1,0 +1,13 @@
+<map id="src/scldict.cpp" name="src/scldict.cpp">
+<area shape="rect" id="Node000001" title=" " alt="" coords="77,5,183,32"/>
+<area shape="rect" id="Node000002" href="$scldict_8hpp.html" title=" " alt="" coords="88,80,172,107"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="133,33,133,64,128,64,128,33"/>
+<area shape="rect" id="Node000003" href="$sclcore_8hpp.html" title=" " alt="" coords="86,155,174,181"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="133,107,133,139,128,139,128,107"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="5,229,74,256"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="116,184,68,222,65,218,113,180"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="98,229,163,256"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="133,182,133,214,128,214,128,182"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="187,229,252,256"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="147,180,194,217,191,221,144,184"/>
+</map>

@@ -1,0 +1,21 @@
+<map id="src/sclpath.cpp" name="src/sclpath.cpp">
+<area shape="rect" id="Node000001" title=" " alt="" coords="279,5,389,32"/>
+<area shape="rect" id="Node000002" href="$sclpath_8hpp.html" title=" " alt="" coords="134,80,222,107"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="308,35,220,75,218,71,306,30"/>
+<area shape="rect" id="Node000008" title=" " alt="" coords="246,80,326,107"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="328,34,305,69,301,66,324,31"/>
+<area shape="rect" id="Node000009" title=" " alt="" coords="350,80,414,107"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="345,31,368,66,363,69,340,34"/>
+<area shape="rect" id="Node000010" title=" " alt="" coords="438,80,505,107"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="359,30,435,70,433,75,357,35"/>
+<area shape="rect" id="Node000003" href="$sclcore_8hpp.html" title=" " alt="" coords="86,155,174,181"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="172,109,149,143,145,140,168,106"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="199,155,256,181"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="189,106,213,140,208,143,185,109"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="5,229,74,256"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="116,184,68,222,65,218,113,180"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="98,229,163,256"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="133,182,133,214,128,214,128,182"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="187,229,252,256"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="147,180,194,217,191,221,144,184"/>
+</map>
