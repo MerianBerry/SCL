@@ -1,12 +1,12 @@
 var searchData=
 [
-  ['internal_0',['internal',['../namespacescl_1_1internal.html',1,'scl']]],
-  ['scl_1',['scl',['../namespacescl.html',1,'']]],
-  ['scl_20usage_20manual_2',['SCL Usage Manual',['../md_docs_manual.html',1,'']]],
-  ['set_3',['set',['../classscl_1_1dictionary.html#a9dc71eaffb2d5382decd2bcda3cc0975',1,'scl::dictionary']]],
-  ['size_4',['size',['../classscl_1_1string.html#a804b2246595fc3748fe1c054629f3e56',1,'scl::string']]],
-  ['split_5',['split',['../classscl_1_1path.html#a9dc878cf11f1af12d5e09bce6f2159ed',1,'scl::path']]],
-  ['str_5fiterator_6',['str_iterator',['../classscl_1_1internal_1_1str__iterator.html',1,'scl::internal']]],
-  ['string_7',['string',['../classscl_1_1string.html',1,'scl']]],
-  ['substr_8',['substr',['../classscl_1_1string.html#a7635bce00dc8840a74ae4ce6da1b3afd',1,'scl::string']]]
+  ['rand_0',['rand',['../classscl_1_1string.html#a102962789800a1203c0451832f22845e',1,'scl::string']]],
+  ['realpath_1',['realpath',['../classscl_1_1path.html#aeb693d0c8aa503f8e32054d057683bb7',1,'scl::path']]],
+  ['ref_2',['ref',['../classscl_1_1internal_1_1RefObj.html#a3275e54d174ce0a9eeffecfef1c6d68e',1,'scl::internal::RefObj']]],
+  ['refobj_3',['RefObj',['../classscl_1_1internal_1_1RefObj.html',1,'scl::internal']]],
+  ['refs_4',['refs',['../classscl_1_1internal_1_1RefObj.html#a40cc00d7a6e9b0eff48ee74988b1a8f1',1,'scl::internal::RefObj']]],
+  ['remove_5',['remove',['../classscl_1_1dictionary.html#a3c88791033698ca68ca068018c042b8d',1,'scl::dictionary']]],
+  ['replace_6',['replace',['../classscl_1_1string.html#a84f16da947ab77f0453ce63e2544ee45',1,'scl::string']]],
+  ['reserve_7',['reserve',['../classscl_1_1string.html#a37e753c49fbad08769f5c15cb291f3b7',1,'scl::string']]],
+  ['resetclock_8',['resetclock',['../namespacescl.html#ae467da0f74e2708ee4b549d0f3681e2b',1,'scl']]]
 ];

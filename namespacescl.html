@@ -113,6 +113,8 @@ Namespaces</h2></td></tr>
 Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscl_1_1dictionary.html">dictionary</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscl_1_1Memory.html">Memory</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscl_1_1path.html">path</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscl_1_1string.html">string</a></td></tr>
@@ -132,19 +134,83 @@ unsigned char&#160;</td><td class="memItemRight" valign="bottom"><b>log2i</b> (u
 <tr class="memitem:a7d6932d4e602b2e64cf3e95215939ef8"><td class="memItemLeft" align="right" valign="top"><a id="a7d6932d4e602b2e64cf3e95215939ef8" name="a7d6932d4e602b2e64cf3e95215939ef8"></a>
 std::ifstream &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator&gt;&gt;</b> (std::ifstream &amp;in, <a class="el" href="classscl_1_1string.html">string</a> &amp;str)</td></tr>
 <tr class="separator:a7d6932d4e602b2e64cf3e95215939ef8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae467da0f74e2708ee4b549d0f3681e2b"><td class="memItemLeft" align="right" valign="top"><a id="ae467da0f74e2708ee4b549d0f3681e2b" name="ae467da0f74e2708ee4b549d0f3681e2b"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>resetclock</b> ()</td></tr>
+<tr class="memitem:ae467da0f74e2708ee4b549d0f3681e2b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacescl.html#ae467da0f74e2708ee4b549d0f3681e2b">resetclock</a> ()</td></tr>
+<tr class="memdesc:ae467da0f74e2708ee4b549d0f3681e2b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resets the output of <a class="el" href="namespacescl.html#a0bccf89fa43b8dbe5251bb6032810327">scl::clock()</a>, making current time epoch.  <br /></td></tr>
 <tr class="separator:ae467da0f74e2708ee4b549d0f3681e2b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0bccf89fa43b8dbe5251bb6032810327"><td class="memItemLeft" align="right" valign="top"><a id="a0bccf89fa43b8dbe5251bb6032810327" name="a0bccf89fa43b8dbe5251bb6032810327"></a>
-double&#160;</td><td class="memItemRight" valign="bottom"><b>clock</b> ()</td></tr>
+<tr class="memitem:a0bccf89fa43b8dbe5251bb6032810327"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacescl.html#a0bccf89fa43b8dbe5251bb6032810327">clock</a> ()</td></tr>
 <tr class="separator:a0bccf89fa43b8dbe5251bb6032810327"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a457b3ca5121388b4a54d0d0c41b613cf"><td class="memItemLeft" align="right" valign="top"><a id="a457b3ca5121388b4a54d0d0c41b613cf" name="a457b3ca5121388b4a54d0d0c41b613cf"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>waitms</b> (double ms)</td></tr>
+<tr class="memitem:a457b3ca5121388b4a54d0d0c41b613cf"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacescl.html#a457b3ca5121388b4a54d0d0c41b613cf">waitms</a> (double ms)</td></tr>
+<tr class="memdesc:a457b3ca5121388b4a54d0d0c41b613cf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Makes this thread sleep for a given amount of milliseconds.  <br /></td></tr>
 <tr class="separator:a457b3ca5121388b4a54d0d0c41b613cf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Main SCL namespace. </p>
-</div></div><!-- contents -->
+</div><h2 class="groupheader">Function Documentation</h2>
+<a id="a0bccf89fa43b8dbe5251bb6032810327" name="a0bccf89fa43b8dbe5251bb6032810327"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0bccf89fa43b8dbe5251bb6032810327">&#9670;&#160;</a></span>clock()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">double scl::clock </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="section note"><dt>Note</dt><dd>You can use <a class="el" href="namespacescl.html#ae467da0f74e2708ee4b549d0f3681e2b" title="Resets the output of scl::clock(), making current time epoch.">scl::resetclock()</a> to control this function's epoch.</dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>Seconds since epoch. </dd></dl>
+
+</div>
+</div>
+<a id="ae467da0f74e2708ee4b549d0f3681e2b" name="ae467da0f74e2708ee4b549d0f3681e2b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae467da0f74e2708ee4b549d0f3681e2b">&#9670;&#160;</a></span>resetclock()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void scl::resetclock </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Resets the output of <a class="el" href="namespacescl.html#a0bccf89fa43b8dbe5251bb6032810327">scl::clock()</a>, making current time epoch. </p>
+
+</div>
+</div>
+<a id="a457b3ca5121388b4a54d0d0c41b613cf" name="a457b3ca5121388b4a54d0d0c41b613cf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a457b3ca5121388b4a54d0d0c41b613cf">&#9670;&#160;</a></span>waitms()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void scl::waitms </td>
+          <td>(</td>
+          <td class="paramtype">double&#160;</td>
+          <td class="paramname"><em>ms</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Makes this thread sleep for a given amount of milliseconds. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">ms</td><td>Number of milliseconds to sleep for. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+</div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->

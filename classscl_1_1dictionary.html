@@ -130,9 +130,18 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ae5312cf207260f933febe0c3242da4b3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscl_1_1dictionary.html#ae5312cf207260f933febe0c3242da4b3">clear</a> ()</td></tr>
 <tr class="memdesc:ae5312cf207260f933febe0c3242da4b3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clears this dictionary, resetting it.  <br /></td></tr>
 <tr class="separator:ae5312cf207260f933febe0c3242da4b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9dc71eaffb2d5382decd2bcda3cc0975"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscl_1_1dictionary.html#a9dc71eaffb2d5382decd2bcda3cc0975">set</a> (K const &amp;key, T const &amp;v)</td></tr>
-<tr class="memdesc:a9dc71eaffb2d5382decd2bcda3cc0975"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds or overwrites an element at a given key.  <br /></td></tr>
-<tr class="separator:a9dc71eaffb2d5382decd2bcda3cc0975"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6b7107abe604d5b3013b5c500c0b7f5d"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscl_1_1dictionary.html#a6b7107abe604d5b3013b5c500c0b7f5d">size</a> () const</td></tr>
+<tr class="separator:a6b7107abe604d5b3013b5c500c0b7f5d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aafc5e6104ac9ea7deaba9092681795a1"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscl_1_1dictionary.html#aafc5e6104ac9ea7deaba9092681795a1">capacity</a> () const</td></tr>
+<tr class="separator:aafc5e6104ac9ea7deaba9092681795a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab226fd9544a277b970d87ed636279633"><td class="memTemplParams" colspan="2">template&lt;class X  = T, std::enable_if_t&lt; std::is_copy_assignable&lt; X &gt;::value, bool &gt;  = true&gt; </td></tr>
+<tr class="memitem:ab226fd9544a277b970d87ed636279633"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classscl_1_1dictionary.html#ab226fd9544a277b970d87ed636279633">set</a> (K const &amp;key, T const &amp;v)</td></tr>
+<tr class="memdesc:ab226fd9544a277b970d87ed636279633"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds or overwrites an element at a given key.  <br /></td></tr>
+<tr class="separator:ab226fd9544a277b970d87ed636279633"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae765e4a7f5531fa82007d6a6d9116d3e"><td class="memTemplParams" colspan="2">template&lt;class X  = T, std::enable_if_t&lt;!std::is_copy_assignable&lt; X &gt;::value &amp;&amp;std::is_move_assignable&lt; X &gt;::value, bool &gt;  = true&gt; </td></tr>
+<tr class="memitem:ae765e4a7f5531fa82007d6a6d9116d3e"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classscl_1_1dictionary.html#ae765e4a7f5531fa82007d6a6d9116d3e">set</a> (K const &amp;key, T &amp;v)</td></tr>
+<tr class="memdesc:ae765e4a7f5531fa82007d6a6d9116d3e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds or overwrites an element at a given key.  <br /></td></tr>
+<tr class="separator:ae765e4a7f5531fa82007d6a6d9116d3e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3c88791033698ca68ca068018c042b8d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscl_1_1dictionary.html#a3c88791033698ca68ca068018c042b8d">remove</a> (K const &amp;key)</td></tr>
 <tr class="memdesc:a3c88791033698ca68ca068018c042b8d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Removes the element at a given key. Does nothing if no such element exists.  <br /></td></tr>
 <tr class="separator:a3c88791033698ca68ca068018c042b8d"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -222,6 +231,34 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>internal::htab_itera
 <tr class="separator:a1c4b34d9c781a3a031c0f534f0f30014"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Member Function Documentation</h2>
+<a id="aafc5e6104ac9ea7deaba9092681795a1" name="aafc5e6104ac9ea7deaba9092681795a1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aafc5e6104ac9ea7deaba9092681795a1">&#9670;&#160;</a></span>capacity()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class T , class K  = string, class Hfunc  = string&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">double <a class="el" href="classscl_1_1dictionary.html">scl::dictionary</a>&lt; T, K, Hfunc &gt;::capacity </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="section return"><dt>Returns</dt><dd>Ratio of usage vs. capacity. 0 is empty, 1 is full. </dd></dl>
+
+</div>
+</div>
 <a id="ae5312cf207260f933febe0c3242da4b3" name="ae5312cf207260f933febe0c3242da4b3"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ae5312cf207260f933febe0c3242da4b3">&#9670;&#160;</a></span>clear()</h2>
 
@@ -400,13 +437,64 @@ template&lt;class T , class K  = string, class Hfunc  = string&gt; </div>
 
 </div>
 </div>
-<a id="a9dc71eaffb2d5382decd2bcda3cc0975" name="a9dc71eaffb2d5382decd2bcda3cc0975"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9dc71eaffb2d5382decd2bcda3cc0975">&#9670;&#160;</a></span>set()</h2>
+<a id="ae765e4a7f5531fa82007d6a6d9116d3e" name="ae765e4a7f5531fa82007d6a6d9116d3e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae765e4a7f5531fa82007d6a6d9116d3e">&#9670;&#160;</a></span>set() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
 template&lt;class T , class K  = string, class Hfunc  = string&gt; </div>
+<div class="memtemplate">
+template&lt;class X  = T, std::enable_if_t&lt;!std::is_copy_assignable&lt; X &gt;::value &amp;&amp;std::is_move_assignable&lt; X &gt;::value, bool &gt;  = true&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classscl_1_1dictionary.html">scl::dictionary</a>&lt; T, K, Hfunc &gt;::set </td>
+          <td>(</td>
+          <td class="paramtype">K const &amp;&#160;</td>
+          <td class="paramname"><em>key</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">T &amp;&#160;</td>
+          <td class="paramname"><em>v</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Adds or overwrites an element at a given key. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">key</td><td>Key of the element to write to. </td></tr>
+    <tr><td class="paramname">v</td><td>Value to associate with that key. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="ab226fd9544a277b970d87ed636279633" name="ab226fd9544a277b970d87ed636279633"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab226fd9544a277b970d87ed636279633">&#9670;&#160;</a></span>set() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class T , class K  = string, class Hfunc  = string&gt; </div>
+<div class="memtemplate">
+template&lt;class X  = T, std::enable_if_t&lt; std::is_copy_assignable&lt; X &gt;::value, bool &gt;  = true&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -444,6 +532,34 @@ template&lt;class T , class K  = string, class Hfunc  = string&gt; </div>
   </table>
   </dd>
 </dl>
+
+</div>
+</div>
+<a id="a6b7107abe604d5b3013b5c500c0b7f5d" name="a6b7107abe604d5b3013b5c500c0b7f5d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6b7107abe604d5b3013b5c500c0b7f5d">&#9670;&#160;</a></span>size()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class T , class K  = string, class Hfunc  = string&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">size_t <a class="el" href="classscl_1_1dictionary.html">scl::dictionary</a>&lt; T, K, Hfunc &gt;::size </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="section return"><dt>Returns</dt><dd>Number of elements currently stored </dd></dl>
 
 </div>
 </div>

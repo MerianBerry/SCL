@@ -1,6 +1,5 @@
 var searchData=
 [
-  ['operator_2f_0',['operator/',['../classscl_1_1path.html#a95e9a27034b7594cad8e6f58d7dea0ed',1,'scl::path']]],
-  ['operator_2f_3d_1',['operator/=',['../classscl_1_1path.html#a6a6334453de6681c9eb4272497342574',1,'scl::path']]],
-  ['operator_5b_5d_2',['operator[]',['../classscl_1_1dictionary.html#a15d9f70da76ad666dff57d7ee799cbaf',1,'scl::dictionary']]]
+  ['new_5fattr_0',['new_attr',['../classscl_1_1xml_1_1xml__doc.html#aaca539a0a27ae2290f0f0e323c3fe524',1,'scl::xml::xml_doc']]],
+  ['new_5felem_1',['new_elem',['../classscl_1_1xml_1_1xml__doc.html#a1e42e84f08ce31a6fb1f2ad60465ac72',1,'scl::xml::xml_doc']]]
 ];

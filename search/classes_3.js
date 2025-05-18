@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['refobj_0',['RefObj',['../classscl_1_1internal_1_1RefObj.html',1,'scl::internal']]]
+  ['memory_0',['Memory',['../classscl_1_1Memory.html',1,'scl']]]
 ];
