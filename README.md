@@ -8,5 +8,5 @@ Provide general and fast utilities for Stormground, and any project that wishes 
 
 ## Documentation
 
-- [Manual](dcos/manual.md)
+- [Manual](docs/manual.md)
 - [Full API Documentation](https://merianberry.github.io/SCL/)
