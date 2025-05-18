@@ -616,4 +616,68 @@ void waitms (double ms) {
   }
 #endif
 }
+
+Memory::Memory (Memory &&rhs) {
+  if (!rhs.valid)
+    return;
+  std::lock (m_mut, rhs.m_mut);
+  m_mut.~mutex();
+  memcpy (&m_mut, &rhs.m_mut, sizeof (std::mutex));
+  m_data = rhs.m_data;
+  m_rp   = rhs.m_rp;
+  m_wp   = rhs.m_wp;
+  m_size = rhs.m_size;
+  memset (&rhs, 0, sizeof (Memory));
+  m_mut.unlock();
+}
+
+Memory &Memory::operator= (Memory &&rhs) {
+  if (!rhs.valid)
+    return *this;
+  std::lock (m_mut, rhs.m_mut);
+  m_mut.~mutex();
+  memcpy (&m_mut, &rhs.m_mut, sizeof (std::mutex));
+  m_data = rhs.m_data;
+  m_rp   = rhs.m_rp;
+  m_wp   = rhs.m_wp;
+  m_size = rhs.m_size;
+  memset (&rhs, 0, sizeof (Memory));
+  m_mut.unlock();
+  return *this;
+}
+
+bool Memory::reserve (size_t n, bool force) {
+  if (!valid)
+    return false;
+  m_mut.lock();
+  long long rl = (m_data + m_size) - m_wp;
+  if (rl < (long long)n || force) {
+    size_t    nsz  = m_size + n;
+    long long roff = m_rp - m_data;
+    long long woff = m_wp - m_data;
+
+    char *buf = new char[nsz];
+    if (m_data) {
+      memcpy (buf, m_data, m_size);
+      delete[] m_data;
+    }
+    m_rp   = buf + roff;
+    m_wp   = buf + woff;
+    m_data = buf;
+    m_size = nsz;
+  }
+  m_mut.unlock();
+  return true;
+}
+
+long long Memory::write (void const *buf, unsigned n) {
+  if (!valid)
+    return 0;
+  reserve (n, false);
+  m_mut.lock();
+  memcpy (m_wp, buf, n);
+  m_wp += n;
+  m_mut.unlock();
+  return 0;
+}
 } // namespace scl

@@ -18,6 +18,7 @@ struct unsigned_hash {
 
 class str_itr {};
 
+#pragma mini skip
 #include <vector>
 
 int main (int argc, char **argv) {

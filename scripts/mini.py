@@ -45,7 +45,7 @@ if len(sources) == 0:
   print("No sources")
   exit(1)
 
-print("out: " + out)
+print("out:\n  " + out)
 print("sources: ")
 for v in sources:
   print("  " + v[0])
@@ -84,20 +84,21 @@ def mini_search():
       i += 1
       continue
     sources[i] = [v[0], True, v[2]]
-    with open(v[0]) as file:
-      if not file:
-        print(f"could not open {v[0]}")
-        break
-      content: str = file.read()
-      m = increg.findall(content)
-      if m == None:
+    j: int = i
+    skip: bool = False
+    for line in open(v[0]):
+      if line == "#pragma mini skip\n":
+        skip = True
         continue
-      j: int = i
-      for k in m:
-        p = Path(v[0]).parent / k
-        sources.insert(j, [p, False, True])
-        j += 1
-    i = 0
+      m = increg.search(line)
+      if m == None or skip:
+        skip = False
+        continue
+      p = Path(v[0]).parent / m.groups()[0]
+      sources.insert(j, [p, False, True])
+      j += 1
+    if j > i:
+      i = 0
 
 def header_write(fout):
   written: dict[str] = {}
@@ -105,8 +106,10 @@ def header_write(fout):
     if not v[2] or written.get(v[0]):
       continue
     written[v[0]] = v[0]
-    print(f"Writing header {v[0]}...")
+    #print(f"Writing header {v[0]}...")
     for line in open(v[0]):
+      if line == "#pragma mini skip\n":
+        continue
       if increg.search(line) == None:
         fout.write(line)
       else:
@@ -118,8 +121,10 @@ def source_write(fout):
   for v in sources:
     if v[2]:
       continue
-    print(f"Writing source {v[0]}...")
+    #print(f"Writing source {v[0]}...")
     for line in open(v[0]):
+      if line == "#pragma mini skip\n":
+        continue
       if increg.search(line) == None:
         fout.write(line)
       else:

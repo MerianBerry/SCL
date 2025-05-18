@@ -5,8 +5,9 @@
 #ifndef SCL_CORE_H
 #define SCL_CORE_H
 
-#include <stdarg.h>
 #include <fstream>
+#include <mutex>
+#include <stdarg.h>
 #include <string.h>
 
 #define SCL_MAX_REFS 4096
@@ -300,6 +301,45 @@ class string : internal::RefObj {
   friend std::ifstream &operator>> (std::ifstream &in, string &str);
 };
 
+/**
+ * @brief Resets the output of scl::clock(), making current time epoch.
+ *
+ */
+void resetclock();
+
+/**
+ * @note You can use scl::resetclock() to control this function's epoch.
+ *
+ * @return   Seconds since epoch.
+ */
+double clock();
+
+/**
+ * @brief Makes this thread sleep for a given amount of milliseconds.
+ *
+ * @param ms  Number of milliseconds to sleep for.
+ */
+void waitms (double ms);
+
+class Memory {
+ protected:
+  std::mutex m_mut;
+  char      *m_data = nullptr;
+  char      *m_rp   = nullptr;
+  char      *m_wp   = nullptr;
+  size_t     m_size = 0;
+  bool       valid  = true;
+
+ public:
+  Memory() = default;
+
+  Memory (Memory &&rhs);
+  Memory &operator= (Memory &&rhs);
+
+  bool      reserve (size_t n, bool force = false);
+  long long write (void const *buf, unsigned n);
+};
+
 namespace internal {
 class str_iterator {
   char   *m_c;
@@ -320,26 +360,6 @@ class str_iterator {
   /* Write */
   str_iterator &operator= (char c);
 };
-
-/**
- * @brief Resets the output of scl::clock(), making current time epoch.
- *
- */
-void resetclock();
-
-/**
- * @note You can use scl::resetclock() to control this function's epoch.
- *
- * @return   Seconds since epoch.
- */
-double clock();
-
-/**
- * @brief Makes this thread sleep for a given amount of milliseconds.
- *
- * @param ms  Number of milliseconds to sleep for.
- */
-void waitms (double ms);
 } // namespace internal
 
 } // namespace scl
