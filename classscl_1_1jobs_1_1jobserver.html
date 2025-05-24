@@ -141,6 +141,9 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>waitidle</b> (double 
 <tr class="memitem:a771be12969e84ab21c719392cbd21e73"><td class="memItemLeft" align="right" valign="top"><a id="a771be12969e84ab21c719392cbd21e73" name="a771be12969e84ab21c719392cbd21e73"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>stop</b> ()</td></tr>
 <tr class="separator:a771be12969e84ab21c719392cbd21e73"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad3a4a3aa65fcacb210ec2ae8e897fa10"><td class="memItemLeft" align="right" valign="top"><a id="ad3a4a3aa65fcacb210ec2ae8e897fa10" name="ad3a4a3aa65fcacb210ec2ae8e897fa10"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>clearjobs</b> ()</td></tr>
+<tr class="separator:ad3a4a3aa65fcacb210ec2ae8e897fa10"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7e2bffd9bbbd7c6fb11522d063828147"><td class="memItemLeft" align="right" valign="top"><a id="a7e2bffd9bbbd7c6fb11522d063828147" name="a7e2bffd9bbbd7c6fb11522d063828147"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>sync</b> (std::function&lt; void()&gt; const &amp;func)</td></tr>
 <tr class="separator:a7e2bffd9bbbd7c6fb11522d063828147"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -148,9 +151,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>sync</b> (std::functi
 template&lt;class Jb &gt; </td></tr>
 <tr class="memitem:a6b9cabef9d430b9ba3aa9b06c6f7e581"><td class="memTemplItemLeft" align="right" valign="top">Jb::Wt *&#160;</td><td class="memTemplItemRight" valign="bottom"><b>submitJob</b> (Jb *<a class="el" href="classscl_1_1jobs_1_1job.html">job</a>, bool autodelwt=false)</td></tr>
 <tr class="separator:a6b9cabef9d430b9ba3aa9b06c6f7e581"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad5e5169c66b8c2f69bd2b4e5938ebb1c"><td class="memItemLeft" align="right" valign="top"><a id="ad5e5169c66b8c2f69bd2b4e5938ebb1c" name="ad5e5169c66b8c2f69bd2b4e5938ebb1c"></a>
-<a class="el" href="classscl_1_1jobs_1_1waitable.html">waitable</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>submitJob</b> (std::function&lt; void(<a class="el" href="classscl_1_1jobs_1_1jobworker.html">jobworker</a> const &amp;worker)&gt; func, bool autodelwt=false)</td></tr>
-<tr class="separator:ad5e5169c66b8c2f69bd2b4e5938ebb1c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab320e3a84adc129ce5ed25e93fb1b18d"><td class="memItemLeft" align="right" valign="top"><a id="ab320e3a84adc129ce5ed25e93fb1b18d" name="ab320e3a84adc129ce5ed25e93fb1b18d"></a>
+<a class="el" href="classscl_1_1jobs_1_1waitable.html">waitable</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>submitJob</b> (std::function&lt; void(<a class="el" href="classscl_1_1jobs_1_1jobworker.html">jobworker</a> const &amp;worker)&gt; func, bool autodelwt=true)</td></tr>
+<tr class="separator:ab320e3a84adc129ce5ed25e93fb1b18d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a279228d5292af45cec61e25ddb8da11b"><td class="memItemLeft" align="right" valign="top"><a id="a279228d5292af45cec61e25ddb8da11b" name="a279228d5292af45cec61e25ddb8da11b"></a>
 int&#160;</td><td class="memItemRight" valign="bottom"><b>workerCount</b> () const</td></tr>
 <tr class="separator:a279228d5292af45cec61e25ddb8da11b"><td class="memSeparator" colspan="2">&#160;</td></tr>
