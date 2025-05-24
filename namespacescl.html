@@ -134,6 +134,9 @@ unsigned char&#160;</td><td class="memItemRight" valign="bottom"><b>log2i</b> (u
 <tr class="memitem:a7d6932d4e602b2e64cf3e95215939ef8"><td class="memItemLeft" align="right" valign="top"><a id="a7d6932d4e602b2e64cf3e95215939ef8" name="a7d6932d4e602b2e64cf3e95215939ef8"></a>
 std::ifstream &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator&gt;&gt;</b> (std::ifstream &amp;in, <a class="el" href="classscl_1_1string.html">string</a> &amp;str)</td></tr>
 <tr class="separator:a7d6932d4e602b2e64cf3e95215939ef8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4437531aa002c094ad3757bc51d928db"><td class="memItemLeft" align="right" valign="top"><a id="a4437531aa002c094ad3757bc51d928db" name="a4437531aa002c094ad3757bc51d928db"></a>
+<a class="el" href="classscl_1_1string.html">scl::string</a>&#160;</td><td class="memItemRight" valign="bottom"><b>operator+</b> (<a class="el" href="classscl_1_1string.html">scl::string</a> const &amp;str, char const *str2)</td></tr>
+<tr class="separator:a4437531aa002c094ad3757bc51d928db"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae467da0f74e2708ee4b549d0f3681e2b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacescl.html#ae467da0f74e2708ee4b549d0f3681e2b">resetclock</a> ()</td></tr>
 <tr class="memdesc:ae467da0f74e2708ee4b549d0f3681e2b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resets the output of <a class="el" href="namespacescl.html#a0bccf89fa43b8dbe5251bb6032810327">scl::clock()</a>, making current time epoch.  <br /></td></tr>
 <tr class="separator:ae467da0f74e2708ee4b549d0f3681e2b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -142,6 +145,9 @@ std::ifstream &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operat
 <tr class="memitem:a457b3ca5121388b4a54d0d0c41b613cf"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacescl.html#a457b3ca5121388b4a54d0d0c41b613cf">waitms</a> (double ms)</td></tr>
 <tr class="memdesc:a457b3ca5121388b4a54d0d0c41b613cf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Makes this thread sleep for a given amount of milliseconds.  <br /></td></tr>
 <tr class="separator:a457b3ca5121388b4a54d0d0c41b613cf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a449bdb6b7259c9aea237f105309fc33a"><td class="memItemLeft" align="right" valign="top"><a id="a449bdb6b7259c9aea237f105309fc33a" name="a449bdb6b7259c9aea237f105309fc33a"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>waitUntil</b> (std::function&lt; bool()&gt; cond, double timeout, double sleep)</td></tr>
+<tr class="separator:a449bdb6b7259c9aea237f105309fc33a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Main SCL namespace. </p>

@@ -1,5 +1,7 @@
 var searchData=
 [
-  ['new_5fattr_0',['new_attr',['../classscl_1_1xml_1_1xml__doc.html#aaca539a0a27ae2290f0f0e323c3fe524',1,'scl::xml::xml_doc']]],
-  ['new_5felem_1',['new_elem',['../classscl_1_1xml_1_1xml__doc.html#a1e42e84f08ce31a6fb1f2ad60465ac72',1,'scl::xml::xml_doc']]]
+  ['make_5funique_0',['make_unique',['../classscl_1_1internal_1_1RefObj.html#a3dc9d4fc100653b7a87e0bcbf8c40800',1,'scl::internal::RefObj']]],
+  ['match_1',['match',['../classscl_1_1string.html#af3d4bf1663c50b4cc036b7e5cd867353',1,'scl::string']]],
+  ['mkdir_2',['mkdir',['../classscl_1_1path.html#a251b026e4833345fa91f48533ff161f8',1,'scl::path']]],
+  ['mutate_3',['mutate',['../classscl_1_1internal_1_1RefObj.html#ac2f239db9c14874e33deb5f4f111c754',1,'scl::internal::RefObj::mutate()'],['../classscl_1_1dictionary.html#a5212bc1128694434d08cc0bcfb1f0243',1,'scl::dictionary::mutate()']]]
 ];

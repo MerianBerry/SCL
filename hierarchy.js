@@ -3,10 +3,19 @@ var hierarchy =
     [ "scl::pack::Collection", "classscl_1_1pack_1_1Collection.html", null ],
     [ "scl::internal::hnode< T, K >", "structscl_1_1internal_1_1hnode.html", null ],
     [ "scl::internal::htab_iterator< T, K >", "classscl_1_1internal_1_1htab__iterator.html", null ],
+    [ "scl::jobs::job< WtT >", "classscl_1_1jobs_1_1job.html", null ],
+    [ "scl::jobs::job< waitable >", "classscl_1_1jobs_1_1job.html", [
+      [ "scl::jobs::funcJob", "classscl_1_1jobs_1_1funcJob.html", null ]
+    ] ],
+    [ "scl::jobs::jobworker", "classscl_1_1jobs_1_1jobworker.html", null ],
     [ "scl::Memory", "classscl_1_1Memory.html", [
       [ "scl::pack::PackFile", "classscl_1_1pack_1_1PackFile.html", [
         [ "scl::pack::PackCache", "classscl_1_1pack_1_1PackCache.html", null ]
       ] ]
+    ] ],
+    [ "std::mutex", null, [
+      [ "scl::jobs::jobserver", "classscl_1_1jobs_1_1jobserver.html", null ],
+      [ "scl::jobs::waitable", "classscl_1_1jobs_1_1waitable.html", null ]
     ] ],
     [ "scl::pack::Packager", "classscl_1_1pack_1_1Packager.html", null ],
     [ "scl::internal::RefObj", "classscl_1_1internal_1_1RefObj.html", [

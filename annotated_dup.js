@@ -7,6 +7,13 @@ var annotated_dup =
         [ "RefObj", "classscl_1_1internal_1_1RefObj.html", "classscl_1_1internal_1_1RefObj" ],
         [ "str_iterator", "classscl_1_1internal_1_1str__iterator.html", null ]
       ] ],
+      [ "jobs", null, [
+        [ "funcJob", "classscl_1_1jobs_1_1funcJob.html", null ],
+        [ "job", "classscl_1_1jobs_1_1job.html", null ],
+        [ "jobserver", "classscl_1_1jobs_1_1jobserver.html", null ],
+        [ "jobworker", "classscl_1_1jobs_1_1jobworker.html", null ],
+        [ "waitable", "classscl_1_1jobs_1_1waitable.html", null ]
+      ] ],
       [ "pack", null, [
         [ "Collection", "classscl_1_1pack_1_1Collection.html", null ],
         [ "Packager", "classscl_1_1pack_1_1Packager.html", null ],

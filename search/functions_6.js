@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['iswild_0',['iswild',['../classscl_1_1path.html#a4828e01b8574dbd90cd3109ad134f8be',1,'scl::path']]]
+  ['hash_0',['hash',['../classscl_1_1string.html#a8a9cfd4f404f8c24c04a3a800fbaa342',1,'scl::string']]]
 ];

@@ -102,206 +102,212 @@ $(document).ready(function(){initNavTree('sclcore_8hpp_source.html',''); initRes
 <div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span><span class="preprocessor">#define SCL_CORE_H</span></div>
 <div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span> </div>
 <div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="preprocessor">#include &lt;fstream&gt;</span></div>
-<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span><span class="preprocessor">#include &lt;mutex&gt;</span></div>
-<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span><span class="preprocessor">#include &lt;stdarg.h&gt;</span></div>
-<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span><span class="preprocessor">#include &lt;string.h&gt;</span></div>
-<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span> </div>
-<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span><span class="preprocessor">#define SCL_MAX_REFS 4096</span></div>
-<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span> </div>
-<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span><span class="keyword">namespace </span><a class="code hl_namespace" href="namespacescl.html">scl</a> {</div>
-<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="keyword">typedef</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">char</span> uchar;</div>
-<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span> </div>
-<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span>uchar log2i (<span class="keywordtype">unsigned</span> x);</div>
-<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span> </div>
-<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span><span class="keyword">namespace </span>internal {</div>
-<div class="line"><a id="l00029" name="l00029"></a><span class="lineno"><a class="line" href="classscl_1_1internal_1_1RefObj.html">   29</a></span><span class="keyword">class </span><a class="code hl_class" href="classscl_1_1internal_1_1RefObj.html">RefObj</a> {</div>
-<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span> <span class="keyword">private</span>:</div>
-<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>  <span class="keywordtype">int</span> m_refi = 0;</div>
-<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span> </div>
-<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>  <span class="keywordtype">bool</span> findslot();</div>
-<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>  <span class="keywordtype">void</span> incslot() <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>  <span class="keywordtype">bool</span> decslot();</div>
-<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span> </div>
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span> <span class="keyword">public</span>:</div>
-<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>  <a class="code hl_class" href="classscl_1_1internal_1_1RefObj.html">RefObj</a>();</div>
-<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>  <a class="code hl_class" href="classscl_1_1internal_1_1RefObj.html">RefObj</a> (<a class="code hl_class" href="classscl_1_1internal_1_1RefObj.html">RefObj</a> <span class="keyword">const</span> &amp;);</div>
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>  <span class="keyword">virtual</span> <a class="code hl_class" href="classscl_1_1internal_1_1RefObj.html">~RefObj</a>() = 0;</div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span> </div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span> <span class="keyword">protected</span>:</div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno"><a class="line" href="classscl_1_1internal_1_1RefObj.html#ac2f239db9c14874e33deb5f4f111c754">   52</a></span>  <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code hl_function" href="classscl_1_1internal_1_1RefObj.html#ac2f239db9c14874e33deb5f4f111c754">mutate</a> (<span class="keywordtype">bool</span> free) = 0;</div>
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span> </div>
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>  <span class="keywordtype">int</span> <a class="code hl_function" href="classscl_1_1internal_1_1RefObj.html#a40cc00d7a6e9b0eff48ee74988b1a8f1">refs</a>() <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span> </div>
-<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>  <span class="keywordtype">bool</span> <a class="code hl_function" href="classscl_1_1internal_1_1RefObj.html#a93ce0282cc90f5f7237612e769a3bb4c">deref</a>();</div>
-<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span> </div>
-<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>  <span class="keywordtype">bool</span> <a class="code hl_function" href="classscl_1_1internal_1_1RefObj.html#a3dc9d4fc100653b7a87e0bcbf8c40800">make_unique</a> (<span class="keywordtype">bool</span> copy = <span class="keyword">true</span>);</div>
-<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span> </div>
-<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>  <span class="keywordtype">void</span> <a class="code hl_function" href="classscl_1_1internal_1_1RefObj.html#a3275e54d174ce0a9eeffecfef1c6d68e">ref</a> (<a class="code hl_class" href="classscl_1_1internal_1_1RefObj.html">RefObj</a> <span class="keyword">const</span> &amp;);</div>
-<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>};</div>
-<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span> </div>
-<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span><span class="keyword">class </span><a class="code hl_class" href="classscl_1_1internal_1_1str__iterator.html">str_iterator</a>;</div>
-<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>} <span class="comment">// namespace internal</span></div>
-<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span> </div>
-<div class="line"><a id="l00094" name="l00094"></a><span class="lineno"><a class="line" href="classscl_1_1string.html">   94</a></span><span class="keyword">class </span><a class="code hl_class" href="classscl_1_1string.html">string</a> : <a class="code hl_class" href="classscl_1_1internal_1_1RefObj.html">internal::RefObj</a> {</div>
-<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span> <span class="keyword">private</span>:</div>
-<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>  <span class="keyword">friend</span> <span class="keyword">class </span><a class="code hl_class" href="classscl_1_1internal_1_1str__iterator.html">internal::str_iterator</a>;</div>
-<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span> </div>
-<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>  <span class="keywordtype">char</span>    *m_buf = <span class="keyword">nullptr</span>;</div>
-<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>  <span class="keywordtype">unsigned</span> m_ln  = 0;</div>
-<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>  <span class="keywordtype">unsigned</span> m_sz  = 0;</div>
-<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span> </div>
-<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>  <span class="keywordtype">void</span> mutate (<span class="keywordtype">bool</span> free) <span class="keyword">override</span>;</div>
-<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span> </div>
-<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span> <span class="keyword">public</span>:</div>
-<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>  <a class="code hl_class" href="classscl_1_1string.html">string</a>();</div>
-<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>  <a class="code hl_class" href="classscl_1_1string.html">string</a> (<span class="keywordtype">char</span> <span class="keyword">const</span> *);</div>
-<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>  <a class="code hl_class" href="classscl_1_1string.html">string</a> (<span class="keywordtype">char</span>);</div>
-<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span><span class="preprocessor">#ifdef _WIN32</span></div>
-<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>  <a class="code hl_class" href="classscl_1_1string.html">string</a> (<span class="keywordtype">wchar_t</span> <span class="keyword">const</span> *);</div>
-<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span><span class="preprocessor">#endif</span></div>
-<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>  <a class="code hl_class" href="classscl_1_1string.html">string</a> (<span class="keywordtype">string</span> <span class="keyword">const</span> &amp;);</div>
-<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>  <a class="code hl_class" href="classscl_1_1string.html">~string</a>() <span class="keyword">override</span>;</div>
-<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span> </div>
-<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>  <span class="keywordtype">void</span> <a class="code hl_function" href="classscl_1_1string.html#ada5a22718e2e17da9821c2e8d33a3f4d">clear</a>();</div>
-<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span> </div>
-<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span>  <span class="keywordtype">string</span> &amp;<a class="code hl_function" href="classscl_1_1string.html#a7a68f73220281f978c41e2e9c5aff002">claim</a> (<span class="keywordtype">char</span> <span class="keyword">const</span> *ptr);</div>
-<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span> </div>
-<div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span>  <span class="keywordtype">string</span> &amp;<a class="code hl_function" href="classscl_1_1string.html#a00959967ae0b741b24cfcae270511d59">view</a> (<span class="keywordtype">char</span> <span class="keyword">const</span> *ptr);</div>
-<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span> </div>
-<div class="line"><a id="l00142" name="l00142"></a><span class="lineno">  142</span>  <span class="keywordtype">string</span> &amp;<a class="code hl_function" href="classscl_1_1string.html#a37e753c49fbad08769f5c15cb291f3b7">reserve</a> (<span class="keywordtype">unsigned</span> <a class="code hl_function" href="classscl_1_1string.html#a804b2246595fc3748fe1c054629f3e56">size</a>);</div>
-<div class="line"><a id="l00143" name="l00143"></a><span class="lineno">  143</span> </div>
-<div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span>  <span class="keywordtype">char</span> <span class="keyword">const</span> *<a class="code hl_function" href="classscl_1_1string.html#a5ed6207130eee26f2e58f814437a0a72">cstr</a>() <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span><span class="preprocessor">#ifdef _WIN32</span></div>
-<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span>  <span class="keywordtype">wchar_t</span> <span class="keyword">const</span> *wstr() <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span><span class="preprocessor">#endif</span></div>
-<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span> </div>
-<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span>  <span class="keywordtype">long</span> <a class="code hl_function" href="classscl_1_1string.html#aaca2c46424de21622e7e8f338da63192">len</a>() <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span> </div>
-<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span>  <span class="keywordtype">unsigned</span> <a class="code hl_function" href="classscl_1_1string.html#a804b2246595fc3748fe1c054629f3e56">size</a>() <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span> </div>
-<div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span>  <span class="keywordtype">long</span> <a class="code hl_function" href="classscl_1_1string.html#a7a9744e77fba6099f0953753e3e5eaed">ffi</a> (<span class="keywordtype">string</span> <span class="keyword">const</span> &amp;pattern) <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span> </div>
-<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span>  <span class="keywordtype">long</span> <a class="code hl_function" href="classscl_1_1string.html#a4b2eed49ed4cace605d8e21ddf2c415b">fli</a> (<span class="keywordtype">string</span> <span class="keyword">const</span> &amp;pattern) <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span> </div>
-<div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span>  <span class="keywordtype">bool</span> <a class="code hl_function" href="classscl_1_1string.html#a4293892191c54272bb832859c316aa2a">endswith</a> (<span class="keywordtype">string</span> <span class="keyword">const</span> &amp;pattern) <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span> </div>
-<div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span>  <span class="keywordtype">bool</span> <a class="code hl_function" href="classscl_1_1string.html#af3d4bf1663c50b4cc036b7e5cd867353">match</a> (<span class="keywordtype">string</span> <span class="keyword">const</span> &amp;pattern) <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00215" name="l00215"></a><span class="lineno">  215</span> </div>
-<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span>  <span class="keywordtype">unsigned</span> <a class="code hl_function" href="classscl_1_1string.html#a8a9cfd4f404f8c24c04a3a800fbaa342">hash</a>() <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span> </div>
-<div class="line"><a id="l00228" name="l00228"></a><span class="lineno">  228</span>  <span class="keywordtype">string</span> <a class="code hl_function" href="classscl_1_1string.html#a7635bce00dc8840a74ae4ce6da1b3afd">substr</a> (<span class="keywordtype">unsigned</span> i, <span class="keywordtype">unsigned</span> j = -1) <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00229" name="l00229"></a><span class="lineno">  229</span> </div>
-<div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span>  <span class="keywordtype">string</span> <a class="code hl_function" href="classscl_1_1string.html#aae31a9a48ff062f1da4004ff63006a2f">copy</a>() <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span> </div>
-<div class="line"><a id="l00242" name="l00242"></a><span class="lineno">  242</span>  <span class="keywordtype">string</span> &amp;<a class="code hl_function" href="classscl_1_1string.html#a84f16da947ab77f0453ce63e2544ee45">replace</a> (<span class="keywordtype">string</span> <span class="keyword">const</span> &amp;pattern, <span class="keywordtype">string</span> <span class="keyword">const</span> &amp;with);</div>
-<div class="line"><a id="l00243" name="l00243"></a><span class="lineno">  243</span> </div>
-<div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span>  <span class="keyword">static</span> <span class="keywordtype">long</span>   <a class="code hl_function" href="classscl_1_1string.html#a7a9744e77fba6099f0953753e3e5eaed">ffi</a> (<span class="keywordtype">char</span> <span class="keyword">const</span> *str, <span class="keywordtype">char</span> <span class="keyword">const</span> *pattern);</div>
-<div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span>  <span class="keyword">static</span> <span class="keywordtype">string</span> <a class="code hl_function" href="classscl_1_1string.html#a7635bce00dc8840a74ae4ce6da1b3afd">substr</a> (<span class="keywordtype">char</span> <span class="keyword">const</span> *str, <span class="keywordtype">unsigned</span> i, <span class="keywordtype">unsigned</span> j);</div>
-<div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span> </div>
-<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span>  <span class="keyword">static</span> <span class="keywordtype">string</span> <a class="code hl_function" href="classscl_1_1string.html#a102962789800a1203c0451832f22845e">rand</a> (<span class="keywordtype">unsigned</span> <a class="code hl_function" href="classscl_1_1string.html#aaca2c46424de21622e7e8f338da63192">len</a>);</div>
-<div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span>  <span class="keyword">static</span> <span class="keywordtype">string</span> vfmt (<span class="keywordtype">char</span> <span class="keyword">const</span> *<a class="code hl_function" href="classscl_1_1string.html#a76ec4f46662f7e6c6fac9888725eb47b">fmt</a>, va_list args);</div>
-<div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span> </div>
-<div class="line"><a id="l00261" name="l00261"></a><span class="lineno">  261</span>  <span class="keyword">static</span> <span class="keywordtype">string</span>   <a class="code hl_function" href="classscl_1_1string.html#a76ec4f46662f7e6c6fac9888725eb47b">fmt</a> (<span class="keywordtype">char</span> <span class="keyword">const</span> *<a class="code hl_function" href="classscl_1_1string.html#a76ec4f46662f7e6c6fac9888725eb47b">fmt</a>, ...);</div>
-<div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span>  <span class="keyword">static</span> <span class="keywordtype">unsigned</span> <a class="code hl_function" href="classscl_1_1string.html#a8a9cfd4f404f8c24c04a3a800fbaa342">hash</a> (<span class="keywordtype">string</span> <span class="keyword">const</span> &amp;str);</div>
-<div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span>  <span class="keyword">static</span> <span class="keywordtype">bool</span>     <a class="code hl_function" href="classscl_1_1string.html#af3d4bf1663c50b4cc036b7e5cd867353">match</a> (<span class="keywordtype">char</span> <span class="keyword">const</span> *str, <span class="keywordtype">char</span> <span class="keyword">const</span> *pattern);</div>
-<div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span> </div>
-<div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span>  <a class="code hl_class" href="classscl_1_1internal_1_1str__iterator.html">internal::str_iterator</a> begin();</div>
-<div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span>  <a class="code hl_class" href="classscl_1_1internal_1_1str__iterator.html">internal::str_iterator</a> end();</div>
-<div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span> </div>
-<div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span>  <a class="code hl_class" href="classscl_1_1internal_1_1str__iterator.html">internal::str_iterator</a> operator[] (<span class="keywordtype">long</span>);</div>
-<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span> </div>
-<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span>  <span class="keywordtype">bool</span> operator== (<span class="keywordtype">string</span> <span class="keyword">const</span> &amp;) <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span>  <span class="keywordtype">bool</span> operator!= (<span class="keywordtype">string</span> <span class="keyword">const</span> &amp;) <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span>  <span class="keywordtype">bool</span> operator&lt; (<span class="keywordtype">string</span> <span class="keyword">const</span> &amp;) <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span> </div>
-<div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span>  <span class="keywordtype">string</span> operator+ (<span class="keywordtype">string</span> <span class="keyword">const</span> &amp;) <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span> </div>
-<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span>  <span class="keyword">template</span> &lt;<span class="keywordtype">int</span> step = 1&gt;</div>
-<div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span>  <span class="keywordtype">string</span> &amp;operator+= (<span class="keywordtype">char</span> rhs) {</div>
-<div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span>    <span class="keywordtype">char</span> s[2] = {rhs, <span class="charliteral">&#39;\0&#39;</span>};</div>
-<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>    <span class="keywordflow">return</span> (*this).operator+= &lt;step&gt; (<span class="keywordtype">string</span>().view (s));</div>
-<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>  }</div>
-<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span> </div>
-<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span>  <span class="keyword">template</span> &lt;<span class="keywordtype">int</span> step = 1&gt;</div>
-<div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span>  <span class="keywordtype">string</span> &amp;operator+= (<span class="keywordtype">string</span> <span class="keyword">const</span> &amp;rhs) {</div>
-<div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span>    <span class="keywordflow">if</span> (!rhs)</div>
-<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span>      <span class="keywordflow">return</span> *<span class="keyword">this</span>;</div>
-<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span>    <a class="code hl_function" href="classscl_1_1internal_1_1RefObj.html#a3dc9d4fc100653b7a87e0bcbf8c40800">make_unique</a>();</div>
-<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span>    <span class="keywordflow">if</span> (!*<span class="keyword">this</span> || m_ln + rhs.m_ln &gt;= m_sz - 1) {</div>
-<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>      <span class="keywordtype">unsigned</span> <span class="keyword">const</span> m   = ((m_ln + rhs.m_ln) / step + 2);</div>
-<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span>      <span class="keywordtype">unsigned</span>       req = m * step;</div>
-<div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span>      <a class="code hl_function" href="classscl_1_1string.html#a37e753c49fbad08769f5c15cb291f3b7">reserve</a> (req);</div>
-<div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span>    }</div>
-<div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span>    memcpy (m_buf + m_ln, rhs.m_buf, (<span class="keywordtype">size_t</span>)rhs.m_ln + 1);</div>
-<div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span>    m_ln = m_ln + rhs.m_ln;</div>
-<div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span>    <span class="keywordflow">return</span> *<span class="keyword">this</span>;</div>
-<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span>  }</div>
-<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span> </div>
-<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span>  <span class="keyword">operator</span> bool() <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span> </div>
-<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span>  <span class="keywordtype">string</span> &amp;operator= (<span class="keywordtype">string</span> <span class="keyword">const</span> &amp;);</div>
-<div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span> </div>
-<div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span>  <span class="keyword">friend</span> std::ifstream &amp;operator&gt;&gt; (std::ifstream &amp;in, <span class="keywordtype">string</span> &amp;str);</div>
-<div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span>};</div>
-<div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span> </div>
-<div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span><span class="keywordtype">void</span> <a class="code hl_function" href="namespacescl.html#ae467da0f74e2708ee4b549d0f3681e2b">resetclock</a>();</div>
-<div class="line"><a id="l00309" name="l00309"></a><span class="lineno">  309</span> </div>
-<div class="line"><a id="l00315" name="l00315"></a><span class="lineno">  315</span><span class="keywordtype">double</span> <a class="code hl_function" href="namespacescl.html#a0bccf89fa43b8dbe5251bb6032810327">clock</a>();</div>
-<div class="line"><a id="l00316" name="l00316"></a><span class="lineno">  316</span> </div>
-<div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span><span class="keywordtype">void</span> <a class="code hl_function" href="namespacescl.html#a457b3ca5121388b4a54d0d0c41b613cf">waitms</a> (<span class="keywordtype">double</span> ms);</div>
-<div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span> </div>
-<div class="line"><a id="l00324" name="l00324"></a><span class="lineno"><a class="line" href="classscl_1_1Memory.html">  324</a></span><span class="keyword">class </span><a class="code hl_class" href="classscl_1_1Memory.html">Memory</a> {</div>
-<div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span> <span class="keyword">protected</span>:</div>
-<div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span>  std::mutex m_mut;</div>
-<div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span>  <span class="keywordtype">char</span>      *m_data = <span class="keyword">nullptr</span>;</div>
-<div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span>  <span class="keywordtype">char</span>      *m_rp   = <span class="keyword">nullptr</span>;</div>
-<div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span>  <span class="keywordtype">char</span>      *m_wp   = <span class="keyword">nullptr</span>;</div>
-<div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span>  <span class="keywordtype">size_t</span>     m_size = 0;</div>
-<div class="line"><a id="l00331" name="l00331"></a><span class="lineno">  331</span>  <span class="keywordtype">bool</span>       valid  = <span class="keyword">true</span>;</div>
-<div class="line"><a id="l00332" name="l00332"></a><span class="lineno">  332</span> </div>
-<div class="line"><a id="l00333" name="l00333"></a><span class="lineno">  333</span> <span class="keyword">public</span>:</div>
-<div class="line"><a id="l00334" name="l00334"></a><span class="lineno">  334</span>  <a class="code hl_class" href="classscl_1_1Memory.html">Memory</a>() = <span class="keywordflow">default</span>;</div>
-<div class="line"><a id="l00335" name="l00335"></a><span class="lineno">  335</span> </div>
-<div class="line"><a id="l00336" name="l00336"></a><span class="lineno">  336</span>  <a class="code hl_class" href="classscl_1_1Memory.html">Memory</a> (<a class="code hl_class" href="classscl_1_1Memory.html">Memory</a> &amp;&amp;rhs);</div>
-<div class="line"><a id="l00337" name="l00337"></a><span class="lineno">  337</span>  <a class="code hl_class" href="classscl_1_1Memory.html">Memory</a> &amp;operator= (<a class="code hl_class" href="classscl_1_1Memory.html">Memory</a> &amp;&amp;rhs);</div>
+<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span><span class="preprocessor">#include &lt;functional&gt;</span></div>
+<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span><span class="preprocessor">#include &lt;mutex&gt;</span></div>
+<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span><span class="preprocessor">#include &lt;stdarg.h&gt;</span></div>
+<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span><span class="preprocessor">#include &lt;string.h&gt;</span></div>
+<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span> </div>
+<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span><span class="preprocessor">#define SCL_MAX_REFS 4096</span></div>
+<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span> </div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="keyword">namespace </span><a class="code hl_namespace" href="namespacescl.html">scl</a> {</div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span><span class="keyword">typedef</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">char</span> uchar;</div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span> </div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>uchar log2i (<span class="keywordtype">unsigned</span> x);</div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span> </div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span><span class="keyword">namespace </span>internal {</div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno"><a class="line" href="classscl_1_1internal_1_1RefObj.html">   30</a></span><span class="keyword">class </span><a class="code hl_class" href="classscl_1_1internal_1_1RefObj.html">RefObj</a> {</div>
+<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span> <span class="keyword">private</span>:</div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>  <span class="keywordtype">int</span> m_refi = 0;</div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span> </div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>  <span class="keywordtype">bool</span> findslot();</div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>  <span class="keywordtype">void</span> incslot() <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>  <span class="keywordtype">bool</span> decslot();</div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span> </div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span> <span class="keyword">public</span>:</div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>  <a class="code hl_class" href="classscl_1_1internal_1_1RefObj.html">RefObj</a>();</div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>  <a class="code hl_class" href="classscl_1_1internal_1_1RefObj.html">RefObj</a> (<a class="code hl_class" href="classscl_1_1internal_1_1RefObj.html">RefObj</a> <span class="keyword">const</span> &amp;);</div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>  <span class="keyword">virtual</span> <a class="code hl_class" href="classscl_1_1internal_1_1RefObj.html">~RefObj</a>() = 0;</div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span> </div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span> <span class="keyword">protected</span>:</div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno"><a class="line" href="classscl_1_1internal_1_1RefObj.html#ac2f239db9c14874e33deb5f4f111c754">   53</a></span>  <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code hl_function" href="classscl_1_1internal_1_1RefObj.html#ac2f239db9c14874e33deb5f4f111c754">mutate</a> (<span class="keywordtype">bool</span> free) = 0;</div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span> </div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>  <span class="keywordtype">int</span> <a class="code hl_function" href="classscl_1_1internal_1_1RefObj.html#a40cc00d7a6e9b0eff48ee74988b1a8f1">refs</a>() <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span> </div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>  <span class="keywordtype">bool</span> <a class="code hl_function" href="classscl_1_1internal_1_1RefObj.html#a93ce0282cc90f5f7237612e769a3bb4c">deref</a>();</div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span> </div>
+<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>  <span class="keywordtype">bool</span> <a class="code hl_function" href="classscl_1_1internal_1_1RefObj.html#a3dc9d4fc100653b7a87e0bcbf8c40800">make_unique</a> (<span class="keywordtype">bool</span> copy = <span class="keyword">true</span>);</div>
+<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span> </div>
+<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>  <span class="keywordtype">void</span> <a class="code hl_function" href="classscl_1_1internal_1_1RefObj.html#a3275e54d174ce0a9eeffecfef1c6d68e">ref</a> (<a class="code hl_class" href="classscl_1_1internal_1_1RefObj.html">RefObj</a> <span class="keyword">const</span> &amp;);</div>
+<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>};</div>
+<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span> </div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span><span class="keyword">class </span><a class="code hl_class" href="classscl_1_1internal_1_1str__iterator.html">str_iterator</a>;</div>
+<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>} <span class="comment">// namespace internal</span></div>
+<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span> </div>
+<div class="line"><a id="l00095" name="l00095"></a><span class="lineno"><a class="line" href="classscl_1_1string.html">   95</a></span><span class="keyword">class </span><a class="code hl_class" href="classscl_1_1string.html">string</a> : <a class="code hl_class" href="classscl_1_1internal_1_1RefObj.html">internal::RefObj</a> {</div>
+<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span> <span class="keyword">private</span>:</div>
+<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>  <span class="keyword">friend</span> <span class="keyword">class </span><a class="code hl_class" href="classscl_1_1internal_1_1str__iterator.html">internal::str_iterator</a>;</div>
+<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span> </div>
+<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>  <span class="keywordtype">char</span>    *m_buf = <span class="keyword">nullptr</span>;</div>
+<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>  <span class="keywordtype">unsigned</span> m_ln  = 0;</div>
+<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>  <span class="keywordtype">unsigned</span> m_sz  = 0;</div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span> </div>
+<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>  <span class="keywordtype">void</span> mutate (<span class="keywordtype">bool</span> free) <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span> </div>
+<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span> <span class="keyword">public</span>:</div>
+<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>  <a class="code hl_class" href="classscl_1_1string.html">string</a>();</div>
+<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>  <a class="code hl_class" href="classscl_1_1string.html">string</a> (<span class="keywordtype">char</span> <span class="keyword">const</span> *);</div>
+<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>  <a class="code hl_class" href="classscl_1_1string.html">string</a> (<span class="keywordtype">char</span>);</div>
+<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span><span class="preprocessor">#ifdef _WIN32</span></div>
+<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>  <a class="code hl_class" href="classscl_1_1string.html">string</a> (<span class="keywordtype">wchar_t</span> <span class="keyword">const</span> *);</div>
+<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>  <a class="code hl_class" href="classscl_1_1string.html">string</a> (<span class="keywordtype">string</span> <span class="keyword">const</span> &amp;);</div>
+<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>  <a class="code hl_class" href="classscl_1_1string.html">~string</a>() <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span> </div>
+<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>  <span class="keywordtype">void</span> <a class="code hl_function" href="classscl_1_1string.html#ada5a22718e2e17da9821c2e8d33a3f4d">clear</a>();</div>
+<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span> </div>
+<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>  <span class="keywordtype">string</span> &amp;<a class="code hl_function" href="classscl_1_1string.html#a7a68f73220281f978c41e2e9c5aff002">claim</a> (<span class="keywordtype">char</span> <span class="keyword">const</span> *ptr);</div>
+<div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span> </div>
+<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span>  <span class="keywordtype">string</span> &amp;<a class="code hl_function" href="classscl_1_1string.html#a00959967ae0b741b24cfcae270511d59">view</a> (<span class="keywordtype">char</span> <span class="keyword">const</span> *ptr);</div>
+<div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span> </div>
+<div class="line"><a id="l00143" name="l00143"></a><span class="lineno">  143</span>  <span class="keywordtype">string</span> &amp;<a class="code hl_function" href="classscl_1_1string.html#a37e753c49fbad08769f5c15cb291f3b7">reserve</a> (<span class="keywordtype">unsigned</span> <a class="code hl_function" href="classscl_1_1string.html#a804b2246595fc3748fe1c054629f3e56">size</a>);</div>
+<div class="line"><a id="l00144" name="l00144"></a><span class="lineno">  144</span> </div>
+<div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span>  <span class="keywordtype">char</span> <span class="keyword">const</span> *<a class="code hl_function" href="classscl_1_1string.html#a5ed6207130eee26f2e58f814437a0a72">cstr</a>() <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span><span class="preprocessor">#ifdef _WIN32</span></div>
+<div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span>  <span class="keywordtype">wchar_t</span> <span class="keyword">const</span> *wstr() <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span> </div>
+<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span>  <span class="keywordtype">long</span> <a class="code hl_function" href="classscl_1_1string.html#aaca2c46424de21622e7e8f338da63192">len</a>() <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span> </div>
+<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span>  <span class="keywordtype">unsigned</span> <a class="code hl_function" href="classscl_1_1string.html#a804b2246595fc3748fe1c054629f3e56">size</a>() <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span> </div>
+<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span>  <span class="keywordtype">long</span> <a class="code hl_function" href="classscl_1_1string.html#a7a9744e77fba6099f0953753e3e5eaed">ffi</a> (<span class="keywordtype">string</span> <span class="keyword">const</span> &amp;pattern) <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span> </div>
+<div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span>  <span class="keywordtype">long</span> <a class="code hl_function" href="classscl_1_1string.html#a4b2eed49ed4cace605d8e21ddf2c415b">fli</a> (<span class="keywordtype">string</span> <span class="keyword">const</span> &amp;pattern) <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span> </div>
+<div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span>  <span class="keywordtype">bool</span> <a class="code hl_function" href="classscl_1_1string.html#a4293892191c54272bb832859c316aa2a">endswith</a> (<span class="keywordtype">string</span> <span class="keyword">const</span> &amp;pattern) <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span> </div>
+<div class="line"><a id="l00215" name="l00215"></a><span class="lineno">  215</span>  <span class="keywordtype">bool</span> <a class="code hl_function" href="classscl_1_1string.html#af3d4bf1663c50b4cc036b7e5cd867353">match</a> (<span class="keywordtype">string</span> <span class="keyword">const</span> &amp;pattern) <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00216" name="l00216"></a><span class="lineno">  216</span> </div>
+<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span>  <span class="keywordtype">unsigned</span> <a class="code hl_function" href="classscl_1_1string.html#a8a9cfd4f404f8c24c04a3a800fbaa342">hash</a>() <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span> </div>
+<div class="line"><a id="l00229" name="l00229"></a><span class="lineno">  229</span>  <span class="keywordtype">string</span> <a class="code hl_function" href="classscl_1_1string.html#a7635bce00dc8840a74ae4ce6da1b3afd">substr</a> (<span class="keywordtype">unsigned</span> i, <span class="keywordtype">unsigned</span> j = -1) <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00230" name="l00230"></a><span class="lineno">  230</span> </div>
+<div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span>  <span class="keywordtype">string</span> <a class="code hl_function" href="classscl_1_1string.html#aae31a9a48ff062f1da4004ff63006a2f">copy</a>() <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span> </div>
+<div class="line"><a id="l00243" name="l00243"></a><span class="lineno">  243</span>  <span class="keywordtype">string</span> &amp;<a class="code hl_function" href="classscl_1_1string.html#a84f16da947ab77f0453ce63e2544ee45">replace</a> (<span class="keywordtype">string</span> <span class="keyword">const</span> &amp;pattern, <span class="keywordtype">string</span> <span class="keyword">const</span> &amp;with);</div>
+<div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span> </div>
+<div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span>  <span class="keyword">static</span> <span class="keywordtype">long</span>   <a class="code hl_function" href="classscl_1_1string.html#a7a9744e77fba6099f0953753e3e5eaed">ffi</a> (<span class="keywordtype">char</span> <span class="keyword">const</span> *str, <span class="keywordtype">char</span> <span class="keyword">const</span> *pattern);</div>
+<div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span>  <span class="keyword">static</span> <span class="keywordtype">string</span> <a class="code hl_function" href="classscl_1_1string.html#a7635bce00dc8840a74ae4ce6da1b3afd">substr</a> (<span class="keywordtype">char</span> <span class="keyword">const</span> *str, <span class="keywordtype">unsigned</span> i, <span class="keywordtype">unsigned</span> j);</div>
+<div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span> </div>
+<div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span>  <span class="keyword">static</span> <span class="keywordtype">string</span> <a class="code hl_function" href="classscl_1_1string.html#a102962789800a1203c0451832f22845e">rand</a> (<span class="keywordtype">unsigned</span> <a class="code hl_function" href="classscl_1_1string.html#aaca2c46424de21622e7e8f338da63192">len</a>);</div>
+<div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span>  <span class="keyword">static</span> <span class="keywordtype">string</span> vfmt (<span class="keywordtype">char</span> <span class="keyword">const</span> *<a class="code hl_function" href="classscl_1_1string.html#a76ec4f46662f7e6c6fac9888725eb47b">fmt</a>, va_list args);</div>
+<div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span> </div>
+<div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span>  <span class="keyword">static</span> <span class="keywordtype">string</span>   <a class="code hl_function" href="classscl_1_1string.html#a76ec4f46662f7e6c6fac9888725eb47b">fmt</a> (<span class="keywordtype">char</span> <span class="keyword">const</span> *<a class="code hl_function" href="classscl_1_1string.html#a76ec4f46662f7e6c6fac9888725eb47b">fmt</a>, ...);</div>
+<div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span>  <span class="keyword">static</span> <span class="keywordtype">unsigned</span> <a class="code hl_function" href="classscl_1_1string.html#a8a9cfd4f404f8c24c04a3a800fbaa342">hash</a> (<span class="keywordtype">string</span> <span class="keyword">const</span> &amp;str);</div>
+<div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span>  <span class="keyword">static</span> <span class="keywordtype">bool</span>     <a class="code hl_function" href="classscl_1_1string.html#af3d4bf1663c50b4cc036b7e5cd867353">match</a> (<span class="keywordtype">char</span> <span class="keyword">const</span> *str, <span class="keywordtype">char</span> <span class="keyword">const</span> *pattern);</div>
+<div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span> </div>
+<div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span>  <a class="code hl_class" href="classscl_1_1internal_1_1str__iterator.html">internal::str_iterator</a> begin();</div>
+<div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span>  <a class="code hl_class" href="classscl_1_1internal_1_1str__iterator.html">internal::str_iterator</a> end();</div>
+<div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span> </div>
+<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span>  <a class="code hl_class" href="classscl_1_1internal_1_1str__iterator.html">internal::str_iterator</a> operator[] (<span class="keywordtype">long</span>);</div>
+<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span> </div>
+<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span>  <span class="keywordtype">bool</span> operator== (<span class="keywordtype">string</span> <span class="keyword">const</span> &amp;) <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span>  <span class="keywordtype">bool</span> operator!= (<span class="keywordtype">string</span> <span class="keyword">const</span> &amp;) <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span>  <span class="keywordtype">bool</span> operator&lt; (<span class="keywordtype">string</span> <span class="keyword">const</span> &amp;) <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span> </div>
+<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span>  <span class="keywordtype">string</span> operator+ (<span class="keywordtype">string</span> <span class="keyword">const</span> &amp;) <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span> </div>
+<div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span>  <span class="keyword">template</span> &lt;<span class="keywordtype">int</span> step = 1&gt;</div>
+<div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span>  <span class="keywordtype">string</span> &amp;operator+= (<span class="keywordtype">char</span> rhs) {</div>
+<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>    <span class="keywordtype">char</span> s[2] = {rhs, <span class="charliteral">&#39;\0&#39;</span>};</div>
+<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>    <span class="keywordflow">return</span> (*this).operator+= &lt;step&gt; (<span class="keywordtype">string</span>().view (s));</div>
+<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span>  }</div>
+<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span> </div>
+<div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span>  <span class="keyword">template</span> &lt;<span class="keywordtype">int</span> step = 1&gt;</div>
+<div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span>  <span class="keywordtype">string</span> &amp;operator+= (<span class="keywordtype">string</span> <span class="keyword">const</span> &amp;rhs) {</div>
+<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span>    <span class="keywordflow">if</span> (!rhs)</div>
+<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span>      <span class="keywordflow">return</span> *<span class="keyword">this</span>;</div>
+<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span>    <a class="code hl_function" href="classscl_1_1internal_1_1RefObj.html#a3dc9d4fc100653b7a87e0bcbf8c40800">make_unique</a>();</div>
+<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>    <span class="keywordflow">if</span> (!*<span class="keyword">this</span> || m_ln + rhs.m_ln &gt;= m_sz - 1) {</div>
+<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span>      <span class="keywordtype">unsigned</span> <span class="keyword">const</span> m   = ((m_ln + rhs.m_ln) / step + 2);</div>
+<div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span>      <span class="keywordtype">unsigned</span>       req = m * step;</div>
+<div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span>      <a class="code hl_function" href="classscl_1_1string.html#a37e753c49fbad08769f5c15cb291f3b7">reserve</a> (req);</div>
+<div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span>    }</div>
+<div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span>    memcpy (m_buf + m_ln, rhs.m_buf, (<span class="keywordtype">size_t</span>)rhs.m_ln + 1);</div>
+<div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span>    m_ln = m_ln + rhs.m_ln;</div>
+<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span>    <span class="keywordflow">return</span> *<span class="keyword">this</span>;</div>
+<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span>  }</div>
+<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span> </div>
+<div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span>  <span class="keyword">operator</span> bool() <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span> </div>
+<div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span>  <span class="keywordtype">string</span> &amp;operator= (<span class="keywordtype">string</span> <span class="keyword">const</span> &amp;);</div>
+<div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span> </div>
+<div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span>  <span class="keyword">friend</span> std::ifstream &amp;operator&gt;&gt; (std::ifstream &amp;in, <span class="keywordtype">string</span> &amp;str);</div>
+<div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span>};</div>
+<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span> </div>
+<div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span><a class="code hl_class" href="classscl_1_1string.html">scl::string</a> operator+ (<a class="code hl_class" href="classscl_1_1string.html">scl::string</a> <span class="keyword">const</span> &amp;str, <span class="keywordtype">char</span> <span class="keyword">const</span> *str2);</div>
+<div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span> </div>
+<div class="line"><a id="l00311" name="l00311"></a><span class="lineno">  311</span><span class="keywordtype">void</span> <a class="code hl_function" href="namespacescl.html#ae467da0f74e2708ee4b549d0f3681e2b">resetclock</a>();</div>
+<div class="line"><a id="l00312" name="l00312"></a><span class="lineno">  312</span> </div>
+<div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span><span class="keywordtype">double</span> <a class="code hl_function" href="namespacescl.html#a0bccf89fa43b8dbe5251bb6032810327">clock</a>();</div>
+<div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span> </div>
+<div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span><span class="keywordtype">void</span> <a class="code hl_function" href="namespacescl.html#a457b3ca5121388b4a54d0d0c41b613cf">waitms</a> (<span class="keywordtype">double</span> ms);</div>
+<div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span> </div>
+<div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span><span class="keywordtype">bool</span> waitUntil (std::function&lt;<span class="keywordtype">bool</span>()&gt; cond, <span class="keywordtype">double</span> timeout = -1,</div>
+<div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span>  <span class="keywordtype">double</span> sleep = 0.001);</div>
+<div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span> </div>
+<div class="line"><a id="l00330" name="l00330"></a><span class="lineno"><a class="line" href="classscl_1_1Memory.html">  330</a></span><span class="keyword">class </span><a class="code hl_class" href="classscl_1_1Memory.html">Memory</a> {</div>
+<div class="line"><a id="l00331" name="l00331"></a><span class="lineno">  331</span> <span class="keyword">protected</span>:</div>
+<div class="line"><a id="l00332" name="l00332"></a><span class="lineno">  332</span>  std::mutex m_mut;</div>
+<div class="line"><a id="l00333" name="l00333"></a><span class="lineno">  333</span>  <span class="keywordtype">char</span>      *m_data = <span class="keyword">nullptr</span>;</div>
+<div class="line"><a id="l00334" name="l00334"></a><span class="lineno">  334</span>  <span class="keywordtype">char</span>      *m_rp   = <span class="keyword">nullptr</span>;</div>
+<div class="line"><a id="l00335" name="l00335"></a><span class="lineno">  335</span>  <span class="keywordtype">char</span>      *m_wp   = <span class="keyword">nullptr</span>;</div>
+<div class="line"><a id="l00336" name="l00336"></a><span class="lineno">  336</span>  <span class="keywordtype">size_t</span>     m_size = 0;</div>
+<div class="line"><a id="l00337" name="l00337"></a><span class="lineno">  337</span>  <span class="keywordtype">bool</span>       valid  = <span class="keyword">true</span>;</div>
 <div class="line"><a id="l00338" name="l00338"></a><span class="lineno">  338</span> </div>
-<div class="line"><a id="l00339" name="l00339"></a><span class="lineno">  339</span>  <span class="keywordtype">bool</span>      reserve (<span class="keywordtype">size_t</span> n, <span class="keywordtype">bool</span> force = <span class="keyword">false</span>);</div>
-<div class="line"><a id="l00340" name="l00340"></a><span class="lineno">  340</span>  <span class="keywordtype">long</span> <span class="keywordtype">long</span> write (<span class="keywordtype">void</span> <span class="keyword">const</span> *buf, <span class="keywordtype">unsigned</span> n);</div>
-<div class="line"><a id="l00341" name="l00341"></a><span class="lineno">  341</span>};</div>
-<div class="line"><a id="l00342" name="l00342"></a><span class="lineno">  342</span> </div>
-<div class="line"><a id="l00343" name="l00343"></a><span class="lineno">  343</span><span class="keyword">namespace </span>internal {</div>
-<div class="line"><a id="l00344" name="l00344"></a><span class="lineno"><a class="line" href="classscl_1_1internal_1_1str__iterator.html">  344</a></span><span class="keyword">class </span><a class="code hl_class" href="classscl_1_1internal_1_1str__iterator.html">str_iterator</a> {</div>
-<div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span>  <span class="keywordtype">char</span>   *m_c;</div>
-<div class="line"><a id="l00346" name="l00346"></a><span class="lineno">  346</span>  <span class="keywordtype">string</span> *m_s;</div>
-<div class="line"><a id="l00347" name="l00347"></a><span class="lineno">  347</span> </div>
-<div class="line"><a id="l00348" name="l00348"></a><span class="lineno">  348</span> <span class="keyword">public</span>:</div>
-<div class="line"><a id="l00349" name="l00349"></a><span class="lineno">  349</span>  <a class="code hl_class" href="classscl_1_1internal_1_1str__iterator.html">str_iterator</a>();</div>
-<div class="line"><a id="l00350" name="l00350"></a><span class="lineno">  350</span>  <a class="code hl_class" href="classscl_1_1internal_1_1str__iterator.html">str_iterator</a> (<span class="keywordtype">char</span> &amp;m_c, <span class="keywordtype">string</span> &amp;m_s);</div>
-<div class="line"><a id="l00351" name="l00351"></a><span class="lineno">  351</span> </div>
-<div class="line"><a id="l00352" name="l00352"></a><span class="lineno">  352</span>  <span class="keywordtype">bool</span>          operator== (<a class="code hl_class" href="classscl_1_1internal_1_1str__iterator.html">str_iterator</a> <span class="keyword">const</span> &amp;rhs) <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00353" name="l00353"></a><span class="lineno">  353</span>  <a class="code hl_class" href="classscl_1_1internal_1_1str__iterator.html">str_iterator</a> &amp;operator++();</div>
-<div class="line"><a id="l00354" name="l00354"></a><span class="lineno">  354</span> </div>
-<div class="line"><a id="l00355" name="l00355"></a><span class="lineno">  355</span>  <span class="comment">/* Read */</span></div>
-<div class="line"><a id="l00356" name="l00356"></a><span class="lineno">  356</span>  <span class="keyword">operator</span> <span class="keywordtype">char</span> <span class="keyword">const</span> &amp;() <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00357" name="l00357"></a><span class="lineno">  357</span>  <span class="keywordtype">char</span> <span class="keyword">const</span> &amp;operator*() <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00358" name="l00358"></a><span class="lineno">  358</span>  <span class="keywordtype">char</span>       &amp;operator*();</div>
-<div class="line"><a id="l00359" name="l00359"></a><span class="lineno">  359</span> </div>
-<div class="line"><a id="l00360" name="l00360"></a><span class="lineno">  360</span>  <span class="comment">/* Write */</span></div>
-<div class="line"><a id="l00361" name="l00361"></a><span class="lineno">  361</span>  <a class="code hl_class" href="classscl_1_1internal_1_1str__iterator.html">str_iterator</a> &amp;operator= (<span class="keywordtype">char</span> c);</div>
-<div class="line"><a id="l00362" name="l00362"></a><span class="lineno">  362</span>};</div>
-<div class="line"><a id="l00363" name="l00363"></a><span class="lineno">  363</span>} <span class="comment">// namespace internal</span></div>
-<div class="line"><a id="l00364" name="l00364"></a><span class="lineno">  364</span> </div>
-<div class="line"><a id="l00365" name="l00365"></a><span class="lineno">  365</span>} <span class="comment">// namespace scl</span></div>
-<div class="line"><a id="l00366" name="l00366"></a><span class="lineno">  366</span><span class="preprocessor">#endif</span></div>
-<div class="ttc" id="aclassscl_1_1Memory_html"><div class="ttname"><a href="classscl_1_1Memory.html">scl::Memory</a></div><div class="ttdef"><b>Definition:</b> sclcore.hpp:324</div></div>
-<div class="ttc" id="aclassscl_1_1internal_1_1RefObj_html"><div class="ttname"><a href="classscl_1_1internal_1_1RefObj.html">scl::internal::RefObj</a></div><div class="ttdef"><b>Definition:</b> sclcore.hpp:29</div></div>
+<div class="line"><a id="l00339" name="l00339"></a><span class="lineno">  339</span> <span class="keyword">public</span>:</div>
+<div class="line"><a id="l00340" name="l00340"></a><span class="lineno">  340</span>  <a class="code hl_class" href="classscl_1_1Memory.html">Memory</a>() = <span class="keywordflow">default</span>;</div>
+<div class="line"><a id="l00341" name="l00341"></a><span class="lineno">  341</span> </div>
+<div class="line"><a id="l00342" name="l00342"></a><span class="lineno">  342</span>  <a class="code hl_class" href="classscl_1_1Memory.html">Memory</a> (<a class="code hl_class" href="classscl_1_1Memory.html">Memory</a> &amp;&amp;rhs);</div>
+<div class="line"><a id="l00343" name="l00343"></a><span class="lineno">  343</span>  <a class="code hl_class" href="classscl_1_1Memory.html">Memory</a> &amp;operator= (<a class="code hl_class" href="classscl_1_1Memory.html">Memory</a> &amp;&amp;rhs);</div>
+<div class="line"><a id="l00344" name="l00344"></a><span class="lineno">  344</span> </div>
+<div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span>  <span class="keywordtype">bool</span>      reserve (<span class="keywordtype">size_t</span> n, <span class="keywordtype">bool</span> force = <span class="keyword">false</span>);</div>
+<div class="line"><a id="l00346" name="l00346"></a><span class="lineno">  346</span>  <span class="keywordtype">long</span> <span class="keywordtype">long</span> write (<span class="keywordtype">void</span> <span class="keyword">const</span> *buf, <span class="keywordtype">unsigned</span> n);</div>
+<div class="line"><a id="l00347" name="l00347"></a><span class="lineno">  347</span>};</div>
+<div class="line"><a id="l00348" name="l00348"></a><span class="lineno">  348</span> </div>
+<div class="line"><a id="l00349" name="l00349"></a><span class="lineno">  349</span><span class="keyword">namespace </span>internal {</div>
+<div class="line"><a id="l00350" name="l00350"></a><span class="lineno"><a class="line" href="classscl_1_1internal_1_1str__iterator.html">  350</a></span><span class="keyword">class </span><a class="code hl_class" href="classscl_1_1internal_1_1str__iterator.html">str_iterator</a> {</div>
+<div class="line"><a id="l00351" name="l00351"></a><span class="lineno">  351</span>  <span class="keywordtype">char</span>   *m_c;</div>
+<div class="line"><a id="l00352" name="l00352"></a><span class="lineno">  352</span>  <span class="keywordtype">string</span> *m_s;</div>
+<div class="line"><a id="l00353" name="l00353"></a><span class="lineno">  353</span> </div>
+<div class="line"><a id="l00354" name="l00354"></a><span class="lineno">  354</span> <span class="keyword">public</span>:</div>
+<div class="line"><a id="l00355" name="l00355"></a><span class="lineno">  355</span>  <a class="code hl_class" href="classscl_1_1internal_1_1str__iterator.html">str_iterator</a>();</div>
+<div class="line"><a id="l00356" name="l00356"></a><span class="lineno">  356</span>  <a class="code hl_class" href="classscl_1_1internal_1_1str__iterator.html">str_iterator</a> (<span class="keywordtype">char</span> &amp;m_c, <span class="keywordtype">string</span> &amp;m_s);</div>
+<div class="line"><a id="l00357" name="l00357"></a><span class="lineno">  357</span> </div>
+<div class="line"><a id="l00358" name="l00358"></a><span class="lineno">  358</span>  <span class="keywordtype">bool</span>          operator== (<a class="code hl_class" href="classscl_1_1internal_1_1str__iterator.html">str_iterator</a> <span class="keyword">const</span> &amp;rhs) <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00359" name="l00359"></a><span class="lineno">  359</span>  <a class="code hl_class" href="classscl_1_1internal_1_1str__iterator.html">str_iterator</a> &amp;operator++();</div>
+<div class="line"><a id="l00360" name="l00360"></a><span class="lineno">  360</span> </div>
+<div class="line"><a id="l00361" name="l00361"></a><span class="lineno">  361</span>  <span class="comment">/* Read */</span></div>
+<div class="line"><a id="l00362" name="l00362"></a><span class="lineno">  362</span>  <span class="keyword">operator</span> <span class="keywordtype">char</span> <span class="keyword">const</span> &amp;() <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00363" name="l00363"></a><span class="lineno">  363</span>  <span class="keywordtype">char</span> <span class="keyword">const</span> &amp;operator*() <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00364" name="l00364"></a><span class="lineno">  364</span>  <span class="keywordtype">char</span>       &amp;operator*();</div>
+<div class="line"><a id="l00365" name="l00365"></a><span class="lineno">  365</span> </div>
+<div class="line"><a id="l00366" name="l00366"></a><span class="lineno">  366</span>  <span class="comment">/* Write */</span></div>
+<div class="line"><a id="l00367" name="l00367"></a><span class="lineno">  367</span>  <a class="code hl_class" href="classscl_1_1internal_1_1str__iterator.html">str_iterator</a> &amp;operator= (<span class="keywordtype">char</span> c);</div>
+<div class="line"><a id="l00368" name="l00368"></a><span class="lineno">  368</span>};</div>
+<div class="line"><a id="l00369" name="l00369"></a><span class="lineno">  369</span>} <span class="comment">// namespace internal</span></div>
+<div class="line"><a id="l00370" name="l00370"></a><span class="lineno">  370</span> </div>
+<div class="line"><a id="l00371" name="l00371"></a><span class="lineno">  371</span>} <span class="comment">// namespace scl</span></div>
+<div class="line"><a id="l00372" name="l00372"></a><span class="lineno">  372</span><span class="preprocessor">#endif</span></div>
+<div class="ttc" id="aclassscl_1_1Memory_html"><div class="ttname"><a href="classscl_1_1Memory.html">scl::Memory</a></div><div class="ttdef"><b>Definition:</b> sclcore.hpp:330</div></div>
+<div class="ttc" id="aclassscl_1_1internal_1_1RefObj_html"><div class="ttname"><a href="classscl_1_1internal_1_1RefObj.html">scl::internal::RefObj</a></div><div class="ttdef"><b>Definition:</b> sclcore.hpp:30</div></div>
 <div class="ttc" id="aclassscl_1_1internal_1_1RefObj_html_a3275e54d174ce0a9eeffecfef1c6d68e"><div class="ttname"><a href="classscl_1_1internal_1_1RefObj.html#a3275e54d174ce0a9eeffecfef1c6d68e">scl::internal::RefObj::ref</a></div><div class="ttdeci">void ref(RefObj const &amp;)</div><div class="ttdoc">Makes this object reference another. Behaves identically to the RefObj copy constructor.</div><div class="ttdef"><b>Definition:</b> sclcore.cpp:147</div></div>
 <div class="ttc" id="aclassscl_1_1internal_1_1RefObj_html_a3dc9d4fc100653b7a87e0bcbf8c40800"><div class="ttname"><a href="classscl_1_1internal_1_1RefObj.html#a3dc9d4fc100653b7a87e0bcbf8c40800">scl::internal::RefObj::make_unique</a></div><div class="ttdeci">bool make_unique(bool copy=true)</div><div class="ttdoc">Makes this object unique.</div><div class="ttdef"><b>Definition:</b> sclcore.cpp:136</div></div>
 <div class="ttc" id="aclassscl_1_1internal_1_1RefObj_html_a40cc00d7a6e9b0eff48ee74988b1a8f1"><div class="ttname"><a href="classscl_1_1internal_1_1RefObj.html#a40cc00d7a6e9b0eff48ee74988b1a8f1">scl::internal::RefObj::refs</a></div><div class="ttdeci">int refs() const</div><div class="ttdoc">Returns the number of references of this object.</div><div class="ttdef"><b>Definition:</b> sclcore.cpp:128</div></div>
 <div class="ttc" id="aclassscl_1_1internal_1_1RefObj_html_a93ce0282cc90f5f7237612e769a3bb4c"><div class="ttname"><a href="classscl_1_1internal_1_1RefObj.html#a93ce0282cc90f5f7237612e769a3bb4c">scl::internal::RefObj::deref</a></div><div class="ttdeci">bool deref()</div><div class="ttdoc">Decrements the number of references for this object.</div><div class="ttdef"><b>Definition:</b> sclcore.cpp:132</div></div>
 <div class="ttc" id="aclassscl_1_1internal_1_1RefObj_html_ac2f239db9c14874e33deb5f4f111c754"><div class="ttname"><a href="classscl_1_1internal_1_1RefObj.html#ac2f239db9c14874e33deb5f4f111c754">scl::internal::RefObj::mutate</a></div><div class="ttdeci">virtual void mutate(bool free)=0</div><div class="ttdoc">Deep copy implemented by derived classes, called by RefObj.</div></div>
-<div class="ttc" id="aclassscl_1_1internal_1_1str__iterator_html"><div class="ttname"><a href="classscl_1_1internal_1_1str__iterator.html">scl::internal::str_iterator</a></div><div class="ttdef"><b>Definition:</b> sclcore.hpp:344</div></div>
-<div class="ttc" id="aclassscl_1_1string_html"><div class="ttname"><a href="classscl_1_1string.html">scl::string</a></div><div class="ttdef"><b>Definition:</b> sclcore.hpp:94</div></div>
+<div class="ttc" id="aclassscl_1_1internal_1_1str__iterator_html"><div class="ttname"><a href="classscl_1_1internal_1_1str__iterator.html">scl::internal::str_iterator</a></div><div class="ttdef"><b>Definition:</b> sclcore.hpp:350</div></div>
+<div class="ttc" id="aclassscl_1_1string_html"><div class="ttname"><a href="classscl_1_1string.html">scl::string</a></div><div class="ttdef"><b>Definition:</b> sclcore.hpp:95</div></div>
 <div class="ttc" id="aclassscl_1_1string_html_a00959967ae0b741b24cfcae270511d59"><div class="ttname"><a href="classscl_1_1string.html#a00959967ae0b741b24cfcae270511d59">scl::string::view</a></div><div class="ttdeci">string &amp; view(char const *ptr)</div><div class="ttdoc">Turns this string into a readonly layer above a given string buffer.</div><div class="ttdef"><b>Definition:</b> sclcore.cpp:214</div></div>
 <div class="ttc" id="aclassscl_1_1string_html_a102962789800a1203c0451832f22845e"><div class="ttname"><a href="classscl_1_1string.html#a102962789800a1203c0451832f22845e">scl::string::rand</a></div><div class="ttdeci">static string rand(unsigned len)</div><div class="ttdoc">Returns a randomized string of a specified length.</div><div class="ttdef"><b>Definition:</b> sclcore.cpp:380</div></div>
 <div class="ttc" id="aclassscl_1_1string_html_a37e753c49fbad08769f5c15cb291f3b7"><div class="ttname"><a href="classscl_1_1string.html#a37e753c49fbad08769f5c15cb291f3b7">scl::string::reserve</a></div><div class="ttdeci">string &amp; reserve(unsigned size)</div><div class="ttdoc">Increases the capacity of this string object, copying the original contents. Can be used to shrink it...</div><div class="ttdef"><b>Definition:</b> sclcore.cpp:223</div></div>
@@ -320,9 +326,9 @@ $(document).ready(function(){initNavTree('sclcore_8hpp_source.html',''); initRes
 <div class="ttc" id="aclassscl_1_1string_html_ada5a22718e2e17da9821c2e8d33a3f4d"><div class="ttname"><a href="classscl_1_1string.html#ada5a22718e2e17da9821c2e8d33a3f4d">scl::string::clear</a></div><div class="ttdeci">void clear()</div><div class="ttdoc">Clears this strings memory.</div><div class="ttdef"><b>Definition:</b> sclcore.cpp:197</div></div>
 <div class="ttc" id="aclassscl_1_1string_html_af3d4bf1663c50b4cc036b7e5cd867353"><div class="ttname"><a href="classscl_1_1string.html#af3d4bf1663c50b4cc036b7e5cd867353">scl::string::match</a></div><div class="ttdeci">bool match(string const &amp;pattern) const</div><div class="ttdoc">Reterns whether or not this string constains a pattern.</div><div class="ttdef"><b>Definition:</b> sclcore.cpp:305</div></div>
 <div class="ttc" id="anamespacescl_html"><div class="ttname"><a href="namespacescl.html">scl</a></div><div class="ttdoc">Main SCL namespace.</div><div class="ttdef"><b>Definition:</b> sclcore.cpp:81</div></div>
-<div class="ttc" id="anamespacescl_html_a0bccf89fa43b8dbe5251bb6032810327"><div class="ttname"><a href="namespacescl.html#a0bccf89fa43b8dbe5251bb6032810327">scl::clock</a></div><div class="ttdeci">double clock()</div><div class="ttdef"><b>Definition:</b> sclcore.cpp:581</div></div>
-<div class="ttc" id="anamespacescl_html_a457b3ca5121388b4a54d0d0c41b613cf"><div class="ttname"><a href="namespacescl.html#a457b3ca5121388b4a54d0d0c41b613cf">scl::waitms</a></div><div class="ttdeci">void waitms(double ms)</div><div class="ttdoc">Makes this thread sleep for a given amount of milliseconds.</div><div class="ttdef"><b>Definition:</b> sclcore.cpp:595</div></div>
-<div class="ttc" id="anamespacescl_html_ae467da0f74e2708ee4b549d0f3681e2b"><div class="ttname"><a href="namespacescl.html#ae467da0f74e2708ee4b549d0f3681e2b">scl::resetclock</a></div><div class="ttdeci">void resetclock()</div><div class="ttdoc">Resets the output of scl::clock(), making current time epoch.</div><div class="ttdef"><b>Definition:</b> sclcore.cpp:573</div></div>
+<div class="ttc" id="anamespacescl_html_a0bccf89fa43b8dbe5251bb6032810327"><div class="ttname"><a href="namespacescl.html#a0bccf89fa43b8dbe5251bb6032810327">scl::clock</a></div><div class="ttdeci">double clock()</div><div class="ttdef"><b>Definition:</b> sclcore.cpp:586</div></div>
+<div class="ttc" id="anamespacescl_html_a457b3ca5121388b4a54d0d0c41b613cf"><div class="ttname"><a href="namespacescl.html#a457b3ca5121388b4a54d0d0c41b613cf">scl::waitms</a></div><div class="ttdeci">void waitms(double ms)</div><div class="ttdoc">Makes this thread sleep for a given amount of milliseconds.</div><div class="ttdef"><b>Definition:</b> sclcore.cpp:600</div></div>
+<div class="ttc" id="anamespacescl_html_ae467da0f74e2708ee4b549d0f3681e2b"><div class="ttname"><a href="namespacescl.html#ae467da0f74e2708ee4b549d0f3681e2b">scl::resetclock</a></div><div class="ttdeci">void resetclock()</div><div class="ttdoc">Resets the output of scl::clock(), making current time epoch.</div><div class="ttdef"><b>Definition:</b> sclcore.cpp:578</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
