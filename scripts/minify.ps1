@@ -1,1 +1,1 @@
-python scripts/mini.py -o build/miniscl.hpp -d SCL_IMPL src/sclcore.cpp src/sclimpl.cpp src/sclpath.cpp
+python scripts/mini.py -o build/miniscl.hpp -d SCL_IMPL -h "src/sclcore.hpp;src/scldict.hpp;src/sclpath.hpp;src/sclxml.hpp;src/scljobs.hpp;src/sclpack.hpp" "src/sclcore.cpp;src/sclpath.cpp;src/scljobs.cpp;src/sclpack.cpp;src/lz4/lz4.c"

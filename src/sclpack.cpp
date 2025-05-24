@@ -3,6 +3,7 @@
  */
 
 #include "sclpack.hpp"
+#define LZ4_STATIC_LINKING_ONLY
 #include "lz4/lz4.h"
 
 namespace scl {

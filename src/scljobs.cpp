@@ -12,7 +12,7 @@
 #    undef min
 #  endif
 #else
-
+#  include <unistd.h>
 #endif
 
 namespace scl {
@@ -43,9 +43,8 @@ waitable *funcJob::getWaitable() const {
   return new waitable;
 }
 
-int funcJob::doJob (waitable *waitable, jobworker const &worker) {
+void funcJob::doJob (waitable *waitable, jobworker const &worker) {
   m_func (worker);
-  return 0;
 }
 
 void jobworker::quit() {
@@ -106,14 +105,19 @@ void jobworker::work (jobworker *inst) {
 int jobserver::getNWorkers (int workers) {
   if (workers <= 0)
     workers = 0x7fffffff;
+  int n = 0;
 #ifdef _WIN32
   SYSTEM_INFO si;
   GetSystemInfo (&si);
-  return std::min ((int)si.dwNumberOfProcessors, workers);
+#  define sysconf(...) si.dwNumberOfProcessors
+#  define _SC_NPROCESSORS_ONLN
 #else
-#  error "Missing unix implementation of getNWorkers"
-  return 0;
 #endif
+#ifdef _SC_NPROCESSORS_ONLN
+  n = sysconf (_SC_NPROCESSORS_ONLN);
+  return std::min (n, workers);
+#endif
+  return 0;
 }
 
 bool jobserver::takeJob (t_wjob &wjob) {
@@ -197,6 +201,19 @@ void jobserver::stop() {
       delete i.second;
     }
   }
+}
+
+void jobserver::clearjobs() {
+  lock();
+  t_wjob wjob;
+  while (!m_jobs.empty()) {
+    wjob = m_jobs.front();
+    m_jobs.pop();
+    if (wjob.first->autodelwt)
+      delete wjob.second;
+    delete wjob.first;
+  }
+  unlock();
 }
 
 void jobserver::sync (std::function<void()> const &func) {

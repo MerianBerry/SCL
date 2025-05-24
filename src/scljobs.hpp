@@ -54,7 +54,7 @@ class job {
 
   virtual Wt *getWaitable() const = 0;
 
-  virtual int doJob (Wt *waitable, jobworker const &worker) = 0;
+  virtual void doJob (Wt *waitable, jobworker const &worker) = 0;
 };
 
 class funcJob : public job<waitable> {
@@ -65,7 +65,7 @@ class funcJob : public job<waitable> {
 
   waitable *getWaitable() const override;
 
-  int doJob (waitable *waitable, jobworker const &worker) override;
+  void doJob (waitable *waitable, jobworker const &worker) override;
 };
 
 class jobworker {
@@ -116,13 +116,15 @@ class jobserver : protected std::mutex {
   bool waitidle (double timeout = -1);
   void stop();
 
+  void clearjobs();
+
   void sync (std::function<void()> const &func);
 
   template <class Jb>
   typename Jb::Wt *submitJob (Jb *job, bool autodelwt = false) {
     waitable *wt = job->getWaitable();
     lock();
-    scl::jobs::job<waitable> *job_ = job;
+    scl::jobs::job<waitable> *job_ = (scl::jobs::job<waitable> *)job;
     job_->autodelwt                = autodelwt;
     m_jobs.push (t_wjob (job_, wt));
     unlock();
@@ -130,7 +132,7 @@ class jobserver : protected std::mutex {
   }
 
   waitable *submitJob (std::function<void (jobworker const &worker)> func,
-    bool autodelwt = false);
+    bool autodelwt = true);
 
   int workerCount() const;
 

@@ -486,7 +486,7 @@ std::ifstream &operator>> (std::ifstream &in, string &str) {
     return in;
   in.seekg (cur);
   str.reserve ((unsigned)l);
-  str.m_ln = l;
+  str.m_ln = (unsigned)l;
   in.read ((char *)str.cstr(), l);
   return in;
 }

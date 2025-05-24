@@ -6,9 +6,28 @@ from pathlib import Path
 
 print(sys.argv, flush=True)
 
-sources: list[tuple[str, bool, bool]] = []
-out: str = None
-imp: str = None
+def split_paths(paths: str):
+  out: list[str] = []
+  s: int = 0
+  while True:
+    p = paths.find(";")
+    #print(f"{s}:{p}")
+    if p < 0:
+      out.append(str(Path(paths).resolve()))
+      break
+    else:
+      out.append(str(Path(paths[:p]).resolve()))
+    paths = paths[p+1:]
+    s = p + 1
+  return out
+
+headers: list[tuple[str, bool]] = []
+sources: list[str] = []
+defines: list[tuple[str, str]] = []
+written: dict[str, str] = {}
+out: str = ""
+imp: str = ""
+guard: str = ""
 skip: bool = False
 for i, v in enumerate(sys.argv):
   if v == "-o":
@@ -19,38 +38,51 @@ for i, v in enumerate(sys.argv):
     imp = sys.argv[i+1]
     skip = True
     continue
+  elif v == "-g":
+    guard = sys.argv[i+1]
+    skip = True
+    continue
+  elif v == "-D":
+    D = sys.argv[i+1]
+    p = D.find("=")
+    if p < 0:
+      defines.append((D, ""))
+    else:
+      defines.append((D[:p], D[p+1:]))
+    skip = True
+    continue
+  elif v == "-h":
+    for fi in split_paths(sys.argv[i+1]):
+      headers.append((fi, False))
+    skip = True
+    continue
   elif i > 0 and not skip:
-    s: int = 0
-    while True:
-      p = v.find(";")
-      #print(f"{s}:{p}")
-      if p < 0:
-        sources.append(tuple([v, False, False]))
-        break
-      else:
-        sources.append(tuple([v[:p], False, False]))
-      v = v[p+1:]
-      s = p + 1
-
-
+    print(v)
+    for fi in split_paths(v):
+      sources.append(fi)
   skip = False
 
-if out == None:
+if out == "":
   print("No output file given, using mini.hpp (-o <file>)")
   out = "mini.hpp"
-if imp == None:
+if imp == "":
   print("No implementation definition given, using MINI_IMPL (-d <definition>)")
   imp = "MINI_IMPL"
+if guard == "":
+  guard = imp + "ED"
 if len(sources) == 0:
   print("No sources")
   exit(1)
 
-print("out:\n  " + out)
+print("out: " + out)
+print("headers: ")
+for v in headers:
+  print("  " + v[0])
 print("sources: ")
 for v in sources:
-  print("  " + v[0])
+  print("  " + v)
 
-increg = re.compile(r'^[\t ]*#[\t ]*include "(\w+\.hp{,2})"$', re.M)
+increg = re.compile(r'^[\t ]*#[\t ]*include "([\.\w\-\/]+\.hp{,2})"$', re.M)
 sincreg = re.compile(r'#include <\w+\.hp{,2}>')
 
 # mini algorithm:
@@ -76,14 +108,24 @@ sincreg = re.compile(r'#include <\w+\.hp{,2}>')
 
 # mini IMPLEMENTATION
 
+def mini_clean(files: list[str]):
+  out: list[str] = []
+  check: dict[str, str] = {}
+  for v in files:
+    if check.get(v):
+      continue;
+    check[v] = v
+    out.append(v)
+  return out
+
 def mini_search():
   i: int = 0
-  while i < len(sources):
-    v = sources[i]
-    if (v[1]):
-      i += 1
+  while i < len(headers):
+    v = headers[i]
+    if v[1]:
+      i+=1
       continue
-    sources[i] = [v[0], True, v[2]]
+    headers[i] = (v[0], True)
     j: int = i
     skip: bool = False
     for line in open(v[0]):
@@ -95,21 +137,35 @@ def mini_search():
         skip = False
         continue
       p = Path(v[0]).parent / m.groups()[0]
-      sources.insert(j, [p, False, True])
+      ninc = str(p.resolve())
+      #print(f"potential include: {ninc} from {v}")
+      caninc: bool = True
+      for h in headers:
+        if h[0] == ninc:
+          caninc = False
+      if caninc:
+        #print(f"adding {ninc} to headers")
+        headers.insert(j, (ninc, False))
       j += 1
     if j > i:
       i = 0
 
+def write_file(fout, file: str):
+  for line in open(file):
+    fout.write(line)
+
 def header_write(fout):
-  written: dict[str] = {}
-  for v in sources:
-    if not v[2] or written.get(v[0]):
+  for v in headers:
+    if written.get(v[0]):
       continue
     written[v[0]] = v[0]
+    skip: bool = False
     #print(f"Writing header {v[0]}...")
     for line in open(v[0]):
-      if line == "#pragma mini skip\n":
+      if line == "#pragma mini skip\n" or skip:
+        skip = True
         continue
+      skip = False
       if increg.search(line) == None:
         fout.write(line)
       else:
@@ -117,32 +173,50 @@ def header_write(fout):
     fout.write("\n\n")
 
 def source_write(fout):
-  fout.write(f"#ifdef {imp}\n\n")
+  fout.write(f"#ifdef {imp}\n")
+  fout.write(f"#ifndef {guard}\n#define {guard}\n\n")
   for v in sources:
-    if v[2]:
-      continue
-    #print(f"Writing source {v[0]}...")
-    for line in open(v[0]):
-      if line == "#pragma mini skip\n":
+    skip: bool = False
+    #print(f"Writing source {v}...")
+    for line in open(v):
+      if line == "#pragma mini skip\n" or skip:
+        skip = True
         continue
-      if increg.search(line) == None:
+      m = increg.search(line)
+      if m == None:
         fout.write(line)
       else:
-        fout.write(f"/*{line[:len(line)-1]}*/\n")
+        p = Path(v).parent / m.groups()[0]
+        inc = str(p.resolve())
+        if written.get(inc):
+          print(f"duplicate {inc}")
+          fout.write(f"/*{line[:len(line)-1]}*/\n")
+        else:
+          print(f"including {inc}")
+          written[inc] = inc
+          fout.write(f"/*{line[:len(line)-1]}*/\n")
+          write_file(fout, inc)
     fout.write("\n\n")
+  fout.write(f"#endif // #ifndef {guard}\n")
   fout.write(f"#endif // #ifdef {imp}\n")
 
 mini_search()
 
-print("Mini searched:")
-for v in sources:
-  print("  " + str(v[0]))
+print("Mini searched headers:")
+for v in headers:
+  print("  " + v[0])
 
 fout = open(out, "w")
 fout.write(f"/*  {Path(out).name} generated by mini.py  */\n\n/* clang-format off */\n\n")
+fout.write("#ifndef MINI_GENERATED\n#define MINI_GENERATED\n#endif\n")
+for v in defines:
+  fout.write(f"#define {v[0]} {v[1]}\n")
 
+fout.write("\n")
 
 header_write(fout)
 source_write(fout)
 
+
+fout.write("#undef MINI_GENERATED")
 fout.write("\n/* clang-format on */\n")

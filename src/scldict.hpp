@@ -411,10 +411,15 @@ class htab_iterator {
   template <class X                                           = T,
     std::enable_if_t<std::is_copy_assignable<X>::value, bool> = true>
   htab_iterator &operator= (T const &val) {
-    if (!m_key || !m_dict)
+    if (!gkey() || !m_dict)
       throw std::out_of_range ("Null key or dictionary");
-    m_dict->set (*m_key, val);
-    m_node = m_dict->gnodefull (m_dict->ghash (*m_key));
+    if (m_node) {
+      m_dict->make_unique();
+      m_node->m_data = val;
+    } else {
+      m_dict->set (*gkey(), val);
+      m_node = m_dict->gnodefull (m_dict->ghash (*gkey()));
+    }
     return *this;
   }
 
@@ -422,10 +427,15 @@ class htab_iterator {
                                             std::is_move_assignable<X>::value,
                            bool> = true>
   htab_iterator &operator= (T &val) {
-    if (!m_key || !m_dict)
+    if (!gkey() || !m_dict)
       throw std::out_of_range ("Null key or dictionary");
-    m_dict->set (*m_key, val);
-    m_node = m_dict->gnodefull (m_dict->ghash (*m_key));
+    if (m_node) {
+      m_dict->make_unique();
+      m_node->m_data = std::move (val);
+    } else {
+      m_dict->set (*gkey(), val);
+      m_node = m_dict->gnodefull (m_dict->ghash (*gkey()));
+    }
     return *this;
   }
 };

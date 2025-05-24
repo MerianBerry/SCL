@@ -3,10 +3,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "sclcore.hpp"
-#include "scldict.hpp"
-#include "sclpath.hpp"
-#include "scljobs.hpp"
+#define SCL_IMPL
+#include "miniscl.hpp"
 
 #include <windows.h>
 
@@ -35,10 +33,9 @@ class IntJob : public scl::jobs::job<IntWaitable> {
     return new IntWaitable;
   }
 
-  int doJob (IntWaitable       *waitable,
+  void doJob (IntWaitable      *waitable,
     scl::jobs::jobworker const &worker) override {
     waitable->set (1);
-    return 0;
   }
 };
 

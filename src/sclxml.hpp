@@ -2,6 +2,9 @@
     SCL XML library
 */
 
+#ifndef SCL_XML_H
+#define SCL_XML_H
+
 #include "sclcore.hpp"
 #include <vector>
 
@@ -673,3 +676,5 @@ class xml_doc : public xml_elem, public xml_allocator {
 };
 } // namespace xml
 } // namespace scl
+
+#endif

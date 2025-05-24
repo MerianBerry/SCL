@@ -43,7 +43,7 @@ path path::resolve() const {
 #elif defined(__unix__) || defined(__APPLE__)
   char *_ = ::resolve (cstr(), fpath);
 #endif
-  return fpath;
+  return path (fpath).copy();
 }
 
 path path::parentpath() const {
@@ -375,6 +375,15 @@ std::vector<string> path::glob (string const &pattern) {
 path path::join (std::vector<path> components) {
   path out;
   for (auto &i : components) {
+    if (i == ".")
+      continue;
+    if (i == "..") {
+      if (!out.len())
+        out = out / i;
+      else
+        out = out.parentpath();
+      continue;
+    }
     out = out / i;
   }
   return out;
