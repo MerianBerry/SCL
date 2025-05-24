@@ -441,13 +441,13 @@ internal::str_iterator string::operator[] (long i) {
 }
 
 bool string::operator== (string const &rhs) const {
-  return m_buf == rhs.m_buf;
+  return !strcmp (m_buf, rhs.m_buf);
 }
 
 bool string::operator!= (string const &rhs) const {
   if (!m_buf || !rhs)
     return false;
-  return m_buf != rhs.m_buf;
+  return !!strcmp (m_buf, rhs.m_buf);
 }
 
 bool string::operator< (string const &rhs) const {
@@ -486,8 +486,13 @@ std::ifstream &operator>> (std::ifstream &in, string &str) {
     return in;
   in.seekg (cur);
   str.reserve ((unsigned)l);
+  str.m_ln = l;
   in.read ((char *)str.cstr(), l);
   return in;
+}
+
+scl::string operator+ (scl::string const &str, char const *str2) {
+  return str + scl::string (str2);
 }
 
 namespace internal {
@@ -615,6 +620,19 @@ void waitms (double ms) {
     _nanosleep (1000);
   }
 #endif
+}
+
+bool waitUntil (std::function<bool()> cond, double timeout, double sleep) {
+  bool   infinite = timeout == -1;
+  double cs       = scl::clock();
+  double ce;
+  bool   timedout = false;
+  while (!cond() && !timedout) {
+    scl::waitms (sleep);
+    ce       = scl::clock();
+    timedout = ((ce - cs) * 1000 < timeout && !infinite);
+  }
+  return !timedout;
 }
 
 Memory::Memory (Memory &&rhs) {

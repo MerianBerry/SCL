@@ -6,6 +6,7 @@
 #define SCL_CORE_H
 
 #include <fstream>
+#include <functional>
 #include <mutex>
 #include <stdarg.h>
 #include <string.h>
@@ -301,6 +302,8 @@ class string : internal::RefObj {
   friend std::ifstream &operator>> (std::ifstream &in, string &str);
 };
 
+scl::string operator+ (scl::string const &str, char const *str2);
+
 /**
  * @brief Resets the output of scl::clock(), making current time epoch.
  *
@@ -320,6 +323,9 @@ double clock();
  * @param ms  Number of milliseconds to sleep for.
  */
 void waitms (double ms);
+
+bool waitUntil (std::function<bool()> cond, double timeout = -1,
+  double sleep = 0.001);
 
 class Memory {
  protected:

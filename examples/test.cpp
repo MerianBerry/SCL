@@ -6,32 +6,53 @@
 #include "sclcore.hpp"
 #include "scldict.hpp"
 #include "sclpath.hpp"
+#include "scljobs.hpp"
 
-
-#define MEGABYTE ((double)1024 * 1024)
-
-struct unsigned_hash {
-  static unsigned hash (unsigned const &key) {
-    return key;
-  }
-};
-
-class str_itr {};
+#include <windows.h>
 
 #pragma mini skip
 #include <vector>
 
-int main (int argc, char **argv) {
-  char const *prop = "41f0d9";
+class IntWaitable : public scl::jobs::waitable {
+  int m_res = 0;
 
-  std::vector<int> v;
-  {
-    scl::string s;
-    s.view (nullptr);
-    auto files = scl::path::glob ("**/*.cpp");
-    for (auto &i : files) {
-      printf ("%s\n", i.cstr());
-    }
+ public:
+  void set (int res) {
+    lock();
+    m_res = res;
+    unlock();
   }
+
+  int value() {
+    wait();
+    return m_res;
+  }
+};
+
+class IntJob : public scl::jobs::job<IntWaitable> {
+ public:
+  IntWaitable *getWaitable() const override {
+    return new IntWaitable;
+  }
+
+  int doJob (IntWaitable       *waitable,
+    scl::jobs::jobworker const &worker) override {
+    waitable->set (1);
+    return 0;
+  }
+};
+
+int main (int argc, char **argv) {
+  scl::jobs::jobserver serv;
+  serv.start();
+  for (int i = 0; i < 32; i++) {
+    serv.submitJob ([=] (scl::jobs::jobworker const &worker) {
+      scl::waitms (50);
+      system (scl::string::fmt ("echo Hello from job %i", i).cstr());
+      // printf ("Hello from worker %i, doing job %i\n", worker.id(), i);
+    });
+  }
+  serv.waitidle();
+  serv.stop();
   return 0;
 }

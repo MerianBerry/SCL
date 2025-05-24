@@ -16,23 +16,34 @@ class path : public string {
   path (char const *rhs);
 
   /**
-   * @brief Returns the absolute path of this path.
+   * @return Full OS path of this path.
    *
    */
-  path realpath() const;
+  path resolve() const;
 
   /**
-   * @brief Returns the parent directory of this path.
+   * @return Parent directory of this path.
    * Ex: foo/bar/fun.txt => foo/bar
    *
    */
   path parentpath() const;
 
   /**
-   * @brief Returns the filename of this path.
+   * @return  Returns the filename of this path.
    *
    */
   path filename() const;
+
+  /**
+   * @return Extension of this path.
+   */
+  string extension() const;
+
+  /**
+   * @return Name component of this path.
+   * Ex: foo/bar/fun.txt => fun
+   */
+  path basename() const;
 
   /**
    * @brief Returns whether or not this path contains a wildcard (*).
@@ -65,17 +76,19 @@ class path : public string {
    */
   long wtime() const;
 
+  path &replaceFilename (path const &nFile);
+
+  path &replaceExtension (path const &nExt);
+
+  path &replaceBasename (path const &nName);
+
   /**
-   * @brief Returns the current working directory of this program.
-   *
-   * @return   Current working directory.
+   * @return   Current working directory of this program.
    */
   static path cwd();
 
   /**
-   * @brief Returns the directory that this executable resides in.
-   *
-   * @return   Executable directory.
+   * @return   Directory that this executable resides in.
    */
   static path execdir();
 
@@ -110,6 +123,8 @@ class path : public string {
    * @return   Vector of any files that matched the glob expression.
    */
   static std::vector<string> glob (string const &pattern);
+
+  static path join (std::vector<path> components);
 
   /**
    * @brief Returns this path, with a component appended, seperated by the host

@@ -36,12 +36,12 @@ path::path (string const &rhs) : string (rhs) {
 path::path (char const *rhs) : string (rhs) {
 }
 
-path path::realpath() const {
+path path::resolve() const {
   static char fpath[PATH_MAX];
 #if defined(_WIN32)
   _fullpath (fpath, cstr(), PATH_MAX);
 #elif defined(__unix__) || defined(__APPLE__)
-  char *_ = ::realpath (cstr(), fpath);
+  char *_ = ::resolve (cstr(), fpath);
 #endif
   return fpath;
 }
@@ -49,7 +49,7 @@ path path::realpath() const {
 path path::parentpath() const {
   if (!*this)
     return "";
-  auto        real = realpath();
+  auto        real = resolve();
   char const *abs  = real.cstr();
   int         l    = real.len();
   char       *p    = (char *)abs + l - 1;
@@ -64,6 +64,25 @@ path path::parentpath() const {
   n          = int (p - abs);
   string out = (p != abs) ? real.substr (0, n) : ".";
   return out;
+}
+
+path path::filename() const {
+  auto c = split();
+  if (c.size() > 0)
+    return c.back();
+  return "";
+}
+
+string path::extension() const {
+  path file = filename();
+  long p    = file.ffi (".");
+  return p >= 0 ? file.substr (p) : "";
+}
+
+path path::basename() const {
+  path file = filename();
+  long p    = file.ffi (".");
+  return p >= 0 ? file.substr (0, p) : file;
 }
 
 bool path::iswild() const {
@@ -103,12 +122,54 @@ long path::wtime() const {
     return 0;
   return s.st_mtime;
 #elif defined(_WIN32)
-  return 0;
+  FILETIME ftCreate, ftAccess, ftWrite;
+  OFSTRUCT of;
+  HFILE    hf = OpenFile (cstr(), &of, OF_READ);
+  if (hf == HFILE_ERROR)
+    return 0;
+  if (!GetFileTime ((HANDLE)(intptr_t)hf, &ftCreate, &ftAccess, &ftWrite)) {
+    CloseHandle ((HANDLE)(intptr_t)hf);
+    return 0;
+  }
+  ULARGE_INTEGER ulint;
+  ulint.LowPart  = ftWrite.dwLowDateTime;
+  ulint.HighPart = ftWrite.dwHighDateTime;
+  CloseHandle ((HANDLE)(intptr_t)hf);
+  return (long)ulint.QuadPart;
 #endif
 }
 
+path &path::replaceFilename (path const &nFile) {
+  auto c = split();
+  if (c.size() > 0) {
+    c.back() = nFile;
+    *this    = join (c);
+  }
+  return *this;
+}
+
+path &path::replaceExtension (path const &nExt) {
+  auto c = split();
+  if (c.size() > 0) {
+    auto &file = c.back();
+    file.replace (file.extension(), nExt);
+    *this = join (c);
+  }
+  return *this;
+}
+
+path &path::replaceBasename (path const &nName) {
+  auto c = split();
+  if (c.size() > 0) {
+    auto &file = c.back();
+    file.replace (file.basename(), nName);
+    *this = join (c);
+  }
+  return *this;
+}
+
 path path::cwd() {
-  return path (".").realpath();
+  return path (".").resolve();
 }
 
 path path::execdir() {
@@ -309,6 +370,14 @@ std::vector<string> path::glob (string const &pattern) {
   for (auto &dir : dirs)
     glob_ (dir, fn, finds);
   return finds;
+}
+
+path path::join (std::vector<path> components) {
+  path out;
+  for (auto &i : components) {
+    out = out / i;
+  }
+  return out;
 }
 
 path path::operator/ (path const &rhs) const {
