@@ -3,10 +3,9 @@
 #include <stdio.h>
 #include <string.h>
 
-#define SCL_IMPL
-#include "miniscl.hpp"
-
-#include <windows.h>
+#include "sclcore.hpp"
+#include "sclpath.hpp"
+#include "scljobs.hpp"
 
 #pragma mini skip
 #include <vector>
@@ -42,14 +41,14 @@ class IntJob : public scl::jobs::job<IntWaitable> {
 int main (int argc, char **argv) {
   scl::jobs::jobserver serv;
   serv.start();
-  for (int i = 0; i < 32; i++) {
+  auto vec = scl::path::glob ("**/*.cpp");
+  for (auto &i : vec) {
     serv.submitJob ([=] (scl::jobs::jobworker const &worker) {
-      scl::waitms (50);
-      system (scl::string::fmt ("echo Hello from job %i", i).cstr());
-      // printf ("Hello from worker %i, doing job %i\n", worker.id(), i);
+      auto cmd =
+        scl::string::fmt ("echo CXX %s", scl::path (i).filename().cstr());
+      system (cmd.cstr());
     });
   }
   serv.waitidle();
-  serv.stop();
   return 0;
 }

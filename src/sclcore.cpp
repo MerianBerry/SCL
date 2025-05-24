@@ -15,6 +15,7 @@
 #  endif
 #else
 #  include <unistd.h>
+#  include <math.h>
 #endif
 
 static int seed_ = 1;
@@ -87,17 +88,26 @@ unsigned char log2i (unsigned x) {
 }
 
 namespace internal {
-static uchar refs[SCL_MAX_REFS] = {0};
+// TODO: Rework GC system?
+// It works fine right, now but has some drawbacks (syncronous linear time slot
+// allocation), which i feel could be better
+
+static uchar      refs[SCL_MAX_REFS] = {0};
+static std::mutex g_mmut;
 
 bool RefObj::findslot() {
+  bool out = false;
+  g_mmut.lock();
   for (int i = 1; i < SCL_MAX_REFS; i++) {
     if (!internal::refs[i]) {
       m_refi = i;
       incslot();
-      return true;
+      out = true;
+      break;
     }
   }
-  return false;
+  g_mmut.unlock();
+  return out;
 }
 
 void RefObj::incslot() const {
@@ -160,7 +170,6 @@ string::string (char const *str) {
 
 string::~string() {
   if (deref() && *this) {
-    // printf ("Oh %s died\n", m_buf);
     delete[] m_buf;
   }
 }
@@ -450,7 +459,7 @@ bool string::operator!= (string const &rhs) const {
   return !!strcmp (m_buf, rhs.m_buf);
 }
 
-bool string::operator< (string const &rhs) const {
+bool string::operator<(string const &rhs) const {
   if (!m_buf || !rhs)
     return false;
   return strcmp (m_buf, rhs.m_buf) < 0;
@@ -591,7 +600,7 @@ double clock() {
   QueryPerformanceFrequency (&pf);
   return (double)(pc.QuadPart - base_clock.QuadPart) / (double)pf.QuadPart;
 #elif defined(__unix__) || defined(__APPLE__)
-  timespec_t ts;
+  struct timespec ts;
   timespec_get (&ts, 1);
   return ((double)ts.tv_sec + (double)ts.tv_nsec / 1000000000.0) - base_clock;
 #endif
@@ -599,8 +608,8 @@ double clock() {
 
 void waitms (double ms) {
 #if defined(__unix__) || defined(__APPLE__)
-  timespec_t ts = {2000, 0};
-  ts.tv_sec     = ms / 1000.0;
+  struct timespec ts = {2000, 0};
+  ts.tv_sec          = ms / 1000.0;
 
   ts.tv_nsec = fmodf (ms, 1000) * 1000000.0;
   while (nanosleep (&ts, &ts) == -1)

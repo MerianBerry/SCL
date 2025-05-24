@@ -8,6 +8,7 @@
 #include <thread>
 #include <queue>
 #include <mutex>
+#include <atomic>
 #include "sclcore.hpp"
 
 #define SCL_JOBS_FAST_SLEEP 0.001

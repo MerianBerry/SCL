@@ -41,7 +41,7 @@ path path::resolve() const {
 #if defined(_WIN32)
   _fullpath (fpath, cstr(), PATH_MAX);
 #elif defined(__unix__) || defined(__APPLE__)
-  char *_ = ::resolve (cstr(), fpath);
+  char    *_ = realpath (cstr(), fpath);
 #endif
   return path (fpath).copy();
 }
@@ -392,7 +392,7 @@ path path::join (std::vector<path> components) {
 path path::operator/ (path const &rhs) const {
   string out;
   if (*this) {
-    out.operator+= <PATH_MAX> (*this);
+    out.operator+=<PATH_MAX> (*this);
 #ifdef _WIN32
     out += "\\";
 #else

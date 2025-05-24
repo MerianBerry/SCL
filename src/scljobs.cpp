@@ -55,6 +55,7 @@ jobworker::jobworker (jobserver *serv, int id) {
   m_serv    = serv;
   m_id      = id;
   m_working = false;
+  m_busy    = false;
 }
 
 int jobworker::id() const {
@@ -90,15 +91,15 @@ void jobworker::work (jobworker *inst) {
     job<waitable> *job = wjob.first;
     waitable      *wt  = wjob.second;
 
+    inst->m_busy = true;
     if (job) {
-      inst->m_busy = true;
       job->doJob (wt, *inst);
       wt->complete();
       if (job->autodelwt)
         delete wt;
       delete job;
-      inst->m_busy = false;
     }
+    inst->m_busy = false;
   } while (inst->working());
 }
 

@@ -53,14 +53,6 @@ class RefObj {
   virtual void mutate (bool free) = 0;
 
   /**
-   * @brief Returns the number of references of this object.
-   *
-   * @return <b>int</b> Number of references. Returns 0 if this object has no
-   * references.
-   */
-  int refs() const;
-
-  /**
    * @brief Decrements the number of references for this object.
    *
    * @return <b>true</b> if no references remain.
@@ -87,12 +79,21 @@ class RefObj {
    * must be handled manually before using this method.
    */
   void ref (RefObj const &);
+
+ public:
+  /**
+   * @brief Returns the number of references of this object.
+   *
+   * @return <b>int</b> Number of references. Returns 0 if this object has no
+   * references.
+   */
+  int refs() const;
 };
 
 class str_iterator;
 } // namespace internal
 
-class string : internal::RefObj {
+class string : public internal::RefObj {
  private:
   friend class internal::str_iterator;
 
@@ -270,14 +271,14 @@ class string : internal::RefObj {
 
   bool operator== (string const &) const;
   bool operator!= (string const &) const;
-  bool operator< (string const &) const;
+  bool operator<(string const &) const;
 
   string operator+ (string const &) const;
 
   template <int step = 1>
   string &operator+= (char rhs) {
-    char s[2] = {rhs, '\0'};
-    return (*this).operator+= <step> (string().view (s));
+    char           s[2] = {rhs, '\0'};
+    return (*this).operator+=<step> (string().view (s));
   }
 
   template <int step = 1>
@@ -359,7 +360,7 @@ class str_iterator {
   str_iterator &operator++();
 
   /* Read */
-  operator char const &() const;
+              operator char const &() const;
   char const &operator*() const;
   char       &operator*();
 

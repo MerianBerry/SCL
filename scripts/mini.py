@@ -12,11 +12,19 @@ def split_paths(paths: str):
   while True:
     p = paths.find(";")
     #print(f"{s}:{p}")
+    P: Path
     if p < 0:
-      out.append(str(Path(paths).resolve()))
-      break
+      P = Path(paths)
     else:
-      out.append(str(Path(paths[:p]).resolve()))
+      P = Path(paths[:p])
+
+    if not P.is_file():
+      print(f"ignoring {P}")
+    else:
+      out.append(str(P.resolve()))
+
+    if p < 0:
+      break
     paths = paths[p+1:]
     s = p + 1
   return out
