@@ -115,15 +115,15 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a239bde377b6b740ba69193a4d862d413"><td class="memItemLeft" align="right" valign="top"><a id="a239bde377b6b740ba69193a4d862d413" name="a239bde377b6b740ba69193a4d862d413"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>RefObj</b> (<a class="el" href="classscl_1_1internal_1_1RefObj.html">RefObj</a> const &amp;)</td></tr>
 <tr class="separator:a239bde377b6b740ba69193a4d862d413"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a40cc00d7a6e9b0eff48ee74988b1a8f1"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscl_1_1internal_1_1RefObj.html#a40cc00d7a6e9b0eff48ee74988b1a8f1">refs</a> () const</td></tr>
+<tr class="memdesc:a40cc00d7a6e9b0eff48ee74988b1a8f1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the number of references of this object.  <br /></td></tr>
+<tr class="separator:a40cc00d7a6e9b0eff48ee74988b1a8f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-methods" name="pro-methods"></a>
 Protected Member Functions</h2></td></tr>
 <tr class="memitem:ac2f239db9c14874e33deb5f4f111c754"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscl_1_1internal_1_1RefObj.html#ac2f239db9c14874e33deb5f4f111c754">mutate</a> (bool free)=0</td></tr>
 <tr class="memdesc:ac2f239db9c14874e33deb5f4f111c754"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deep copy implemented by derived classes, called by <a class="el" href="classscl_1_1internal_1_1RefObj.html">RefObj</a>.  <br /></td></tr>
 <tr class="separator:ac2f239db9c14874e33deb5f4f111c754"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a40cc00d7a6e9b0eff48ee74988b1a8f1"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscl_1_1internal_1_1RefObj.html#a40cc00d7a6e9b0eff48ee74988b1a8f1">refs</a> () const</td></tr>
-<tr class="memdesc:a40cc00d7a6e9b0eff48ee74988b1a8f1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the number of references of this object.  <br /></td></tr>
-<tr class="separator:a40cc00d7a6e9b0eff48ee74988b1a8f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a93ce0282cc90f5f7237612e769a3bb4c"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscl_1_1internal_1_1RefObj.html#a93ce0282cc90f5f7237612e769a3bb4c">deref</a> ()</td></tr>
 <tr class="memdesc:a93ce0282cc90f5f7237612e769a3bb4c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decrements the number of references for this object.  <br /></td></tr>
 <tr class="separator:a93ce0282cc90f5f7237612e769a3bb4c"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -274,9 +274,6 @@ Protected Member Functions</h2></td></tr>
 
 <div class="memitem">
 <div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
       <table class="memname">
         <tr>
           <td class="memname">int scl::internal::RefObj::refs </td>
@@ -285,11 +282,6 @@ Protected Member Functions</h2></td></tr>
           <td> const</td>
         </tr>
       </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
-  </tr>
-</table>
 </div><div class="memdoc">
 
 <p>Returns the number of references of this object. </p>
