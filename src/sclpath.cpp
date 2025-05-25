@@ -12,8 +12,10 @@
 #  include <windows.h>
 #  include <io.h>
 #  include <direct.h>
+#  include <shlwapi.h>
 #  define access _access
 #  define F_OK   0
+#  pragma comment(lib, "Shlwapi.lib")
 #else
 #  include <dirent.h>
 #  include <unistd.h>
@@ -41,9 +43,43 @@ path path::resolve() const {
 #if defined(_WIN32)
   _fullpath (fpath, cstr(), PATH_MAX);
 #elif defined(__unix__) || defined(__APPLE__)
-  char    *_ = realpath (cstr(), fpath);
+  char *_ = realpath (cstr(), fpath);
 #endif
   return path (fpath).copy();
+}
+
+bool path::haspath (path const &path) const {
+  scl::path copy = resolve();
+  return copy.ffi (path.resolve()) >= 0;
+}
+
+static path trimpath (path const &path, scl::path const &with) {
+  std::vector<scl::path> comp;
+  auto                   frc = with.split();
+  auto                   fic = path.split();
+  for (int i = 0; i < fic.size(); i++) {
+    if (i < frc.size() && frc[i] == fic[i])
+      continue;
+    comp.push_back (fic[i]);
+  }
+  return path::join (comp);
+}
+
+path path::relative (path const &from) const {
+  scl::path copy = from.resolve();
+  scl::path out;
+  while (copy) {
+    if (haspath (copy)) {
+      auto trimmed = trimpath (*this, copy);
+      out.join (trimmed, false);
+      return out;
+    }
+    out = out.join ("..", false);
+    if (!copy.isdirectory())
+      break;
+    copy = copy.parentpath();
+  }
+  return *this;
 }
 
 path path::parentpath() const {
@@ -79,7 +115,7 @@ string path::extension() const {
   return p >= 0 ? file.substr (p) : "";
 }
 
-path path::basename() const {
+path path::stem() const {
   path file = filename();
   long p    = file.ffi (".");
   return p >= 0 ? file.substr (0, p) : file;
@@ -115,13 +151,41 @@ bool path::exists() const {
   return r;
 }
 
-long path::wtime() const {
-#if defined(__unix__) || defined(__APPLE__)
+bool path::isfile() const {
+  if (!exists())
+    return false;
+#ifdef _WIN32
+  return !isdirectory();
+#else
+  struct stat s;
+  if (stat (path.cstr(), &s) == -1)
+    return false;
+  return S_ISREG (st.st_mode);
+#endif
+}
+
+bool path::isdirectory() const {
+  if (!exists())
+    return false;
+#ifdef _WIN32
+  DWORD fa = GetFileAttributesA (cstr());
+  return (fa & FILE_ATTRIBUTE_DIRECTORY);
+#else
+  struct stat s;
+  if (stat (path.cstr(), &s) == -1)
+    return false;
+  return S_ISDIR (st.st_mode);
+#endif
+}
+
+long long path::wtime() const {
   struct stat s = {0};
   if (stat (cstr(), &s) == -1)
     return 0;
   return s.st_mtime;
-#elif defined(_WIN32)
+#if 0
+#  if defined(__unix__) || defined(__APPLE__)
+#  elif defined(_WIN32)
   FILETIME ftCreate, ftAccess, ftWrite;
   OFSTRUCT of;
   HFILE    hf = OpenFile (cstr(), &of, OF_READ);
@@ -135,8 +199,14 @@ long path::wtime() const {
   ulint.LowPart  = ftWrite.dwLowDateTime;
   ulint.HighPart = ftWrite.dwHighDateTime;
   CloseHandle ((HANDLE)(intptr_t)hf);
-  return (long)ulint.QuadPart;
+  return (unsigned long)ulint.QuadPart;
+#  endif
 #endif
+}
+
+void path::remove() const {
+  if (iswild() && isfile())
+    return;
 }
 
 path &path::replaceFilename (path const &nFile) {
@@ -158,11 +228,11 @@ path &path::replaceExtension (path const &nExt) {
   return *this;
 }
 
-path &path::replaceBasename (path const &nName) {
+path &path::replaceStem (path const &nName) {
   auto c = split();
   if (c.size() > 0) {
     auto &file = c.back();
-    file.replace (file.basename(), nName);
+    file.replace (file.stem(), nName);
     *this = join (c);
   }
   return *this;
@@ -209,6 +279,29 @@ bool path::mkdir (path const &path) {
   return true;
 }
 
+bool path::copyfile (path const &from, path const &to) {
+  std::ifstream in (from.cstr(), std::ios_base::in | std::ios_base::binary);
+  if (!in.is_open())
+    return false;
+  std::ofstream out (to.cstr(), std::ios_base::out | std::ios_base::binary);
+  if (!out.is_open())
+    return false;
+  scl::string contents;
+  in >> contents;
+  out.write (contents.cstr(), contents.size());
+  in.close();
+  out.close();
+  return true;
+}
+
+bool path::movefile (path const &from, path const &to) {
+#ifdef _WIN32
+  return !!MoveFileA (from.cstr(), to.cstr());
+#else
+  return !rename (from.cstr(), to.cstr());
+#endif
+}
+
 bool path::mkdir (std::vector<path> paths) {
   for (auto &i : paths) {
     if (!mkdir (i))
@@ -225,30 +318,17 @@ bool path::chdir (path const &path) {
 #endif
 }
 
-static int glob_ (path const &dir, path const &mask, std::vector<string> &globs,
+static int glob_ (path const &dir, path const &mask, std::vector<path> &globs,
   bool files = true) {
 #ifdef _WIN32
-  // globs.reserve (128);
-  string const     M     = mask;
-  auto const       end   = mask.iswild() ? "*" : mask;
-  string const     spec  = dir / end;
+  path const       spec  = dir / (mask.iswild() ? "*" : mask);
   HANDLE           hFind = NULL;
   WIN32_FIND_DATAA ffd;
   hFind = FindFirstFileA (spec.cstr(), &ffd);
   if (hFind == NULL || hFind == (HANDLE)0xffffffffLL)
     return 1;
   do {
-    string fn = ffd.cFileName;
-    if (fn == "." || fn == "..")
-      continue;
-    bool t = (files && !(ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) ||
-             (!files && (ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY));
-    if ((!mask.iswild() || string::match (fn.cstr(), M.cstr())) && t) {
-      globs.push_back (dir / (mask.iswild() ? fn : mask));
-    }
-  } while (FindNextFile (hFind, &ffd) != 0);
-  FindClose (hFind);
-  return 0;
+    path fn = ffd.cFileName;
 #elif defined(_DIRENT_H)
   /* clang-format off */
   DIR           *handle = opendir (dir.cstr());
@@ -257,30 +337,31 @@ static int glob_ (path const &dir, path const &mask, std::vector<string> &globs,
     if (!(dp = readdir (handle)))
       break;
     path fn = (char*)dp->d_name;
+#endif
     if (fn == "." || fn == "..")
       continue;
-    struct stat st;
-    path        path = dir / fn;
-    if (stat(path.cstr(), &st))
-      continue;
-    bool t = (files && S_ISREG(st.st_mode) || !files && S_ISDIR(st.st_mode));
-    if (t && (!mask.iswild() || string::match(fn.cstr(), mask.cstr()))) {
-      globs.push_back(dir / (mask.iswild() ? fn : mask));
+    path path = dir / (mask.iswild() ? fn : mask);
+    bool t    = (files && path.isfile()) || (!files && path.isdirectory());
+    if (t && (!mask.iswild() || string::match (fn.cstr(), mask.cstr()))) {
+      globs.push_back (path);
     }
+#ifdef _WIN32
+  } while (FindNextFile (hFind, &ffd) != 0);
+  FindClose (hFind);
+#elif defined(_DIRENT_H)
   }
   if (handle)
     closedir (handle);
-  return 0;
 
-  /* clang-format on */
+/* clang-format on */
 #else
 #  message "scl::io::glob missing implementation :("
-  return 0;
 #endif
+  return 0;
 }
 
-static int glob_recurse (string const &mask, std::vector<string> &dirs,
-  std::vector<string> &finds, bool misdir = true) {
+static int glob_recurse (string const &mask, std::vector<path> &dirs,
+  std::vector<path> &finds, bool misdir = true) {
   // For each in dirs, add to finds.
   /* LOOP
     For each in dirs, search for every directory (ndirs).
@@ -298,7 +379,7 @@ static int glob_recurse (string const &mask, std::vector<string> &dirs,
   for (auto &i : dirs)
     finds.push_back (i);
   while (dirs.size() > 0) {
-    std::vector<string> ndirs;
+    std::vector<path> ndirs;
     for (auto &i : dirs)
       glob_ (i, "*", ndirs, false);
     if (misdir) {
@@ -318,7 +399,7 @@ static int glob_recurse (string const &mask, std::vector<string> &dirs,
   return 0;
 }
 
-std::vector<string> path::glob (string const &pattern) {
+std::vector<path> path::glob (string const &pattern) {
   auto syms = path (pattern).split();
   /* LOOP (for each in syms)
     IF sym IS WILDCARD
@@ -352,10 +433,10 @@ std::vector<string> path::glob (string const &pattern) {
   // For every dir glob, use previously expanded glob as a search dir (dirs),
   // then set the search dirs with the results (ndirs).
   // It is up to platform agnostic code to handle the bullshit that is **.
-  std::vector<string> dirs = {globs[0]}, finds;
+  std::vector<path> dirs = {globs[0]}, finds;
   // For ever dir glob
   for (int i = 1; i < globs.size() - 1; i++) {
-    std::vector<string> ndirs;
+    std::vector<path> ndirs;
     if (globs[i] == "**") {
       glob_recurse (globs[(long long)i + 1], dirs, ndirs, i < globs.size() - 2);
     } else {
@@ -372,35 +453,43 @@ std::vector<string> path::glob (string const &pattern) {
   return finds;
 }
 
-path path::join (std::vector<path> components) {
+path path::join (std::vector<path> components, bool ignoreback) {
   path out;
   for (auto &i : components) {
     if (i == ".")
       continue;
     if (i == "..") {
-      if (!out.len())
-        out = out / i;
-      else
-        out = out.parentpath();
-      continue;
+      if (!ignoreback) {
+        if (!out.len() && out.filename() != ".." && out.filename() != ".")
+          out.join (i, false);
+        else
+          out = out.parentpath();
+        continue;
+      }
     }
-    out = out / i;
+    out.join (i, false);
   }
   return out;
 }
 
-path path::operator/ (path const &rhs) const {
-  string out;
+path &path::join (path const &rhs, bool relative) {
   if (*this) {
-    out.operator+=<PATH_MAX> (*this);
 #ifdef _WIN32
-    out += "\\";
+    this->operator+= <64> ("\\");
 #else
-    out += "/";
+    this->operator+= <64> ("/");
 #endif
   }
-  out += rhs;
-  return out;
+  if (relative)
+    this->operator+= <64> (rhs.relative (*this));
+  else
+    this->operator+= <64> (rhs);
+  return *this;
+}
+
+path path::operator/ (path const &rhs) const {
+  path out = *this;
+  return out.join (rhs);
 }
 
 } // namespace scl

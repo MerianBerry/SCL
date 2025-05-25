@@ -2,4 +2,4 @@ If:
   PathMatch: [.*.hpp, .*.h, .*.cpp, .*.c]
   PathExclude: third_party/*
 CompileFlags:
-  Add: [-std=c++14, -Wno-deprecated-declarations, -Wno-unused-includes, -I/home/merian/Desktop/SCL/src, -I/home/merian/Desktop/SCL/build]
+  Add: [-std=c++14, -Wno-deprecated-declarations, -Wno-unused-includes, -IC:/Users/merian/Documents/Programming/SCL/src, -IC:/Users/merian/Documents/Programming/SCL/build]

@@ -39,16 +39,8 @@ class IntJob : public scl::jobs::job<IntWaitable> {
 };
 
 int main (int argc, char **argv) {
-  scl::jobs::jobserver serv;
-  serv.start();
-  auto vec = scl::path::glob ("**/*.cpp");
-  for (auto &i : vec) {
-    serv.submitJob ([=] (scl::jobs::jobworker const &worker) {
-      auto cmd =
-        scl::string::fmt ("echo CXX %s", scl::path (i).filename().cstr());
-      system (cmd.cstr());
-    });
-  }
-  serv.waitidle();
+  scl::path val = "src/sclpath.cpp";
+  val           = val.resolve();
+  auto rel      = val.relative ("build");
   return 0;
 }

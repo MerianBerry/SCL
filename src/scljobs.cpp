@@ -103,9 +103,9 @@ void jobworker::work (jobworker *inst) {
   } while (inst->working());
 }
 
-int jobserver::getNWorkers (int workers) {
-  if (workers <= 0)
-    workers = 0x7fffffff;
+int jobserver::getnthreads (int threads) {
+  if (threads <= 0)
+    threads = 0x7fffffff;
   int n = 0;
 #ifdef _WIN32
   SYSTEM_INFO si;
@@ -116,7 +116,7 @@ int jobserver::getNWorkers (int workers) {
 #endif
 #ifdef _SC_NPROCESSORS_ONLN
   n = sysconf (_SC_NPROCESSORS_ONLN);
-  return std::min (n, workers);
+  return std::min (n, threads);
 #endif
   return 0;
 }
@@ -135,7 +135,7 @@ bool jobserver::takeJob (t_wjob &wjob) {
 }
 
 jobserver::jobserver (int workers) {
-  int n = getNWorkers (workers);
+  int n = getnthreads (workers);
   m_workers.reserve (n);
   m_nworkers = n;
   m_slow     = false;
@@ -235,7 +235,7 @@ int jobserver::workerCount() const {
 }
 
 void jobserver::multithread (std::function<void (int, int)> func, int workers) {
-  int                      n = getNWorkers (workers);
+  int                      n = getnthreads (workers);
   std::vector<std::thread> w;
   for (int i = 0; i < n; i++)
     w.push_back (std::thread (func, i, n));

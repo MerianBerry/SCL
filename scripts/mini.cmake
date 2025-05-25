@@ -1,6 +1,5 @@
 
-find_package(PythonInterp)
-find_package(Python)
+find_package(Python3)
 
 function(minify name impflag guard headers sources)
   if (NOT ${impflag} STREQUAL "")

@@ -21,6 +21,14 @@ class path : public string {
    */
   path resolve() const;
 
+  bool haspath (path const &path) const;
+
+  /**
+   * @brief
+   *
+   */
+  path relative (path const &from = ".") const;
+
   /**
    * @return Parent directory of this path.
    * Ex: foo/bar/fun.txt => foo/bar
@@ -40,10 +48,10 @@ class path : public string {
   string extension() const;
 
   /**
-   * @return Name component of this path.
+   * @return Stem component of this path.
    * Ex: foo/bar/fun.txt => fun
    */
-  path basename() const;
+  path stem() const;
 
   /**
    * @brief Returns whether or not this path contains a wildcard (*).
@@ -70,17 +78,36 @@ class path : public string {
   bool exists() const;
 
   /**
+   * @return   Whether or not this path represents a file.
+   */
+  bool isfile() const;
+
+  /**
+   * @return   Whether or not this path represents a directory.
+   */
+  bool isdirectory() const;
+
+  /**
    * @brief Returns the write time of the file at this path.
    *
    * @return   Write time in seconds since UNIX epoch.
    */
-  long wtime() const;
+  long long wtime() const;
+
+  /**
+   * @brief Deletes this file from the file system.
+   * If this path isnt a file, nothing happens.
+   * @note If you want to remove a directory, or glob expression, use the static
+   * scl::path::remove
+   *
+   */
+  void remove() const;
 
   path &replaceFilename (path const &nFile);
 
   path &replaceExtension (path const &nExt);
 
-  path &replaceBasename (path const &nName);
+  path &replaceStem (path const &nName);
 
   /**
    * @return   Current working directory of this program.
@@ -113,6 +140,31 @@ class path : public string {
   static bool mkdir (std::vector<path> paths);
 
   /**
+   * @brief Recursively removes any files matching this pattern
+   *
+   * @param pattern  Glob expression to use.
+   */
+  static void remove (path const &pattern);
+
+  /**
+   * @brief Copies a file from `from` to `to`.
+   *
+   * @param from  Source path.
+   * @param to  Destination path.
+   * @return  True if the copy was successful, false if otherwise.
+   */
+  static bool copyfile (path const &from, path const &to);
+
+  /**
+   * @brief Moves a file from `from` to `to`.
+   *
+   * @param from  Source path.
+   * @param to  Destination path.
+   * @return  True if the move was successful, false if otherwise.
+   */
+  static bool movefile (path const &from, path const &to);
+
+  /**
    * @brief Returns a vector of any existing files that match a glob pattern.
    * Ex: .\*.txt: search for any .txt file, **\*.txt: recursive search for any
    * .txt file.
@@ -122,9 +174,11 @@ class path : public string {
    * @param pattern  Glob expression to use.
    * @return   Vector of any files that matched the glob expression.
    */
-  static std::vector<string> glob (string const &pattern);
+  static std::vector<path> glob (string const &pattern);
 
-  static path join (std::vector<path> components);
+  static path join (std::vector<path> components, bool ignoreback = false);
+
+  path &join (path const &rhs, bool relative = true);
 
   /**
    * @brief Returns this path, with a component appended, seperated by the host

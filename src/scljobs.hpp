@@ -101,7 +101,6 @@ class jobserver : protected std::mutex {
   std::atomic_bool      m_slow;
   std::atomic_bool      m_working;
 
-  static int getNWorkers (int workers);
 
   bool takeJob (t_wjob &wjob);
 
@@ -136,6 +135,8 @@ class jobserver : protected std::mutex {
     bool autodelwt = true);
 
   int workerCount() const;
+
+  static int getnthreads (int threads);
 
   static void multithread (std::function<void (int, int)> func,
     int                                                   workers = 0);
