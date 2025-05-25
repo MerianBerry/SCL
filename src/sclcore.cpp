@@ -191,16 +191,22 @@ string::string (string const &rhs)
 }
 
 void string::mutate (bool free) {
-  m_ln       = m_buf ? m_ln : 0;
-  m_sz       = m_ln;
-  char *nbuf = new char[m_ln + 1];
-  memset (nbuf, 0, (size_t)m_ln + 1);
-  if (m_buf) {
-    memcpy (nbuf, m_buf, m_ln);
-    if (free)
-      delete[] m_buf;
+  if (m_ln > 1) {
+    m_ln       = m_buf ? m_ln : 0;
+    m_sz       = m_ln;
+    char *nbuf = new char[m_ln + 1];
+    memset (nbuf, 0, (size_t)m_ln + 1);
+    if (m_buf) {
+      memcpy (nbuf, m_buf, m_ln);
+      if (free)
+        delete[] m_buf;
+    }
+    m_buf = nbuf;
+  } else {
+    m_buf = nullptr;
+    m_ln  = 0;
+    m_sz  = 0;
   }
-  m_buf = nbuf;
 }
 
 void string::clear() {

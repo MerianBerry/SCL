@@ -42,5 +42,6 @@ int main (int argc, char **argv) {
   scl::path val = "src/sclpath.cpp";
   val           = val.resolve();
   auto rel      = val.relative ("build");
+  printf ("relative: %s\n", rel.cstr());
   return 0;
 }

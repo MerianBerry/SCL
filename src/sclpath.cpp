@@ -43,7 +43,7 @@ path path::resolve() const {
 #if defined(_WIN32)
   _fullpath (fpath, cstr(), PATH_MAX);
 #elif defined(__unix__) || defined(__APPLE__)
-  char *_ = realpath (cstr(), fpath);
+  char       *_ = realpath (cstr(), fpath);
 #endif
   return path (fpath).copy();
 }
@@ -157,8 +157,8 @@ bool path::isfile() const {
 #ifdef _WIN32
   return !isdirectory();
 #else
-  struct stat s;
-  if (stat (path.cstr(), &s) == -1)
+  struct stat st;
+  if (stat (cstr(), &st) == -1)
     return false;
   return S_ISREG (st.st_mode);
 #endif
@@ -171,8 +171,8 @@ bool path::isdirectory() const {
   DWORD fa = GetFileAttributesA (cstr());
   return (fa & FILE_ATTRIBUTE_DIRECTORY);
 #else
-  struct stat s;
-  if (stat (path.cstr(), &s) == -1)
+  struct stat st;
+  if (stat (cstr(), &st) == -1)
     return false;
   return S_ISDIR (st.st_mode);
 #endif
@@ -475,15 +475,15 @@ path path::join (std::vector<path> components, bool ignoreback) {
 path &path::join (path const &rhs, bool relative) {
   if (*this) {
 #ifdef _WIN32
-    this->operator+= <64> ("\\");
+    this->operator+=<64> ("\\");
 #else
-    this->operator+= <64> ("/");
+    this->operator+=<64> ("/");
 #endif
   }
   if (relative)
-    this->operator+= <64> (rhs.relative (*this));
+    this->operator+=<64> (rhs.relative (*this));
   else
-    this->operator+= <64> (rhs);
+    this->operator+=<64> (rhs);
   return *this;
 }
 
