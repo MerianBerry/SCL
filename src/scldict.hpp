@@ -21,23 +21,25 @@ struct hnode {
   T        m_data;
   unsigned m_hash;
 };
-template <class T, class K>
+template <class T, class K, bool NC = true>
 class htab_iterator;
 } // namespace internal
 
 template <class T, class K = string, class Hfunc = string>
 class dictionary : internal::RefObj {
   friend class internal::htab_iterator<T, K>;
+  friend class internal::htab_iterator<T, K, false>;
 
  protected:
-  using hnode         = internal::hnode<T, K>;
-  using htab_iterator = internal::htab_iterator<T, K>;
+  using hnode               = internal::hnode<T, K>;
+  using htab_iterator       = internal::htab_iterator<T, K, true>;
+  using const_htab_iterator = internal::htab_iterator<T, K, false>;
 
   uchar    m_hsz;
   unsigned m_hnum;
   hnode  **m_ht;
 
-  static unsigned ghash (K const &key) {
+  static unsigned ghash (const K &key) {
     return Hfunc::hash (key);
   }
 
@@ -71,7 +73,7 @@ class dictionary : internal::RefObj {
   }
 
   hnode *first() const {
-    for (unsigned i = 0; i < 1u << m_hsz; i++) {
+    for (unsigned i = 0; i < 1u << m_hsz && m_ht; i++) {
       if (m_ht[i]) {
         return m_ht[i];
       }
@@ -173,8 +175,19 @@ class dictionary : internal::RefObj {
     m_ht   = nullptr;
   }
 
-  dictionary (dictionary const &rhs)
+  dictionary (const dictionary &rhs)
       : RefObj (rhs), m_ht (rhs.m_ht), m_hnum (rhs.m_hnum), m_hsz (rhs.m_hsz) {
+  }
+
+  dictionary &operator= (const dictionary &rhs) {
+    if (this->internal::RefObj::operator== (rhs))
+      return *this;
+    clear();
+    ref (rhs);
+    m_hnum = rhs.m_hnum;
+    m_hsz  = rhs.m_hsz;
+    m_ht   = rhs.m_ht;
+    return *this;
   }
 
   ~dictionary() override {
@@ -213,7 +226,7 @@ class dictionary : internal::RefObj {
    */
   template <class X                                           = T,
     std::enable_if_t<std::is_copy_assignable<X>::value, bool> = true>
-  void set (K const &key, T const &v) {
+  void set (const K &key, const T &v) {
     // Make this unique
     make_unique();
     if (!isoptimal())
@@ -237,7 +250,7 @@ class dictionary : internal::RefObj {
   template <class X = T, std::enable_if_t<!std::is_copy_assignable<X>::value &&
                                             std::is_move_assignable<X>::value,
                            bool> = true>
-  void set (K const &key, T &v) {
+  void set (const K &key, T &v) {
     // Make this unique
     make_unique();
     if (!isoptimal())
@@ -258,7 +271,7 @@ class dictionary : internal::RefObj {
    *
    * @param key  Key of the element to remove.
    */
-  void remove (K const &key) {
+  void remove (const K &key) {
     unsigned hash = ghash (key);
     hnode   *n    = gnodebase (hash);
     while (n && n->m_next && n->m_next->m_hash != hash)
@@ -276,13 +289,21 @@ class dictionary : internal::RefObj {
   }
 
   htab_iterator begin() {
-    make_unique();
-    return htab_iterator (nodenext (nullptr), *this);
+    auto *n = first();
+    return htab_iterator (*this, n ? n->m_hash : 0);
+  }
+
+  const_htab_iterator cbegin() const {
+    auto *n = first();
+    return const_htab_iterator (*this, n ? n->m_hash : 0);
   }
 
   htab_iterator end() {
-    make_unique();
-    return htab_iterator (nullptr, *this);
+    return htab_iterator (*this, 0);
+  }
+
+  const_htab_iterator cend() const {
+    return const_htab_iterator (*this, 0);
   }
 
   /**
@@ -292,13 +313,11 @@ class dictionary : internal::RefObj {
    * @return  Returns an iterator to the specified element. Returns an iterator
    * to dictionary::end() if no such element exists.
    */
-  htab_iterator get (K const &key) {
+  htab_iterator get (const K &key) {
     unsigned hash = ghash (key);
     hnode   *n    = gnodefull (hash);
-    if (n) {
-      make_unique();
-      return htab_iterator (n, *this);
-    }
+    if (n)
+      return htab_iterator (*this, n->m_hash);
     return end();
   }
 
@@ -309,133 +328,167 @@ class dictionary : internal::RefObj {
    * @return  Returns an iterator to the specified element. Returns an iterator
    * to dictionary::end() if no such element exists.
    */
-  htab_iterator operator[] (K const &key) {
+  const_htab_iterator get (const K &key) const {
+    unsigned hash = ghash (key);
+    hnode   *n    = gnodefull (hash);
+    if (n)
+      return const_htab_iterator (*this, n->m_hash);
+    return cend();
+  }
+
+  /**
+   * @brief Returns an iterator to the element at a given key.
+   *
+   * @param key  Key of the element to search for.
+   * @return  Returns an iterator to the specified element. Returns an iterator
+   * to dictionary::end() if no such element exists.
+   */
+  htab_iterator operator[] (const K &key) {
     htab_iterator i = get (key);
     if (i != end())
       return i;
-    return htab_iterator (key, *this);
+    return htab_iterator (*this, 0, key);
+  }
+
+  /**
+   * @brief Returns an iterator to the element at a given key.
+   *
+   * @param key  Key of the element to search for.
+   * @return  Returns an iterator to the specified element. Returns an iterator
+   * to dictionary::end() if no such element exists.
+   */
+  const_htab_iterator operator[] (const K &key) const {
+    const_htab_iterator i = get (key);
+    if (i != cend())
+      return i;
+    return const_htab_iterator (*this, 0, key);
+  }
+
+  bool operator== (const dictionary &rhs) const {
+    for (const_htab_iterator i = cbegin(), j = rhs.cbegin(); i != cend();
+         ++i, ++j) {
+      if (j == rhs.cend() || i != j || i.value() != j.value()) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  bool operator!= (const dictionary &rhs) const {
+    return !(*this == rhs);
   }
 };
 
 namespace internal {
-template <class T, class K>
+template <class T, class K, bool NC>
 class htab_iterator {
-  using hnode = internal::hnode<T, K>;
-  hnode            *m_node;
-  K const          *m_key;
-  dictionary<T, K> *m_dict;
-
-  K const *gkey() const {
-    return m_node ? &m_node->m_key : m_key;
-  }
+  dictionary<T, K> *m_dict = nullptr;
+  K                 m_ikey;
+  unsigned          m_hash = 0;
 
  public:
-  htab_iterator() : m_node (nullptr), m_dict (nullptr) {
+  htab_iterator() = default;
+
+  htab_iterator (const dictionary<T, K> &dict, unsigned hash)
+      : m_dict ((dictionary<T, K> *)&dict), m_hash (hash) {
   }
 
-  htab_iterator (hnode *node, dictionary<T, K> &dict)
-      : m_node (node), m_key (nullptr), m_dict (&dict) {
+  htab_iterator (const dictionary<T, K> &dict, unsigned hash, const K &key)
+      : m_dict ((dictionary<T, K> *)&dict), m_hash (hash), m_ikey (key) {
   }
 
-  htab_iterator (K const &k, dictionary<T, K> &dict)
-      : m_node (nullptr), m_key (&k), m_dict (&dict) {
+  bool operator== (const htab_iterator &rhs) const {
+    return m_hash == rhs.m_hash;
   }
 
-  bool operator== (htab_iterator const &rhs) const {
-    return m_node == rhs.m_node;
-  }
-
-  bool operator!= (htab_iterator const &rhs) const {
-    return m_node != rhs.m_node;
+  bool operator!= (const htab_iterator &rhs) const {
+    return m_hash != rhs.m_hash;
   }
 
   htab_iterator &operator++() {
     if (!m_dict)
-      return m_node = nullptr, *this;
-    m_node = m_dict->nodenext (m_node);
+      return *this = htab_iterator(), *this;
+    auto *n = m_dict->nodenext (m_dict->gnodefull (m_hash));
+    m_hash  = n ? n->m_hash : 0;
     return *this;
   }
 
   /* Read */
   /**
    * @brief Returns the key pointed to by this iterator.
-   * @exception std::out_of_range The key of this iterator is NULL.
+   * @exception std::out_of_range.
    *
    * @return   The key of this iterator.
    */
-  K const &key() const {
-    K const *m_key = gkey();
-    if (!m_key)
-      throw std::out_of_range ("Null key");
-    return *m_key;
+  const K &key() const {
+    auto *node = m_dict->gnodefull (m_hash);
+    if (!node)
+      throw std::out_of_range ("");
+    return node->m_key;
   }
 
   /**
    * @brief Returns the value pointed to by this iterator.
-   * @exception std::out_of_range No element exists.
+   * @exception std::out_of_range.
    *
    * @return   The value of this iterator.
    */
   T &value() const {
-    if (!m_node || !m_dict)
-      throw std::out_of_range ("No element exists");
-    return m_node->m_data;
+    if (!m_dict)
+      throw std::out_of_range ("");
+    auto *node = m_dict->gnodefull (m_hash);
+    if (!node)
+      throw std::out_of_range ("");
+    return node->m_data;
   }
 
   T *operator->() const {
-    if (!m_node || !m_dict)
-      throw std::out_of_range ("No element exists");
-    return &m_node->m_data;
+    return &value();
   }
 
   operator T &() const {
-    if (!m_node || !m_dict)
-      throw std::out_of_range ("Null key or dictionary");
-    return m_node->m_data;
+    return value();
   }
 
-  htab_iterator const &operator*() const {
+  const htab_iterator &operator*() const {
     if (!gkey() || !m_dict)
       throw std::out_of_range ("Null key or dictionary");
     return *this;
   }
 
   htab_iterator &operator*() {
-    if (!gkey() || !m_dict)
-      throw std::out_of_range ("Null key or dictionary");
-    K key  = *gkey();
-    m_node = m_dict->get (key).m_node;
     return *this;
   }
 
-  template <class X                                           = T,
-    std::enable_if_t<std::is_copy_assignable<X>::value, bool> = true>
-  htab_iterator &operator= (T const &val) {
-    if (!gkey() || !m_dict)
-      throw std::out_of_range ("Null key or dictionary");
-    if (m_node) {
-      m_dict->make_unique();
-      m_node->m_data = val;
-    } else {
-      m_dict->set (*gkey(), val);
-      m_node = m_dict->gnodefull (m_dict->ghash (*gkey()));
-    }
+  template <class X                                                 = T,
+    std::enable_if_t<std::is_copy_assignable<X>::value && NC, bool> = true>
+  htab_iterator &operator= (const T &val) {
+    if (!m_dict)
+      throw std::out_of_range ("");
+    m_dict->make_unique();
+    m_hash     = m_dict->ghash (m_ikey);
+    auto *node = m_dict->gnodefull (m_hash);
+    if (!node)
+      m_dict->set (m_ikey, val);
+    else
+      node->m_data = val;
     return *this;
   }
 
-  template <class X = T, std::enable_if_t<!std::is_copy_assignable<X>::value &&
-                                            std::is_move_assignable<X>::value,
-                           bool> = true>
+  template <class X = T,
+    std::enable_if_t<!std::is_copy_assignable<X>::value &&
+                       std::is_move_assignable<X>::value && NC,
+      bool>         = true>
   htab_iterator &operator= (T &val) {
-    if (!gkey() || !m_dict)
-      throw std::out_of_range ("Null key or dictionary");
-    if (m_node) {
-      m_dict->make_unique();
-      m_node->m_data = std::move (val);
-    } else {
-      m_dict->set (*gkey(), val);
-      m_node = m_dict->gnodefull (m_dict->ghash (*gkey()));
-    }
+    if (!m_dict)
+      throw std::out_of_range ("");
+    m_dict->make_unique();
+    m_hash     = m_dict->ghash (m_ikey);
+    auto *node = m_dict->gnodefull (m_hash);
+    if (!node)
+      m_dict->set (m_ikey, val);
+    else
+      node->m_data = std::move (val);
     return *this;
   }
 };

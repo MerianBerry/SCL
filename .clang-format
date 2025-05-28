@@ -44,7 +44,7 @@ SpacesInParentheses: false
 SpacesInSquareBrackets: false
 KeepEmptyLinesAtTheStartOfBlocks: false
 QualifierAlignment: Custom
-QualifierOrder: ['inline', 'static', 'type', 'const']
+QualifierOrder: ['inline', 'static', 'const', 'type']
 ContinuationIndentWidth: 2
 TabWidth: 2
 UseCRLF: true

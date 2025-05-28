@@ -46,7 +46,7 @@ class job {
 
  private:
   bool                                 autodelwt    = false;
-  static typename WtT::_Waitable const _is_waitable = 1;
+  static const typename WtT::_Waitable _is_waitable = 1;
 
  protected:
  public:
@@ -55,18 +55,18 @@ class job {
 
   virtual Wt *getWaitable() const = 0;
 
-  virtual void doJob (Wt *waitable, jobworker const &worker) = 0;
+  virtual void doJob (Wt *waitable, const jobworker &worker) = 0;
 };
 
 class funcJob : public job<waitable> {
-  std::function<void (jobworker const &worker)> m_func;
+  std::function<void (const jobworker &worker)> m_func;
 
  public:
-  funcJob (std::function<void (jobworker const &worker)> func);
+  funcJob (std::function<void (const jobworker &worker)> func);
 
   waitable *getWaitable() const override;
 
-  void doJob (waitable *waitable, jobworker const &worker) override;
+  void doJob (waitable *waitable, const jobworker &worker) override;
 };
 
 class jobworker {
@@ -82,7 +82,7 @@ class jobworker {
  public:
   jobworker (jobserver *serv, int id);
 
-  void sync (std::function<void()> const &func) const;
+  void sync (const std::function<void()> &func) const;
 
   int  id() const;
   bool working() const;
@@ -108,7 +108,7 @@ class jobserver : protected std::mutex {
   jobserver (int workers = 0);
   ~jobserver();
 
-  jobserver (jobserver const &)      = delete;
+  jobserver (const jobserver &)      = delete;
   jobserver &operator= (jobserver &) = delete;
 
   void start();
@@ -118,7 +118,7 @@ class jobserver : protected std::mutex {
 
   void clearjobs();
 
-  void sync (std::function<void()> const &func);
+  void sync (const std::function<void()> &func);
 
   template <class Jb>
   typename Jb::Wt *submitJob (Jb *job, bool autodelwt = false) {
@@ -131,7 +131,7 @@ class jobserver : protected std::mutex {
     return (typename Jb::Wt *)wt;
   }
 
-  waitable *submitJob (std::function<void (jobworker const &worker)> func,
+  waitable *submitJob (std::function<void (const jobworker &worker)> func,
     bool autodelwt = true);
 
   int workerCount() const;

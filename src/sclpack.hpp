@@ -24,8 +24,8 @@ class PackFile : public Memory {
  public:
   PackFile (bool locked = false);
 
-  PackFile (PackFile const &rhs)            = delete;
-  PackFile &operator= (PackFile const &rhs) = delete;
+  PackFile (const PackFile &rhs)            = delete;
+  PackFile &operator= (const PackFile &rhs) = delete;
 
   PackFile (PackFile &&rhs)                     = default;
   PackFile &operator= (PackFile &&rhs) noexcept = default;
@@ -50,7 +50,7 @@ class Collection {
   dictionary<PackFile>                    m_activ;
 
  public:
-  PackFile &open (path const &path);
+  PackFile &open (const path &path);
 };
 
 class Packager {
@@ -60,10 +60,10 @@ class Packager {
   dictionary<int> m_entr;
 
  public:
-  explicit Packager (Packager const &)   = delete;
-  Packager &operator= (Packager const &) = delete;
+  explicit Packager (const Packager &)   = delete;
+  Packager &operator= (const Packager &) = delete;
 
-  bool create (path const &colpath);
+  bool create (const path &colpath);
 };
 } // namespace pack
 } // namespace scl

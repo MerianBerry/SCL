@@ -35,7 +35,7 @@ bool waitable::wait (double timeout) {
     timeout);
 }
 
-funcJob::funcJob (std::function<void (jobworker const &worker)> func)
+funcJob::funcJob (std::function<void (const jobworker &worker)> func)
     : m_func (func) {
 }
 
@@ -43,7 +43,7 @@ waitable *funcJob::getWaitable() const {
   return new waitable;
 }
 
-void funcJob::doJob (waitable *waitable, jobworker const &worker) {
+void funcJob::doJob (waitable *waitable, const jobworker &worker) {
   m_func (worker);
 }
 
@@ -62,7 +62,7 @@ int jobworker::id() const {
   return m_id;
 }
 
-void jobworker::sync (std::function<void()> const &func) const {
+void jobworker::sync (const std::function<void()> &func) const {
   m_serv->sync (func);
 }
 
@@ -217,7 +217,7 @@ void jobserver::clearjobs() {
   unlock();
 }
 
-void jobserver::sync (std::function<void()> const &func) {
+void jobserver::sync (const std::function<void()> &func) {
   if (!m_working)
     return;
   lock();
@@ -226,7 +226,7 @@ void jobserver::sync (std::function<void()> const &func) {
 }
 
 waitable *jobserver::submitJob (
-  std::function<void (jobworker const &worker)> func, bool autodelwt) {
+  std::function<void (const jobworker &worker)> func, bool autodelwt) {
   return submitJob (new funcJob (func), autodelwt);
 }
 

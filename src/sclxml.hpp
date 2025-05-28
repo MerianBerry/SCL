@@ -12,6 +12,7 @@ namespace scl {
 namespace xml {
 enum xml_excode {
   OK = 0,
+  ERROR,
   MEM,
   FILE,
   ALLOC,
@@ -28,17 +29,57 @@ enum xml_excode {
   ENUM_MAX,
 };
 
+static const scl::string _errdescs[] = {
+  "OK",
+  "Error (no other info)",
+  "Out of memory",
+  "Failed to open file",
+  "Bad allocation",
+  "Bad tag",
+  "Bad text",
+  "Text node has child",
+  "Invalid special character",
+  "Syntax error",
+  "Beginning/End tag mismatch",
+  "Incomplete DOM",
+  "Incomplete node",
+  "Invalid print level",
+  "Invalid root",
+};
+
 class xml_result {
  protected:
   string info;
 
+
  public:
   xml_excode code;
 
-  xml_result (xml_excode code, string info = string());
+  xml_result (xml_excode code, string info = string())
+      : code (code), info (info) {
+  }
 
-  string what() const;
-  operator bool() const;
+  string what() const {
+    switch (code) {
+    case TAG:
+    case TEXT:
+    case SYNTAX:
+    case MISMATCH: {
+      string out = _errdescs[code];
+      if (info)
+        out += string::fmt (" (%s)", info.cstr());
+      return out;
+    }
+    default:
+      if (code >= 0 && code < ENUM_MAX)
+        return _errdescs[code].cstr();
+      return "";
+    }
+  }
+
+  operator bool() const {
+    return !code;
+  }
 };
 
 template <int defaultSize = 2048>
@@ -249,7 +290,7 @@ class xml_node {
         else
           throw xml_result (SPECIAL);
         s++;
-        cut += (p - s);
+        cut += (unsigned)(p - s);
         memcpy (s, p, e - p);
         p          = s;
         *(e - cut) = '\0';
@@ -281,7 +322,7 @@ class xml_node {
   }
 
   template <int step>
-  void print_text (string &out, string const &t) {
+  void print_text (string &out, const string &t) {
     char *s, *p = (char *)t.cstr();
     s = p;
     for (; *p; p++) {
@@ -328,7 +369,7 @@ class xml_node {
    * @param doc  Reference to the document that ownes this node.
    * @param tag  New tag.
    */
-  void set_tag (xml_allocator &doc, string const &tag) {
+  void set_tag (xml_allocator &doc, const string &tag) {
     p_tag = doc.txt.alloc (tag.len() + 1);
     memcpy (p_tag, tag.cstr(), tag.len());
   }
@@ -343,7 +384,7 @@ class xml_node {
    * @param doc  Reference to the document that ownes this node.
    * @param data  New data.
    */
-  void set_data (xml_allocator &doc, string const &data) {
+  void set_data (xml_allocator &doc, const string &data) {
     if (data) {
       p_data = doc.txt.alloc (data.len() + 1);
       memcpy (p_data, data.cstr(), data.len());
@@ -604,6 +645,11 @@ class xml_doc : public xml_elem, public xml_allocator {
   string source;
 
  public:
+  ~xml_doc() {
+    nodes.free();
+    txt.free();
+  }
+
   /**
    * @brief Loads and parses an XML string into this document.
    * Accepts flags defined in the xml_flags enum.
@@ -614,11 +660,13 @@ class xml_doc : public xml_elem, public xml_allocator {
    * Returns 0 on success.
    */
   template <int f = none>
-  xml_result load_string (string const &content) {
+  xml_result load_string (const string &content) {
     this->zero();
     source = content;
     try {
       char *p = (char *)source.cstr();
+      if (!p)
+        return ERROR;
       this->parse<f> (*this, NULL, p, &p);
     } catch (xml_result e) {
       nodes.free();
@@ -639,7 +687,7 @@ class xml_doc : public xml_elem, public xml_allocator {
    * Returns 0 on success.
    */
   template <int f = none>
-  xml_result load_file (string const &path, long long *read = NULL) {
+  xml_result load_file (const string &path, long long *read = NULL) {
     std::ifstream fi (path.cstr());
     if (!fi)
       return FILE;
@@ -656,7 +704,7 @@ class xml_doc : public xml_elem, public xml_allocator {
    * @brief Creates a new attribute, owned by this document.
    *
    */
-  xml_attr *new_attr (string const &tag, string const &data) {
+  xml_attr *new_attr (const string &tag, const string &data) {
     xml_attr *a = nodes.alloc<xml_attr>();
     a->set_tag (*this, tag);
     a->set_data (*this, data);
@@ -667,7 +715,7 @@ class xml_doc : public xml_elem, public xml_allocator {
    * @brief Creates a new element, owned by this document.
    *
    */
-  xml_elem *new_elem (string const &tag, string data = string()) {
+  xml_elem *new_elem (const string &tag, string data = string()) {
     xml_elem *e = nodes.alloc<xml_elem>();
     e->set_tag (*this, tag);
     e->set_data (*this, data);

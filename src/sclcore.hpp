@@ -37,7 +37,7 @@ class RefObj {
 
  public:
   RefObj();
-  RefObj (RefObj const &);
+  RefObj (const RefObj &);
   virtual ~RefObj() = 0;
 
  protected:
@@ -78,7 +78,9 @@ class RefObj {
    * @note This does not handle any managed memory of the derived class, which
    * must be handled manually before using this method.
    */
-  void ref (RefObj const &);
+  void ref (const RefObj &);
+
+  bool operator== (const RefObj &rhs) const;
 
  public:
   /**
@@ -105,12 +107,12 @@ class string : public internal::RefObj {
 
  public:
   string();
-  string (char const *);
+  string (const char *);
   string (char);
 #ifdef _WIN32
-  string (wchar_t const *);
+  string (const wchar_t *);
 #endif
-  string (string const &);
+  string (const string &);
   ~string() override;
 
   /**
@@ -126,14 +128,14 @@ class string : public internal::RefObj {
    *
    * @param ptr Pointer to take ownership of.
    */
-  string &claim (char const *ptr);
+  string &claim (const char *ptr);
 
   /**
    * @brief Turns this string into a readonly layer above a given string buffer.
    *
    * @param ptr Pointer to string buffer to view.
    */
-  string &view (char const *ptr);
+  string &view (const char *ptr);
 
   /**
    * @brief Increases the capacity of this string object, copying the original
@@ -152,7 +154,7 @@ class string : public internal::RefObj {
    * @return Pointer to this string's managed buffer. NULL if
    * this string has no contents.
    */
-  char const *cstr() const;
+  const char *cstr() const;
 #ifdef _WIN32
   /**
    * @brief Returns a wchar_t version of this string.
@@ -162,7 +164,7 @@ class string : public internal::RefObj {
    * @return Pointer to a wchar_t string buffer. NULL if
    * the function failed.
    */
-  wchar_t const *wstr() const;
+  const wchar_t *wstr() const;
 #endif
 
   /**
@@ -186,7 +188,7 @@ class string : public internal::RefObj {
    * @return Index of the first instance found. -1 if no instance is
    * found.
    */
-  long ffi (string const &pattern) const;
+  long ffi (const string &pattern) const;
 
   /**
    * @brief Finds the last instance of a pattern in this string.
@@ -195,7 +197,7 @@ class string : public internal::RefObj {
    * @return Index of the last instance found. -1 if no instance is
    * found.
    */
-  long fli (string const &pattern) const;
+  long fli (const string &pattern) const;
 
   /**
    * @brief Returns whether or not this string ends with a pattern.
@@ -203,7 +205,7 @@ class string : public internal::RefObj {
    * @param pattern A string pattern to check with (no wildcard supported).
    * @return true if this string ends with `pattern`, false if otherwise.
    */
-  bool endswith (string const &pattern) const;
+  bool endswith (const string &pattern) const;
 
   /**
    * @brief Reterns whether or not this string constains a pattern.
@@ -213,7 +215,7 @@ class string : public internal::RefObj {
    * @return true if this string contains `pattern` at least once, false if
    * otherwise.
    */
-  bool match (string const &pattern) const;
+  bool match (const string &pattern) const;
 
   /**
    * @brief Returns a hash of this string.
@@ -241,10 +243,10 @@ class string : public internal::RefObj {
    * @param pattern A string pattern to replace (no wildcard supported).
    * @param with Replacement string.
    */
-  string &replace (string const &pattern, string const &with);
+  string &replace (const string &pattern, const string &with);
 
-  static long   ffi (char const *str, char const *pattern);
-  static string substr (char const *str, unsigned i, unsigned j);
+  static long   ffi (const char *str, const char *pattern);
+  static string substr (const char *str, unsigned i, unsigned j);
 
   /**
    * @brief Returns a randomized string of a specified length.
@@ -252,7 +254,7 @@ class string : public internal::RefObj {
    * @param len Length in characters of the randomized string.
    */
   static string rand (unsigned len);
-  static string vfmt (char const *fmt, va_list args);
+  static string vfmt (const char *fmt, va_list args);
 
   /**
    * @brief Returns a formatted string.
@@ -260,34 +262,34 @@ class string : public internal::RefObj {
    * @param fmt A C-Style string format.
    * @param ... Formatting arguments.
    */
-  static string   fmt (char const *fmt, ...);
-  static unsigned hash (string const &str);
-  static bool     match (char const *str, char const *pattern);
+  static string   fmt (const char *fmt, ...);
+  static unsigned hash (const string &str);
+  static bool     match (const char *str, const char *pattern);
 
   internal::str_iterator begin();
   internal::str_iterator end();
 
   internal::str_iterator operator[] (long);
 
-  bool operator== (string const &) const;
-  bool operator!= (string const &) const;
-  bool operator<(string const &) const;
+  bool operator== (const string &) const;
+  bool operator!= (const string &) const;
+  bool operator< (const string &) const;
 
-  string operator+ (string const &) const;
+  string operator+ (const string &) const;
 
   template <int step = 1>
   string &operator+= (char rhs) {
-    char           s[2] = {rhs, '\0'};
-    return (*this).operator+=<step> (string().view (s));
+    char s[2] = {rhs, '\0'};
+    return (*this).operator+= <step> (string().view (s));
   }
 
   template <int step = 1>
-  string &operator+= (string const &rhs) {
+  string &operator+= (const string &rhs) {
     if (!rhs)
       return *this;
     make_unique();
     if (!*this || m_ln + rhs.m_ln >= m_sz - 1) {
-      unsigned const m   = ((m_ln + rhs.m_ln) / step + 2);
+      const unsigned m   = ((m_ln + rhs.m_ln + (step - 1)) / step);
       unsigned       req = m * step;
       reserve (req);
     }
@@ -298,12 +300,12 @@ class string : public internal::RefObj {
 
   operator bool() const;
 
-  string &operator= (string const &);
+  string &operator= (const string &);
 
   friend std::ifstream &operator>> (std::ifstream &in, string &str);
 };
 
-scl::string operator+ (scl::string const &str, char const *str2);
+scl::string operator+ (const scl::string &str, const char *str2);
 
 /**
  * @brief Resets the output of scl::clock(), making current time epoch.
@@ -344,7 +346,7 @@ class Memory {
   Memory &operator= (Memory &&rhs);
 
   bool      reserve (size_t n, bool force = false);
-  long long write (void const *buf, unsigned n);
+  long long write (const void *buf, unsigned n);
 };
 
 namespace internal {
@@ -356,12 +358,12 @@ class str_iterator {
   str_iterator();
   str_iterator (char &m_c, string &m_s);
 
-  bool          operator== (str_iterator const &rhs) const;
+  bool          operator== (const str_iterator &rhs) const;
   str_iterator &operator++();
 
   /* Read */
-              operator char const &() const;
-  char const &operator*() const;
+  operator const char &() const;
+  const char &operator*() const;
   char       &operator*();
 
   /* Write */

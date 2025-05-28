@@ -10,10 +10,12 @@
 
 namespace scl {
 class path : public string {
+  path &fixendsplit();
+
  public:
   path();
-  path (string const &rhs);
-  path (char const *rhs);
+  path (const string &rhs);
+  path (const char *rhs);
 
   /**
    * @return Full OS path of this path.
@@ -21,13 +23,13 @@ class path : public string {
    */
   path resolve() const;
 
-  bool haspath (path const &path) const;
+  bool haspath (const path &path) const;
 
   /**
    * @brief
    *
    */
-  path relative (path const &from = ".") const;
+  path relative (const path &from = ".") const;
 
   /**
    * @return Parent directory of this path.
@@ -88,6 +90,13 @@ class path : public string {
   bool isdirectory() const;
 
   /**
+   * @brief
+   *
+   * @return  Whether or not this path is an absolute path.
+   */
+  bool isabsolute() const;
+
+  /**
    * @brief Returns the write time of the file at this path.
    *
    * @return   Write time in seconds since UNIX epoch.
@@ -103,11 +112,11 @@ class path : public string {
    */
   void remove() const;
 
-  path &replaceFilename (path const &nFile);
+  path &replaceFilename (const path &nFile);
 
-  path &replaceExtension (path const &nExt);
+  path &replaceExtension (const path &nExt);
 
-  path &replaceStem (path const &nName);
+  path &replaceStem (const path &nName);
 
   /**
    * @return   Current working directory of this program.
@@ -125,7 +134,7 @@ class path : public string {
    * @param path  Path to cd into.
    * @return  <b>true</b> if the change in cwd was successful.
    */
-  static bool chdir (path const &path);
+  static bool chdir (const path &path);
 
   /**
    * @brief Creates a directory.
@@ -136,7 +145,7 @@ class path : public string {
    * @return   <b>true</b> if the creation was succesful, <b>false</b> if
    * otherwise.
    */
-  static bool mkdir (path const &path);
+  static bool mkdir (const path &path);
   static bool mkdir (std::vector<path> paths);
 
   /**
@@ -144,7 +153,7 @@ class path : public string {
    *
    * @param pattern  Glob expression to use.
    */
-  static void remove (path const &pattern);
+  static void remove (const path &pattern);
 
   /**
    * @brief Copies a file from `from` to `to`.
@@ -153,7 +162,7 @@ class path : public string {
    * @param to  Destination path.
    * @return  True if the copy was successful, false if otherwise.
    */
-  static bool copyfile (path const &from, path const &to);
+  static bool copyfile (const path &from, const path &to);
 
   /**
    * @brief Moves a file from `from` to `to`.
@@ -162,7 +171,7 @@ class path : public string {
    * @param to  Destination path.
    * @return  True if the move was successful, false if otherwise.
    */
-  static bool movefile (path const &from, path const &to);
+  static bool movefile (const path &from, const path &to);
 
   /**
    * @brief Returns a vector of any existing files that match a glob pattern.
@@ -174,11 +183,11 @@ class path : public string {
    * @param pattern  Glob expression to use.
    * @return   Vector of any files that matched the glob expression.
    */
-  static std::vector<path> glob (string const &pattern);
+  static std::vector<path> glob (const string &pattern);
 
   static path join (std::vector<path> components, bool ignoreback = false);
 
-  path &join (path const &rhs, bool relative = true);
+  path &join (const path &rhs, bool relative = true);
 
   /**
    * @brief Returns this path, with a component appended, seperated by the host
@@ -187,7 +196,7 @@ class path : public string {
    * @param rhs  Component to append.
    * @return  Composite path.
    */
-  path operator/ (path const &rhs) const;
+  path operator/ (const path &rhs) const;
 
   /**
    * @brief Appends a component, seperated by the host
@@ -195,7 +204,7 @@ class path : public string {
    *
    * @param rhs  Component to append.
    */
-  path &operator/= (path const &rhs);
+  path &operator/= (const path &rhs);
 };
 } // namespace scl
 

@@ -40,11 +40,11 @@ static uint64_t fasthash64_mix (uint64_t h) {
   return h;
 }
 
-static uint64_t fasthash64 (void const *m_buf, size_t len, uint64_t seed) {
-  uint64_t const       m   = 0x880355f21e6d1965ULL;
-  uint64_t const      *pos = (uint64_t const *)m_buf;
-  uint64_t const      *end = pos + (len / 8);
-  unsigned char const *pos2;
+static uint64_t fasthash64 (const void *m_buf, size_t len, uint64_t seed) {
+  const uint64_t       m   = 0x880355f21e6d1965ULL;
+  const uint64_t      *pos = (const uint64_t *)m_buf;
+  const uint64_t      *end = pos + (len / 8);
+  const unsigned char *pos2;
   uint64_t             h = seed ^ (len * m);
   uint64_t             v;
 
@@ -54,7 +54,7 @@ static uint64_t fasthash64 (void const *m_buf, size_t len, uint64_t seed) {
     h *= m;
   }
 
-  pos2 = (unsigned char const *)pos;
+  pos2 = (const unsigned char *)pos;
   v    = 0;
 
   switch (len & 7) {
@@ -101,7 +101,8 @@ bool RefObj::findslot() {
   for (int i = 1; i < SCL_MAX_REFS; i++) {
     if (!internal::refs[i]) {
       m_refi = i;
-      incslot();
+      if (m_refi)
+        internal::refs[m_refi]++;
       out = true;
       break;
     }
@@ -111,23 +112,28 @@ bool RefObj::findslot() {
 }
 
 void RefObj::incslot() const {
+  g_mmut.lock();
   if (m_refi)
     internal::refs[m_refi]++;
+  g_mmut.unlock();
 }
 
 bool RefObj::decslot() {
+  g_mmut.lock();
+  bool out = false;
   if (m_refi && !--internal::refs[m_refi]) {
     m_refi = 0;
-    return true;
+    out    = true;
   }
-  return false;
+  g_mmut.unlock();
+  return out;
 }
 
 RefObj::RefObj() {
   findslot();
 }
 
-RefObj::RefObj (RefObj const &ro) {
+RefObj::RefObj (const RefObj &ro) {
   m_refi = ro.m_refi;
   incslot();
 }
@@ -154,17 +160,21 @@ bool RefObj::make_unique (bool copy) {
   return true;
 }
 
-void RefObj::ref (RefObj const &ro) {
+void RefObj::ref (const RefObj &ro) {
   deref();
   m_refi = ro.m_refi;
   incslot();
+}
+
+bool RefObj::operator== (const RefObj &rhs) const {
+  return m_refi && m_refi == rhs.m_refi;
 }
 } // namespace internal
 
 string::string() {
 }
 
-string::string (char const *str) {
+string::string (const char *str) {
   view (str);
 }
 
@@ -175,29 +185,42 @@ string::~string() {
 }
 
 #ifdef _WIN32
-string::string (wchar_t const *wstr) {
+string::string (const wchar_t *wstr) {
   m_sz  = 0;
-  m_buf = NULL;
+  m_buf = nullptr;
   if (wstr) {
-    int n = WideCharToMultiByte (CP_UTF8, 0, wstr, -1, NULL, 0, NULL, NULL) + 1;
+    int n =
+      WideCharToMultiByte (CP_UTF8, 0, wstr, -1, nullptr, 0, nullptr, nullptr) +
+      1;
     reserve (n);
-    WideCharToMultiByte (CP_UTF8, 0, wstr, -1, m_buf, n, NULL, NULL);
+    WideCharToMultiByte (CP_UTF8, 0, wstr, -1, m_buf, n, nullptr, nullptr);
   }
 }
 #endif
 
-string::string (string const &rhs)
+string::string (const string &rhs)
     : RefObj (rhs), m_buf (rhs.m_buf), m_ln (rhs.m_ln), m_sz (rhs.m_sz) {
 }
 
+string &string::operator= (const string &rhs) {
+  if (this->internal::RefObj::operator== (rhs))
+    return *this;
+  clear();
+  ref (rhs);
+  m_buf = rhs.m_buf;
+  m_ln  = rhs.m_ln;
+  m_sz  = rhs.m_sz;
+  return *this;
+}
+
 void string::mutate (bool free) {
-  if (m_ln > 1) {
-    m_ln       = m_buf ? m_ln : 0;
-    m_sz       = m_ln;
-    char *nbuf = new char[m_ln + 1];
-    memset (nbuf, 0, (size_t)m_ln + 1);
+  m_ln = m_buf ? m_ln : 0;
+  m_sz = m_buf ? m_sz : 0;
+  if (m_ln) {
+    char *nbuf = new char[m_sz + 1];
+    memset (nbuf, 0, (size_t)m_sz + 1);
     if (m_buf) {
-      memcpy (nbuf, m_buf, m_ln);
+      memcpy (nbuf, m_buf, m_sz);
       if (free)
         delete[] m_buf;
     }
@@ -213,12 +236,12 @@ void string::clear() {
   if (!make_unique (false) && *this) {
     delete[] m_buf;
   }
-  m_buf = NULL;
+  m_buf = nullptr;
   m_ln  = 0;
   m_sz  = 0;
 }
 
-string &string::claim (char const *ptr) {
+string &string::claim (const char *ptr) {
   clear();
   m_buf = (char *)ptr;
   m_ln  = ptr ? (unsigned)strlen (ptr) : 0;
@@ -226,7 +249,7 @@ string &string::claim (char const *ptr) {
   return *this;
 }
 
-string &string::view (char const *ptr) {
+string &string::view (const char *ptr) {
   // Become untracked, as we are only viewing
   deref();
   m_buf = (char *)ptr;
@@ -248,12 +271,12 @@ string &string::reserve (unsigned size) {
   return *this;
 }
 
-char const *string::cstr() const {
+const char *string::cstr() const {
   return m_buf;
 }
 #ifdef _WIN32
-wchar_t const *string::wstr() const {
-  int      wlen  = MultiByteToWideChar (CP_UTF8, 0, m_buf, -1, NULL, 0);
+const wchar_t *string::wstr() const {
+  int      wlen  = MultiByteToWideChar (CP_UTF8, 0, m_buf, -1, nullptr, 0);
   int      wsize = (wlen + 1);
   wchar_t *wstr  = new wchar_t[wsize];
   memset (wstr, 0, sizeof (wchar_t) * wsize);
@@ -270,10 +293,10 @@ unsigned string::size() const {
   return m_sz;
 }
 
-long string::ffi (string const &pattern) const {
+long string::ffi (const string &pattern) const {
   if (!*this || !pattern)
     return -1;
-  char const *p   = m_buf;
+  const char *p   = m_buf;
   unsigned    csl = (unsigned)pattern.len();
   for (; *p; p++) {
     if (!strncmp (p, pattern.cstr(), csl))
@@ -282,12 +305,12 @@ long string::ffi (string const &pattern) const {
   return -1;
 }
 
-long string::fli (string const &pattern) const {
+long string::fli (const string &pattern) const {
   if (!*this || !pattern)
     return -1;
-  unsigned const l   = m_ln;
+  const unsigned l   = m_ln;
   unsigned       csl = pattern.m_ln;
-  char const    *p   = m_buf + l - csl;
+  const char    *p   = m_buf + l - csl;
   for (; *p && p >= m_buf; p--) {
     if (!strncmp (p, pattern.m_buf, csl))
       return (long)(p - m_buf);
@@ -295,12 +318,12 @@ long string::fli (string const &pattern) const {
   return -1;
 }
 
-bool string::endswith (string const &pattern) const {
+bool string::endswith (const string &pattern) const {
   long p = fli (pattern);
   return p > 0 && p == m_ln - pattern.m_ln;
 }
 
-static char str_match (char const *pattern, char const *candidate, int p,
+static char str_match (const char *pattern, const char *candidate, int p,
   int c) {
   if (pattern[p] == '\0') {
     return candidate[c] == '\0';
@@ -317,7 +340,7 @@ static char str_match (char const *pattern, char const *candidate, int p,
   }
 }
 
-bool string::match (string const &pattern) const {
+bool string::match (const string &pattern) const {
   if (!*this || !pattern)
     return 0;
   return str_match (pattern.cstr(), cstr(), 0, 0);
@@ -342,10 +365,10 @@ string string::substr (unsigned i, unsigned j) const {
   return sout;
 }
 
-string &string::replace (string const &pattern, string const &with) {
+string &string::replace (const string &pattern, const string &with) {
   if (!*this || !pattern || !with)
     return *this;
-  char const *str = m_buf;
+  const char *str = m_buf;
   string      out;
   while (1) {
     string tstr = str;
@@ -361,10 +384,10 @@ string &string::replace (string const &pattern, string const &with) {
   return *this;
 }
 
-long string::ffi (char const *str, char const *pattern) {
+long string::ffi (const char *str, const char *pattern) {
   if (!str || !pattern)
     return -1;
-  char const *p   = str;
+  const char *p   = str;
   unsigned    csl = (unsigned)strlen (pattern);
   for (; *p; p++) {
     if (!strncmp (p, pattern, csl))
@@ -373,8 +396,8 @@ long string::ffi (char const *str, char const *pattern) {
   return -1;
 }
 
-string string::substr (char const *str, unsigned i, unsigned j) {
-  unsigned const m_ln = str ? (unsigned)strlen (str) : 0;
+string string::substr (const char *str, unsigned i, unsigned j) {
+  const unsigned m_ln = str ? (unsigned)strlen (str) : 0;
   if (!str || i >= m_ln)
     return "";
   j         = std::min (j, (unsigned)strlen (str + i));
@@ -393,7 +416,7 @@ string string::copy() const {
 }
 
 string string::rand (unsigned len) {
-  static char const rchars[] =
+  static const char rchars[] =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   string str;
   str.reserve (len);
@@ -404,10 +427,10 @@ string string::rand (unsigned len) {
   return str;
 }
 
-string string::vfmt (char const *fmt, va_list args) {
+string string::vfmt (const char *fmt, va_list args) {
   va_list copy;
   va_copy (copy, args);
-  int size = vsnprintf (NULL, 0, fmt, copy) + 1;
+  int size = vsnprintf (nullptr, 0, fmt, copy) + 1;
   va_end (copy);
   char *str = new char[size];
   if (!str)
@@ -419,7 +442,7 @@ string string::vfmt (char const *fmt, va_list args) {
   return out;
 }
 
-string string::fmt (char const *fmt, ...) {
+string string::fmt (const char *fmt, ...) {
   va_list args;
   va_start (args, fmt);
   string out = vfmt (fmt, args);
@@ -427,11 +450,11 @@ string string::fmt (char const *fmt, ...) {
   return out;
 }
 
-unsigned string::hash (string const &str) {
+unsigned string::hash (const string &str) {
   return str.hash();
 }
 
-bool string::match (char const *str, char const *pattern) {
+bool string::match (const char *str, const char *pattern) {
   if (!str || !pattern)
     return 0;
   return str_match (pattern, str, 0, 0);
@@ -450,28 +473,28 @@ internal::str_iterator string::end() {
 }
 
 internal::str_iterator string::operator[] (long i) {
-  if (!m_buf || i >= (long)m_sz || i < 0)
-    throw internal::str_iterator();
+  if (!m_buf || (unsigned)i > m_sz || i < 0)
+    return internal::str_iterator();
   return internal::str_iterator (m_buf[i], *this);
 }
 
-bool string::operator== (string const &rhs) const {
+bool string::operator== (const string &rhs) const {
   return !strcmp (m_buf, rhs.m_buf);
 }
 
-bool string::operator!= (string const &rhs) const {
+bool string::operator!= (const string &rhs) const {
   if (!m_buf || !rhs)
     return false;
   return !!strcmp (m_buf, rhs.m_buf);
 }
 
-bool string::operator<(string const &rhs) const {
+bool string::operator< (const string &rhs) const {
   if (!m_buf || !rhs)
     return false;
   return strcmp (m_buf, rhs.m_buf) < 0;
 }
 
-string string::operator+ (string const &rhs) const {
+string string::operator+ (const string &rhs) const {
   if (!rhs)
     return *this;
   string out;
@@ -482,15 +505,6 @@ string string::operator+ (string const &rhs) const {
 
 string::operator bool() const {
   return m_buf;
-}
-
-string &string::operator= (string const &rhs) {
-  clear();
-  ref (rhs);
-  m_buf = rhs.m_buf;
-  m_ln  = rhs.m_ln;
-  m_sz  = rhs.m_sz;
-  return *this;
 }
 
 std::ifstream &operator>> (std::ifstream &in, string &str) {
@@ -506,7 +520,7 @@ std::ifstream &operator>> (std::ifstream &in, string &str) {
   return in;
 }
 
-scl::string operator+ (scl::string const &str, char const *str2) {
+scl::string operator+ (const scl::string &str, const char *str2) {
   return str + scl::string (str2);
 }
 
@@ -517,7 +531,7 @@ str_iterator::str_iterator() : m_c (nullptr), m_s (nullptr) {
 str_iterator::str_iterator (char &m_c, string &m_s) : m_c (&m_c), m_s (&m_s) {
 }
 
-bool str_iterator::operator== (str_iterator const &rhs) const {
+bool str_iterator::operator== (const str_iterator &rhs) const {
   return m_c == rhs.m_c;
 }
 
@@ -526,21 +540,21 @@ str_iterator &str_iterator::operator++() {
   return *this;
 }
 
-str_iterator::operator char const &() const {
+str_iterator::operator const char &() const {
   if (!m_c)
-    throw std::out_of_range ("Null");
+    throw std::out_of_range ("");
   return *m_c;
 }
 
-char const &str_iterator::operator*() const {
+const char &str_iterator::operator*() const {
   if (!m_c)
-    throw std::out_of_range ("out of your mom");
+    throw std::out_of_range ("");
   return *m_c;
 }
 
 char &str_iterator::operator*() {
   if (!m_c || !m_s)
-    throw std::out_of_range ("out of your mom");
+    throw std::out_of_range ("");
   m_s->make_unique();
   return *m_c;
 }
@@ -565,15 +579,15 @@ static BOOLEAN _nanosleep (LONGLONG ns) {
   HANDLE        timer; /* Timer handle */
   LARGE_INTEGER li; /* Time defintion */
   /* Create timer */
-  if (!(timer = CreateWaitableTimerExW (NULL,
-          NULL,
+  if (!(timer = CreateWaitableTimerExW (nullptr,
+          nullptr,
           CREATE_WAITABLE_TIMER_HIGH_RESOLUTION,
           TIMER_ALL_ACCESS))) {
     return FALSE;
   }
   /* Set timer properties */
   li.QuadPart = -ns;
-  if (!SetWaitableTimer (timer, &li, 0, NULL, NULL, FALSE)) {
+  if (!SetWaitableTimer (timer, &li, 0, nullptr, nullptr, FALSE)) {
     CloseHandle (timer);
     return FALSE;
   }
@@ -703,7 +717,7 @@ bool Memory::reserve (size_t n, bool force) {
   return true;
 }
 
-long long Memory::write (void const *buf, unsigned n) {
+long long Memory::write (const void *buf, unsigned n) {
   if (!valid)
     return 0;
   reserve (n, false);

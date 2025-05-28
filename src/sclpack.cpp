@@ -13,7 +13,7 @@ PackFile::PackFile (bool locked) {
     m_mut.lock();
 }
 
-PackFile &Collection::open (path const &path) {
+PackFile &Collection::open (const path &path) {
   auto ii = m_index[path];
   if (ii != m_index.end()) {
     // File is indexed, but need to find out if it is active, cached, or
