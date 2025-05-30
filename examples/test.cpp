@@ -7,12 +7,8 @@
 #include "sclpath.hpp"
 #include "scldict.hpp"
 #include "scljobs.hpp"
+#include "color.hpp"
 
 int main (int argc, char **argv) {
-  scl::path p = "src/sclcore.cpp";
-  auto      P = p.resolve();
-  P           = P.resolve();
-  auto r      = P.relative();
-  auto R      = p.relative();
   return 0;
 }

@@ -11,38 +11,44 @@
 #include <atomic>
 #include "sclcore.hpp"
 
-#define SCL_JOBS_FAST_SLEEP 0.001
-#define SCL_JOBS_SLOW_SLEEP 1
-#define SCL_JOBS_SLEEP(sl)  (!(sl) ? SCL_JOBS_FAST_SLEEP : SCL_JOBS_SLOW_SLEEP)
+#ifndef SCL_JOBS_FAST_SLEEP
+#  define SCL_JOBS_FAST_SLEEP 0.001
+#endif
+#ifndef SCL_JOBS_SLOW_SLEEP
+#  define SCL_JOBS_SLOW_SLEEP 1
+#endif
+#define SCL_JOBS_SLEEP(sl) (!(sl) ? SCL_JOBS_FAST_SLEEP : SCL_JOBS_SLOW_SLEEP)
 
 namespace scl {
 namespace jobs {
 
 template <class WtT>
 class job;
+class JobWorker;
 
-class waitable : protected std::mutex {
+class waitable {
   template <class Wt>
   friend class job;
   using _Waitable = bool;
 
  private:
-  bool m_done = false;
+  std::atomic_bool m_done;
 
  protected:
  public:
-  void complete();
+  waitable();
 
+  void complete();
   bool wait (double timeout = -1);
 };
 
-class jobworker;
-class jobserver;
+class JobWorker;
+class JobServer;
 
 template <class WtT>
 class job {
-  friend class jobserver;
-  friend class jobworker;
+  friend class JobServer;
+  friend class JobWorker;
 
  private:
   bool                                 autodelwt    = false;
@@ -55,24 +61,24 @@ class job {
 
   virtual Wt *getWaitable() const = 0;
 
-  virtual void doJob (Wt *waitable, const jobworker &worker) = 0;
+  virtual void doJob (Wt *waitable, const JobWorker &worker) = 0;
 };
 
 class funcJob : public job<waitable> {
-  std::function<void (const jobworker &worker)> m_func;
+  std::function<void (const JobWorker &worker)> m_func;
 
  public:
-  funcJob (std::function<void (const jobworker &worker)> func);
+  funcJob (std::function<void (const JobWorker &worker)> func);
 
   waitable *getWaitable() const override;
 
-  void doJob (waitable *waitable, const jobworker &worker) override;
+  void doJob (waitable *waitable, const JobWorker &worker) override;
 };
 
-class jobworker {
-  friend class jobserver;
+class JobWorker {
+  friend class JobServer;
   scl::string      m_desc;
-  jobserver       *m_serv;
+  JobServer       *m_serv;
   std::atomic_bool m_working;
   std::atomic_bool m_busy;
   int              m_id;
@@ -80,7 +86,7 @@ class jobworker {
   void quit();
 
  public:
-  jobworker (jobserver *serv, int id);
+  JobWorker (JobServer *serv, int id);
 
   void sync (const std::function<void()> &func) const;
 
@@ -88,13 +94,13 @@ class jobworker {
   bool working() const;
   bool busy() const;
 
-  static void work (jobworker *inst);
+  static void work (JobWorker *inst);
 };
 
-class jobserver : protected std::mutex {
-  using t_worker = std::pair<std::thread, jobworker *>;
+class JobServer : protected std::mutex {
+  using t_worker = std::pair<std::thread, JobWorker *>;
   using t_wjob   = std::pair<job<waitable> *, waitable *>;
-  friend class jobworker;
+  friend class JobWorker;
   std::vector<t_worker> m_workers;
   std::queue<t_wjob>    m_jobs;
   int                   m_nworkers;
@@ -105,11 +111,11 @@ class jobserver : protected std::mutex {
   bool takeJob (t_wjob &wjob);
 
  public:
-  jobserver (int workers = 0);
-  ~jobserver();
+  JobServer (int workers = 0);
+  ~JobServer();
 
-  jobserver (const jobserver &)      = delete;
-  jobserver &operator= (jobserver &) = delete;
+  JobServer (const JobServer &)      = delete;
+  JobServer &operator= (JobServer &) = delete;
 
   void start();
   void slow (bool state = true);
@@ -131,7 +137,7 @@ class jobserver : protected std::mutex {
     return (typename Jb::Wt *)wt;
   }
 
-  waitable *submitJob (std::function<void (const jobworker &worker)> func,
+  waitable *submitJob (std::function<void (const JobWorker &worker)> func,
     bool autodelwt = true);
 
   int workerCount() const;

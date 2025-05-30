@@ -45,7 +45,7 @@ path &path::fixendsplit() {
        p--) {
   }
   if (p != len() - 1)
-    *this = substr (0, p);
+    *this = substr (0, p + 1);
   return *this;
 }
 

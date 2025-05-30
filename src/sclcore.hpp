@@ -18,6 +18,7 @@
  *
  */
 namespace scl {
+class path;
 typedef unsigned char uchar;
 
 uchar log2i (unsigned x);
@@ -168,6 +169,14 @@ class string : public internal::RefObj {
 #endif
 
   /**
+   * @brief Attempts to convert as much of this string into an integer as
+   * possible. Automatically detects hexedecimal literals.
+   *
+   * @return  An integer representation of this string.
+   */
+  long long toInt() const;
+
+  /**
    * @brief Returns the length of this string, excluding null terminator.
    *
    * @return Length in bytes.
@@ -244,6 +253,12 @@ class string : public internal::RefObj {
    * @param with Replacement string.
    */
   string &replace (const string &pattern, const string &with);
+
+  /**
+   * @brief Replaces all lowercase ascii characters with their uppercase
+   * counterparts.
+   */
+  string &toUpper();
 
   static long   ffi (const char *str, const char *pattern);
   static string substr (const char *str, unsigned i, unsigned j);
@@ -330,33 +345,52 @@ void waitms (double ms);
 bool waitUntil (std::function<bool()> cond, double timeout = -1,
   double sleep = 0.001);
 
-class Memory {
+enum class StreamPos {
+  start   = SEEK_SET,
+  end     = SEEK_END,
+  current = SEEK_CUR,
+};
+
+class stream {
  protected:
-  std::mutex m_mut;
-  char      *m_data = nullptr;
-  char      *m_rp   = nullptr;
-  char      *m_wp   = nullptr;
-  size_t     m_size = 0;
-  bool       valid  = true;
+  char  *m_data   = nullptr;
+  char  *m_rp     = nullptr;
+  char  *m_wp     = nullptr;
+  FILE  *m_stream = nullptr;
+  size_t m_size   = 0;
+
+  long long bounds (const char *p, size_t n) const;
+
+  bool swrite (const void *buf, size_t n);
 
  public:
-  Memory() = default;
+  stream() = default;
+  ~stream();
 
-  Memory (Memory &&rhs);
-  Memory &operator= (Memory &&rhs);
+  bool open (const scl::path &path, bool binary = false);
+  void flush();
 
-  bool      reserve (size_t n, bool force = false);
-  long long write (const void *buf, unsigned n);
+  long long seek (StreamPos pos, long long off);
+  long long tell() const;
+  long long read (void *buf, size_t n);
+
+  bool reserve (size_t n, bool force = false);
+  bool write (const void *buf, size_t n);
+  bool write (const scl::string &str);
+
+  void close();
+
+  stream &operator<< (const scl::string &str);
 };
 
 namespace internal {
 class str_iterator {
-  char   *m_c;
-  string *m_s;
+  string  *m_s = nullptr;
+  unsigned m_i = -1;
 
  public:
-  str_iterator();
-  str_iterator (char &m_c, string &m_s);
+  str_iterator() = default;
+  str_iterator (string &m_s, unsigned i);
 
   bool          operator== (const str_iterator &rhs) const;
   str_iterator &operator++();
@@ -364,9 +398,10 @@ class str_iterator {
   /* Read */
   operator const char &() const;
   const char &operator*() const;
-  char       &operator*();
 
   /* Write */
+  operator char &();
+  char         &operator*();
   str_iterator &operator= (char c);
 };
 } // namespace internal

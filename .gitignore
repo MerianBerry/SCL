@@ -1,4 +1,5 @@
 build
 .vscode
 .clangd
+src/color.hpp
 valgrind-out.txt

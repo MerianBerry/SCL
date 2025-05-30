@@ -8,62 +8,53 @@
 #include "sclcore.hpp"
 #include "scldict.hpp"
 #include "sclpath.hpp"
+#include "scljobs.hpp"
 #include <thread>
 
-#define SCL_MAX_WORKERS 2
-#define SCL_MAX_CHUNKS  4
+#define SCL_MAX_CHUNKS 4
 
 namespace scl {
 namespace pack {
-class Collection;
+class Packager;
+class PackFetchJob;
 
-class PackFile : public Memory {
- private:
-  friend class Collection;
+class PackWaitable : public jobs::waitable {
+  friend class PackFetchJob;
 
- public:
-  PackFile (bool locked = false);
-
-  PackFile (const PackFile &rhs)            = delete;
-  PackFile &operator= (const PackFile &rhs) = delete;
-
-  PackFile (PackFile &&rhs)                     = default;
-  PackFile &operator= (PackFile &&rhs) noexcept = default;
-  ~PackFile()                                   = default;
-};
-
-class PackCache : public PackFile {
- private:
-  bool ready;
+  stream *m_cache;
+  stream *m_active;
 
  public:
+  PackWaitable (stream *cache, stream *active);
+
+  stream *content() {
+    wait();
+    return m_active;
+  }
+
+  stream *operator->() {
+    wait();
+    return m_active;
+  }
 };
 
-class Collection {
+class PackFetchJob : public jobs::job<PackWaitable> {
+ public:
+  PackWaitable *getWaitable() const override;
+
+  void doJob (PackWaitable *wt, const jobs::JobWorker &worker) override;
+};
+
+class Packager : protected std::mutex {
  private:
-  std::mutex  m_camut;
-  std::thread m_workers[SCL_MAX_WORKERS];
-  path        m_name;
+  path m_name;
   // pair of {ismodified, file ptr}
-  dictionary<std::pair<bool, PackFile *>> m_index;
-  dictionary<PackCache>                   m_cache;
-  dictionary<PackFile>                    m_activ;
+  dictionary<std::pair<bool, stream *>> m_index;
+  dictionary<stream>                    m_cache;
+  dictionary<stream>                    m_activ;
 
  public:
-  PackFile &open (const path &path);
-};
-
-class Packager {
- private:
-  std::thread     m_workers[SCL_MAX_WORKERS];
-  std::mutex      m_cmut;
-  dictionary<int> m_entr;
-
- public:
-  explicit Packager (const Packager &)   = delete;
-  Packager &operator= (const Packager &) = delete;
-
-  bool create (const path &colpath);
+  PackWaitable *open (const path &path);
 };
 } // namespace pack
 } // namespace scl

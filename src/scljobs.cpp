@@ -18,24 +18,26 @@
 namespace scl {
 namespace jobs {
 
+waitable::waitable() {
+  m_done = false;
+}
+
 void waitable::complete() {
-  lock();
   m_done = true;
-  unlock();
 }
 
 bool waitable::wait (double timeout) {
-  return waitUntil (
-    [&]() {
-      lock();
-      bool state = m_done;
-      unlock();
-      return state;
-    },
-    timeout);
+  // This should be relatively safe. m_wdone is only set by waiting threads, and
+  // isnt complex.
+  return m_done || waitUntil (
+                     [&]() {
+                       bool state = m_done;
+                       return state;
+                     },
+                     timeout);
 }
 
-funcJob::funcJob (std::function<void (const jobworker &worker)> func)
+funcJob::funcJob (std::function<void (const JobWorker &worker)> func)
     : m_func (func) {
 }
 
@@ -43,42 +45,42 @@ waitable *funcJob::getWaitable() const {
   return new waitable;
 }
 
-void funcJob::doJob (waitable *waitable, const jobworker &worker) {
+void funcJob::doJob (waitable *waitable, const JobWorker &worker) {
   m_func (worker);
 }
 
-void jobworker::quit() {
+void JobWorker::quit() {
   m_working = false;
 }
 
-jobworker::jobworker (jobserver *serv, int id) {
+JobWorker::JobWorker (JobServer *serv, int id) {
   m_serv    = serv;
   m_id      = id;
   m_working = false;
   m_busy    = false;
 }
 
-int jobworker::id() const {
+int JobWorker::id() const {
   return m_id;
 }
 
-void jobworker::sync (const std::function<void()> &func) const {
+void JobWorker::sync (const std::function<void()> &func) const {
   m_serv->sync (func);
 }
 
-bool jobworker::working() const {
+bool JobWorker::working() const {
   return m_working;
 }
 
-bool jobworker::busy() const {
+bool JobWorker::busy() const {
   return m_busy;
 }
 
-void jobworker::work (jobworker *inst) {
+void JobWorker::work (JobWorker *inst) {
   inst->m_working = true;
-  jobserver *serv = inst->m_serv;
+  JobServer *serv = inst->m_serv;
   do {
-    jobserver::t_wjob wjob;
+    JobServer::t_wjob wjob;
     waitUntil (
       [&]() {
         bool foundjob = serv->takeJob (wjob);
@@ -103,7 +105,7 @@ void jobworker::work (jobworker *inst) {
   } while (inst->working());
 }
 
-int jobserver::getnthreads (int threads) {
+int JobServer::getnthreads (int threads) {
   if (threads <= 0)
     threads = 0x7fffffff;
   int n = 0;
@@ -121,7 +123,7 @@ int jobserver::getnthreads (int threads) {
   return 0;
 }
 
-bool jobserver::takeJob (t_wjob &wjob) {
+bool JobServer::takeJob (t_wjob &wjob) {
   if (!m_working)
     return false;
   lock();
@@ -134,7 +136,7 @@ bool jobserver::takeJob (t_wjob &wjob) {
   return avail;
 }
 
-jobserver::jobserver (int workers) {
+JobServer::JobServer (int workers) {
   int n = getnthreads (workers);
   m_workers.reserve (n);
   m_nworkers = n;
@@ -146,17 +148,17 @@ jobserver::jobserver (int workers) {
   }
 }
 
-jobserver::~jobserver() {
+JobServer::~JobServer() {
   stop();
 }
 
-void jobserver::start() {
+void JobServer::start() {
   if (!m_working) {
     m_working = true;
     lock();
     for (int i = 0; i < m_nworkers; i++) {
-      jobworker  *worker = new jobworker (this, i);
-      std::thread t (jobworker::work, worker);
+      JobWorker  *worker = new JobWorker (this, i);
+      std::thread t (JobWorker::work, worker);
       t.swap (m_workers[i].first);
       m_workers[i].second = worker;
       waitUntil ([&]() {
@@ -167,11 +169,11 @@ void jobserver::start() {
   }
 }
 
-void jobserver::slow (bool state) {
+void JobServer::slow (bool state) {
   m_slow = state;
 }
 
-bool jobserver::waitidle (double timeout) {
+bool JobServer::waitidle (double timeout) {
   if (!m_working)
     return true;
   return waitUntil (
@@ -191,7 +193,7 @@ bool jobserver::waitidle (double timeout) {
     SCL_JOBS_SLOW_SLEEP);
 }
 
-void jobserver::stop() {
+void JobServer::stop() {
   if (m_working) {
     // tell all workers to quit, then join worker
     m_working = false;
@@ -204,7 +206,7 @@ void jobserver::stop() {
   }
 }
 
-void jobserver::clearjobs() {
+void JobServer::clearjobs() {
   lock();
   t_wjob wjob;
   while (!m_jobs.empty()) {
@@ -217,7 +219,7 @@ void jobserver::clearjobs() {
   unlock();
 }
 
-void jobserver::sync (const std::function<void()> &func) {
+void JobServer::sync (const std::function<void()> &func) {
   if (!m_working)
     return;
   lock();
@@ -225,16 +227,16 @@ void jobserver::sync (const std::function<void()> &func) {
   unlock();
 }
 
-waitable *jobserver::submitJob (
-  std::function<void (const jobworker &worker)> func, bool autodelwt) {
+waitable *JobServer::submitJob (
+  std::function<void (const JobWorker &worker)> func, bool autodelwt) {
   return submitJob (new funcJob (func), autodelwt);
 }
 
-int jobserver::workerCount() const {
+int JobServer::workerCount() const {
   return m_nworkers;
 }
 
-void jobserver::multithread (std::function<void (int, int)> func, int workers) {
+void JobServer::multithread (std::function<void (int, int)> func, int workers) {
   int                      n = getnthreads (workers);
   std::vector<std::thread> w;
   for (int i = 0; i < n; i++)

@@ -3,6 +3,7 @@
  */
 
 #include "sclcore.hpp"
+#include "sclpath.hpp"
 
 #ifdef _WIN32
 #  ifndef WIN32_LEAN_AND_MEAN
@@ -10,6 +11,7 @@
 #  endif
 #  include <windows.h>
 #  undef min
+#  undef max
 #  ifndef CREATE_WAITABLE_TIMER_HIGH_RESOLUTION
 #    define CREATE_WAITABLE_TIMER_HIGH_RESOLUTION 0x00000002
 #  endif
@@ -261,7 +263,7 @@ string &string::view (const char *ptr) {
 string &string::reserve (unsigned size) {
   char *nbuf = new char[size + 1];
   if (!nbuf)
-    throw "out of memory";
+    throw "out of stream";
   memset (nbuf, 0, (size_t)size + 1);
   if (*this)
     memcpy (nbuf, m_buf, m_sz);
@@ -357,7 +359,7 @@ string string::substr (unsigned i, unsigned j) const {
   j         = std::min (j, (unsigned)strlen (m_buf + i));
   char *out = new char[j + 1];
   if (!out)
-    throw "out of memory";
+    throw "out of stream";
   memset (out, 0, (size_t)j + 1);
   memcpy (out, m_buf + i, j);
   string sout;
@@ -384,6 +386,15 @@ string &string::replace (const string &pattern, const string &with) {
   return *this;
 }
 
+string &string::toUpper() {
+  for (auto &c : *this) {
+    if (c >= 'a' && c <= 'z') {
+      c -= 32;
+    }
+  }
+  return *this;
+}
+
 long string::ffi (const char *str, const char *pattern) {
   if (!str || !pattern)
     return -1;
@@ -403,7 +414,7 @@ string string::substr (const char *str, unsigned i, unsigned j) {
   j         = std::min (j, (unsigned)strlen (str + i));
   char *out = new char[j + 1];
   if (!out)
-    throw "out of memory";
+    throw "out of stream";
   memset (out, 0, (size_t)j + 1);
   memcpy (out, str + i, j);
   string sout;
@@ -434,7 +445,7 @@ string string::vfmt (const char *fmt, va_list args) {
   va_end (copy);
   char *str = new char[size];
   if (!str)
-    throw "out of memory";
+    throw "out of stream";
   memset (str, 0, size);
   vsnprintf (str, size, fmt, args);
   string out;
@@ -463,19 +474,19 @@ bool string::match (const char *str, const char *pattern) {
 internal::str_iterator string::begin() {
   if (!*this)
     return internal::str_iterator();
-  return internal::str_iterator (m_buf[0], *this);
+  return internal::str_iterator (*this, 0);
 }
 
 internal::str_iterator string::end() {
   if (!*this)
     return internal::str_iterator();
-  return internal::str_iterator (m_buf[m_sz], *this);
+  return internal::str_iterator (*this, len());
 }
 
 internal::str_iterator string::operator[] (long i) {
-  if (!m_buf || (unsigned)i > m_sz || i < 0)
+  if (!m_buf || (unsigned)i > m_ln || i < 0)
     return internal::str_iterator();
-  return internal::str_iterator (m_buf[i], *this);
+  return internal::str_iterator (*this, i);
 }
 
 bool string::operator== (const string &rhs) const {
@@ -525,47 +536,50 @@ scl::string operator+ (const scl::string &str, const char *str2) {
 }
 
 namespace internal {
-str_iterator::str_iterator() : m_c (nullptr), m_s (nullptr) {
-}
 
-str_iterator::str_iterator (char &m_c, string &m_s) : m_c (&m_c), m_s (&m_s) {
+str_iterator::str_iterator (string &s, unsigned i) : m_s (&s), m_i (i) {
 }
 
 bool str_iterator::operator== (const str_iterator &rhs) const {
-  return m_c == rhs.m_c;
+  return m_s == rhs.m_s && m_i == rhs.m_i;
 }
 
 str_iterator &str_iterator::operator++() {
-  m_c++;
+  m_i++;
   return *this;
 }
 
 str_iterator::operator const char &() const {
-  if (!m_c)
+  if (!m_s || m_i > m_s->size())
     throw std::out_of_range ("");
-  return *m_c;
+  return m_s->m_buf[m_i];
 }
 
 const char &str_iterator::operator*() const {
-  if (!m_c)
+  if (!m_s || m_i > m_s->size())
     throw std::out_of_range ("");
-  return *m_c;
+  return m_s->m_buf[m_i];
+}
+
+str_iterator::operator char &() {
+  if (!m_s || m_i > m_s->size())
+    throw std::out_of_range ("");
+  m_s->make_unique();
+  return m_s->m_buf[m_i];
 }
 
 char &str_iterator::operator*() {
-  if (!m_c || !m_s)
+  if (!m_s || m_i > m_s->size())
     throw std::out_of_range ("");
   m_s->make_unique();
-  return *m_c;
+  return m_s->m_buf[m_i];
 }
 
-str_iterator &str_iterator::operator= (char m_c) {
-  if (!m_c || !m_s)
-    return *this;
-  long long off = m_s->m_buf - this->m_c;
+str_iterator &str_iterator::operator= (char c) {
+  if (!m_s || m_i > m_s->size())
+    throw std::out_of_range ("");
   m_s->make_unique();
-  this->m_c  = m_s->m_buf + off;
-  *this->m_c = m_c;
+  m_s->m_buf[m_i] = c;
   return *this;
 }
 } // namespace internal
@@ -664,39 +678,91 @@ bool waitUntil (std::function<bool()> cond, double timeout, double sleep) {
   return !timedout;
 }
 
-Memory::Memory (Memory &&rhs) {
-  if (!rhs.valid)
-    return;
-  std::lock (m_mut, rhs.m_mut);
-  m_mut.~mutex();
-  memcpy (&m_mut, &rhs.m_mut, sizeof (std::mutex));
-  m_data = rhs.m_data;
-  m_rp   = rhs.m_rp;
-  m_wp   = rhs.m_wp;
-  m_size = rhs.m_size;
-  memset (&rhs, 0, sizeof (Memory));
-  m_mut.unlock();
+stream::~stream() {
+  close();
 }
 
-Memory &Memory::operator= (Memory &&rhs) {
-  if (!rhs.valid)
-    return *this;
-  std::lock (m_mut, rhs.m_mut);
-  m_mut.~mutex();
-  memcpy (&m_mut, &rhs.m_mut, sizeof (std::mutex));
-  m_data = rhs.m_data;
-  m_rp   = rhs.m_rp;
-  m_wp   = rhs.m_wp;
-  m_size = rhs.m_size;
-  memset (&rhs, 0, sizeof (Memory));
-  m_mut.unlock();
-  return *this;
+long long stream::bounds (const char *p, size_t n) const {
+  n = std::min (n, m_size);
+  if (p >= m_data + m_size)
+    return 0;
+  size_t s = (m_size - n), o = (m_data - p);
+  if (n < s + o)
+    return 0;
+  return n - s - o;
 }
 
-bool Memory::reserve (size_t n, bool force) {
-  if (!valid)
+bool stream::open (const scl::path &path, bool binary) {
+  if (m_stream)
     return false;
-  m_mut.lock();
+  const char *mode = binary ? "ab+" : "a+";
+  if (!binary)
+#ifdef _MSC_VER
+#  pragma warning(disable : 4996)
+#endif
+    m_stream = fopen (path.cstr(), mode);
+  if (m_stream)
+    seek (StreamPos::start, 0);
+  if (m_data && m_stream)
+    flush();
+  return m_stream;
+}
+
+void stream::flush() {
+  if (m_data && m_stream) {
+    write (m_data, m_size);
+    delete[] m_data;
+    m_data = nullptr;
+    m_rp   = nullptr;
+    m_wp   = nullptr;
+    m_size = 0;
+  }
+  if (m_stream)
+    fflush (m_stream);
+}
+
+long long stream::seek (StreamPos pos, long long off) {
+  if (m_stream) {
+    fseek (m_stream, (long)off, (int)pos);
+    return ftell (m_stream);
+  }
+  if (pos == StreamPos::start)
+    m_rp = m_data;
+  else if (pos == StreamPos::end)
+    m_rp = m_data + m_size;
+  m_rp += off;
+  m_rp = std::max (m_rp, m_data);
+  m_wp = m_rp;
+  return m_rp - m_data;
+}
+
+long long stream::tell() const {
+  if (m_stream) {
+    return ftell (m_stream);
+  }
+  return m_rp - m_data;
+}
+
+long long stream::read (void *buf, size_t n) {
+  if (m_stream) {
+    if (n == (size_t)-1) {
+      auto o = tell();
+      seek (StreamPos::end, -1);
+      auto l = tell() - o;
+      seek (StreamPos::start, o);
+      n = std::min (n, (size_t)l);
+    }
+    return fread (buf, 1, n, m_stream);
+  }
+  size_t r = bounds (m_rp, n);
+  if (!r)
+    return 0;
+  memcpy (buf, m_rp, r);
+  m_rp += r;
+  return r;
+}
+
+bool stream::reserve (size_t n, bool force) {
   long long rl = (m_data + m_size) - m_wp;
   if (rl < (long long)n || force) {
     size_t    nsz  = m_size + n;
@@ -713,18 +779,42 @@ bool Memory::reserve (size_t n, bool force) {
     m_data = buf;
     m_size = nsz;
   }
-  m_mut.unlock();
   return true;
 }
 
-long long Memory::write (const void *buf, unsigned n) {
-  if (!valid)
-    return 0;
+bool stream::swrite (const void *buf, size_t n) {
+  return !n || fwrite (buf, n, 1, m_stream);
+}
+
+bool stream::write (const void *buf, size_t n) {
+  if (!buf)
+    return false;
+  if (m_stream)
+    return swrite (buf, n);
   reserve (n, false);
-  m_mut.lock();
   memcpy (m_wp, buf, n);
   m_wp += n;
-  m_mut.unlock();
-  return 0;
+  return true;
+}
+
+bool stream::write (const scl::string &str) {
+  return write (str.cstr(), str.len());
+}
+
+void stream::close() {
+  flush();
+  if (m_stream) {
+    fclose (m_stream);
+    m_stream = nullptr;
+  }
+  if (m_data) {
+    delete[] m_data;
+  }
+  memset (this, 0, sizeof (*this));
+}
+
+stream &stream::operator<< (const scl::string &str) {
+  write (str);
+  return *this;
 }
 } // namespace scl

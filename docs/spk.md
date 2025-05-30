@@ -34,9 +34,9 @@ requested file.
 
 ### API Class Terminology
 
-- Memory: Thread safe buffer used to interact with the API.
-- Collection: Manages reading/writing from a Collection. Uses Memory for both cases.
+- memory: Thread safe buffer used to interact with the API.
+- Collection: Manages reading/writing from a Collection. Uses memory for both cases.
   - Not usually directly accessed by user code.
-- PackFile: Inherits from Memory, used to interact with a file entry in a Collection.
+- PackFile: Inherits from memory, used to interact with a file entry in a Collection.
 - Packager: Allows loading, creating, and modifying Collections.
   - The main class being accessed by user code.

@@ -13,7 +13,8 @@ set(SCL_HEADERS
   "src/scldict.hpp"
   "src/sclpath.hpp"
   "src/sclxml.hpp"
-  "src/scljobs.hpp")
+  "src/scljobs.hpp"
+  "src/color.hpp")
 
   
 set(SCL_SOURCES
@@ -36,4 +37,4 @@ add_executable(test "examples/test.cpp" ${SCL_SOURCES})
 set_target_properties(test PROPERTIES CMAKE_SOURCE_DIR "${CMAKE_SOURCE_DIR}/src")
 clangdConfigure(test)
 
-add_executable(package "examples/package.cpp" ${SCL_SOURCES})
+add_executable(package "examples/package.cpp" ${SCL_SOURCES} ${SCL_PACK_SOURCES})

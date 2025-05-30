@@ -451,8 +451,8 @@ class htab_iterator {
   }
 
   const htab_iterator &operator*() const {
-    if (!gkey() || !m_dict)
-      throw std::out_of_range ("Null key or dictionary");
+    if (!m_dict)
+      throw std::out_of_range ("");
     return *this;
   }
 
@@ -466,7 +466,7 @@ class htab_iterator {
     if (!m_dict)
       throw std::out_of_range ("");
     m_dict->make_unique();
-    m_hash     = m_dict->ghash (m_ikey);
+    m_hash     = *this == m_dict->end() ? m_dict->ghash (m_ikey) : m_hash;
     auto *node = m_dict->gnodefull (m_hash);
     if (!node)
       m_dict->set (m_ikey, val);
@@ -483,7 +483,7 @@ class htab_iterator {
     if (!m_dict)
       throw std::out_of_range ("");
     m_dict->make_unique();
-    m_hash     = m_dict->ghash (m_ikey);
+    m_hash     = *this == m_dict->end() ? m_dict->ghash (m_ikey) : m_hash;
     auto *node = m_dict->gnodefull (m_hash);
     if (!node)
       m_dict->set (m_ikey, val);
