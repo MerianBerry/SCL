@@ -9,7 +9,7 @@
 #include "scldict.hpp"
 #include "sclpath.hpp"
 #include "scljobs.hpp"
-#include <thread>
+#include "sclxml.hpp"
 
 #define SCL_MAX_CHUNKS 4
 
@@ -45,16 +45,45 @@ class PackFetchJob : public jobs::job<PackWaitable> {
   void doJob (PackWaitable *wt, const jobs::JobWorker &worker) override;
 };
 
-class Packager : protected std::mutex {
+enum PackResult {
+  OK,
+  ERROR,
+  FILE,
+  FULL,
+};
+
+class Archive : std::mutex {
+  scl::stream      *m_stream;
+  xml::XmlDocument *m_manifest;
+
+ public:
+};
+
+class PackIndex {
  private:
-  path m_name;
+  scl::stream *m_stream;
+  size_t       m_off;
+  size_t       m_size;
+};
+
+class Packager : protected std::mutex {
+  bool load();
+
+ private:
+  path                            m_name;
+  path                            m_dir;
+  std::vector<stream *>           m_streams;
+  std::vector<xml::XmlDocument *> m_mans;
   // pair of {ismodified, file ptr}
   dictionary<std::pair<bool, stream *>> m_index;
   dictionary<stream>                    m_cache;
   dictionary<stream>                    m_activ;
 
  public:
-  PackWaitable *open (const path &path);
+  bool          open (const scl::path &dir, const scl::string &familyName);
+  PackWaitable *openFile (const scl::path &path);
+
+  bool write();
 };
 } // namespace pack
 } // namespace scl

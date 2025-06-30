@@ -1,5 +1,5 @@
 
-find_package(Python3)
+find_package(Python3 COMPONENTS Interpreter REQUIRED)
 
 function(minify name impflag guard headers sources)
   if (NOT ${impflag} STREQUAL "")
@@ -9,9 +9,9 @@ function(minify name impflag guard headers sources)
     set(guard "-g" "${guard}")
   endif()
   message("headers: ${headers}")
-  add_custom_target(${name} ${PYTHON_EXECUTABLE}
+  add_custom_target(${name} ${Python3_EXECUTABLE}
     "${CMAKE_SOURCE_DIR}/scripts/mini.py"
-    "-o" "${CMAKE_BINARY_DIR}/${name}.hpp"
+    "-o" "${CMAKE_BINARY_DIR}/${name}.h"
     ${impflag}
     ${guard}
     "-h" "\"${headers}\""

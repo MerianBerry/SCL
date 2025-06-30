@@ -3,3 +3,7 @@ build
 .clangd
 src/color.hpp
 valgrind-out.txt
+a10.xml
+horosont.dae
+horosont.glb
+examples/frameCompress.c

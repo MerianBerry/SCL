@@ -1,4 +1,4 @@
-# SPK
+# SCA
 
 An archive library for games, with a focus on speed and efficiency, without compromising quality.
 
@@ -6,7 +6,7 @@ An archive library for games, with a focus on speed and efficiency, without comp
 
 1. Be able to create highly compressed, speedily decompressible, and safe archives.
 
-2. Provide a stable, thread safe, and easy API for creating, modifying, and reading SPK archives.
+2. Provide a stable, thread safe, and easy API for creating, modifying, and reading SCA archives.
 
 3. Have as little impact on cpu time and memory usage as possible.
 
@@ -29,8 +29,8 @@ requested file.
 
 ### General Terminology
 
-- Package: A singular .spk archive.
-- Collection: A group of packages, usually denoted by number (*_1.spk).
+- Package: A singular .sca archive.
+- Collection: A group of packages, usually denoted by number (*_1.sca).
 
 ### API Class Terminology
 

@@ -5,6 +5,10 @@
 #ifndef SCL_XML_H
 #define SCL_XML_H
 
+#ifndef SCL_XML_DEFAULT_PRINT_STEP
+#  define SCL_XML_DEFAULT_PRINT_STEP 0x2000
+#endif
+
 #include "sclcore.hpp"
 #include <vector>
 
@@ -243,9 +247,9 @@ class XmlNode {
   };
   /* clang-format on */
 
-  char *p_tag;
-  char *p_data;
-  N    *p_next;
+  char *m_tag;
+  char *m_data;
+  N    *m_next;
 
   bool skip (XmlPredicate pred, char *s, char **ep) {
     char *p = s;
@@ -306,51 +310,51 @@ class XmlNode {
 #endif
     if (*p) {
       (*ep)        = p;
-      this->p_data = s != p ? s : NULL;
+      this->m_data = s != p ? s : NULL;
     } else
       throw XmlResult (TEXT);
   }
 
   template <int step>
-  void print_text (string &out, const string &t) {
+  void print_text (stream &stream, const string &t) {
     char *s, *p = (char *)t.cstr();
     s = p;
     for (; *p; p++) {
       switch (*p) {
       case '<':
-        out.operator+= <step> ("&lt;");
+        stream.write ("&lt;", 4, step);
         break;
       case '>':
-        out.operator+= <step> ("&gt;");
+        stream.write ("&gt;", 4, step);
         break;
       case '&':
-        out.operator+= <step> ("&amp;");
+        stream.write ("&amp;", 5, step);
         break;
       case '\'':
-        out.operator+= <step> ("&apos;");
+        stream.write ("&apos;", 6, step);
         break;
       case '\"':
-        out.operator+= <step> ("&quot;");
+        stream.write ("&quot;", 6, step);
         break;
       default:
         continue;
       }
       *p = '\0';
-      out.operator+= <step> (s);
+      stream.write ((const scl::string &)s, step);
       s = p + 1;
     }
     *p = '\0';
-    out.operator+= <step> (s);
+    stream.write ((const scl::string &)s, step);
     s = p + 1;
   }
 
  public:
   N *next() const {
-    return p_next;
+    return m_next;
   }
 
   string tag() const {
-    return p_tag;
+    return m_tag;
   }
 
   /**
@@ -360,12 +364,12 @@ class XmlNode {
    * @param tag  New tag.
    */
   void set_tag (XmlAllocator &doc, const string &tag) {
-    p_tag = doc.txt.alloc (tag.len() + 1);
-    memcpy (p_tag, tag.cstr(), tag.len());
+    m_tag = doc.txt.alloc ((int)tag.len() + 1);
+    memcpy (m_tag, tag.cstr(), tag.len());
   }
 
   string data() const {
-    return p_data;
+    return m_data;
   }
 
   /**
@@ -376,10 +380,10 @@ class XmlNode {
    */
   void set_data (XmlAllocator &doc, const string &data) {
     if (data) {
-      p_data = doc.txt.alloc (data.len() + 1);
-      memcpy (p_data, data.cstr(), data.len());
+      m_data = doc.txt.alloc ((int)data.len() + 1);
+      memcpy (m_data, data.cstr(), data.len());
     } else {
-      p_data = NULL;
+      m_data = NULL;
     }
   }
 };
@@ -393,7 +397,7 @@ class XmlAttr : public XmlNode<XmlAttr, XmlElem> {
     char *p = s;
     if (!skip (TAG_PRED, s, &p))
       throw XmlResult (TAG, s);
-    p_tag = s;
+    m_tag = s;
     // Check for =" syntax if wanted
     if (!(f & no_syntax)) {
       if (p[0] != '=' && p[1] != '\"')
@@ -408,25 +412,25 @@ class XmlAttr : public XmlNode<XmlAttr, XmlElem> {
   }
 
   template <int s>
-  XmlResult print (string &out) {
-    if (!p_tag)
+  XmlResult print (stream &stream) {
+    if (!m_tag)
       throw XmlResult (NIL, "Incomplete attr");
-    out.operator+= <s> (string::fmt ("%s=\"", p_tag));
-    print_text<s> (out, string().view (p_data));
-    out.operator+= <s> ("\"");
-    if (p_next)
-      out.operator+= <s> (" ");
+    stream.write (string::fmt ("%s=\"", m_tag), s);
+    print_text<s> (stream, m_data);
+    stream.write ("\"", 1, s);
+    if (m_next)
+      stream.write (" ", 1, s);
     return OK;
   }
 };
 
 class XmlElem : public XmlNode<XmlElem, XmlElem> {
  protected:
-  XmlElem *p_tail;
-  XmlElem *p_child;
-  XmlElem *p_parent;
-  XmlAttr *p_attr;
-  XmlAttr *p_atail;
+  XmlElem *m_tail;
+  XmlElem *m_child;
+  XmlElem *m_parent;
+  XmlAttr *m_attr;
+  XmlAttr *m_atail;
 
   void zero() {
     memset (this, 0, sizeof (XmlElem));
@@ -439,9 +443,9 @@ class XmlElem : public XmlNode<XmlElem, XmlElem> {
       throw XmlResult (TAG, s);
     if (!(f & no_tag_check)) {
       // Check if parent tag and parsed tag are identical
-      if (!!strncmp (parent->p_tag, s, p - s)) {
+      if (!!strncmp (parent->m_tag, s, p - s)) {
         *p = '\0';
-        throw XmlResult (MISMATCH, string::fmt ("%s/%s", parent->p_tag, s));
+        throw XmlResult (MISMATCH, string::fmt ("%s/%s", parent->m_tag, s));
       }
     }
     leave |= 1;
@@ -460,7 +464,7 @@ class XmlElem : public XmlNode<XmlElem, XmlElem> {
     skip (SPACE_PRED, s, &p);
     if (*p != '<')
       throw XmlResult (INCOMPLETE);
-    p_parent = parent;
+    m_parent = parent;
     s        = ++p;
     if (*p == '/')
       return parse_end<f> (leave, parent, p + 1, ep);
@@ -472,7 +476,7 @@ class XmlElem : public XmlNode<XmlElem, XmlElem> {
     if (!skip (TAG_PRED, s, &p))
       throw XmlResult (TAG, s);
     char *pn = p;
-    p_tag    = s;
+    m_tag    = s;
     skip (SPACE_PRED, p, &p);
     while (*p != '>' && *p != '/' && *p) {
       XmlAttr *attr = allo.nodes.alloc<xml::XmlAttr>();
@@ -490,8 +494,8 @@ class XmlElem : public XmlNode<XmlElem, XmlElem> {
         xml::XmlElem *celem = allo.nodes.alloc<xml::XmlElem>();
         celem->parse<f> (allo, this, p, &p);
         *pn = '\0';
-        if (p_data && !leave)
-          throw XmlResult (TEXT_CHILD, p_tag);
+        if (m_data && !leave)
+          throw XmlResult (TEXT_CHILD, m_tag);
         if (leave) {
           leave = 0;
           break;
@@ -518,49 +522,52 @@ class XmlElem : public XmlNode<XmlElem, XmlElem> {
   }
 
   /**
-   * @brief Prints this node, and all subsequent nodes into `out`.
+   * @brief Prints the entire XML tree from this node into `stream`.
    *
    * @tparam s Number of bytes to allocate in out, whenever it must be extended.
+   * @param format If true, formats output with new lines and indentation.
+   * Defaults to true.
    * @param level Level of the current node. Leave this untouched unless you
    * know what your are doing.
    * @return  Non zero on failure, with an attached description.
    * Returns 0 on success.
    */
-  template <int s = 32768>
-  XmlResult print (string &out, int level = 0) {
+  template <int s = SCL_XML_DEFAULT_PRINT_STEP>
+  XmlResult print (stream &stream, bool format = true, int level = 0) {
     try {
-      if (!p_tag)
+      if (!m_tag)
         throw XmlResult (NIL, "Incomplete elem");
       if (level < 0)
         throw XmlResult (LEVEL, string::fmt ("level=%i", level));
-      if (level == 0)
-        out.operator+= <s> ("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n");
-      for (int i = 0; i < level; i++)
-        out.operator+= <s> ("  ");
-      out.operator+= <s> (string::fmt ("<%s", p_tag));
-      if (p_attr) {
-        out.operator+= <s> (" ");
+      if (level == 0 && format)
+        stream.write ("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n", 39, s);
+      for (int i = 0; format && i < level; i++)
+        stream.write ("  ", 2, s);
+      stream.write (string::fmt ("<%s", m_tag), s);
+      if (m_attr) {
+        stream.write (" ", 1, s);
         for (auto &a : attributes())
-          a->print<s> (out);
+          a->print<s> (stream);
       }
-      if (!p_parent || p_data || p_child) {
-        out.operator+= <s> (">");
-        if (p_data) {
-          print_text<s> (out, string().view (p_data));
+      if (!m_parent || m_data || m_child) {
+        stream.write (">", 1, s);
+        if (m_data) {
+          print_text<s> (stream, m_data);
         } else {
-          out.operator+= <s> ("\n");
+          if (format)
+            stream.write ("\n", 1, s);
           for (auto &c : children())
-            c->print (out, level + 1);
-          for (int i = 0; i < level; i++)
-            out.operator+= <s> ("  ");
+            c->print (stream, format, level + 1);
+          for (int i = 0; format && i < level; i++)
+            stream.write ("  ", 2, s);
         }
-        out.operator+= <s> (string::fmt ("</%s>", p_tag));
-        if (p_parent)
-          out.operator+= <s> ("\n");
+        stream.write (string::fmt ("</%s>", m_tag), s);
+        if (m_parent && format)
+          stream.write ("\n", 1, s);
       } else {
-        out.operator+= <s> ("/>");
-        if (p_parent)
-          out.operator+= <s> ("\n");
+        stream.write ("/>", 2, s);
+        if (m_parent && format)
+          stream.write ("\n", 1, s);
       }
     } catch (XmlResult e) {
       return e;
@@ -568,27 +575,46 @@ class XmlElem : public XmlNode<XmlElem, XmlElem> {
     return OK;
   }
 
+  /**
+   * @brief Prints the entire XML tree from this node into `str`.
+   *
+   * @tparam s Number of bytes to allocate in out, whenever it must be extended.
+   * @param format If true, formats output with new lines and indentation.
+   * Defaults to true.
+   * @return  Non zero on failure, with an attached description.
+   * Returns 0 on success.
+   */
+  template <int s = SCL_XML_DEFAULT_PRINT_STEP>
+  XmlResult print (scl::string &str, bool format = true) {
+    scl::stream stream;
+    auto        r = print<s> (stream, format);
+    if (!r)
+      return r;
+    str.claim ((const char *)stream.release());
+    return OK;
+  }
+
   XmlElem *child() const {
-    return p_child;
+    return m_child;
   }
 
   std::vector<XmlElem *> children() const {
     std::vector<XmlElem *> out;
-    for (XmlElem *i = p_child; i; i = i->p_next)
+    for (XmlElem *i = m_child; i; i = i->m_next)
       out.push_back (i);
     return out;
   }
 
   int num_attrs() const {
     int n = 0;
-    for (XmlAttr *i = p_attr; i; i = i->p_next)
+    for (XmlAttr *i = m_attr; i; i = i->m_next)
       n++;
     return n;
   }
 
   std::vector<XmlAttr *> attributes() const {
     std::vector<XmlAttr *> out;
-    for (XmlAttr *i = p_attr; i; i = i->p_next)
+    for (XmlAttr *i = m_attr; i; i = i->m_next)
       out.push_back (i);
     return out;
   }
@@ -596,34 +622,56 @@ class XmlElem : public XmlNode<XmlElem, XmlElem> {
   void add_attr (XmlAttr *attr) {
     if (!attr)
       throw XmlResult (ALLOC, "Null attr");
-    // attr->p_parent = this;
-    if (p_attr) {
-      if (p_atail)
-        p_atail->p_next = attr, p_atail = attr;
+    // attr->m_parent = this;
+    if (m_attr) {
+      if (m_atail)
+        m_atail->m_next = attr, m_atail = attr;
       else
-        p_attr->p_next = attr, p_atail = attr;
-      /*xml::XmlAttr *i = p_attr;
-      for (; i && i->p_next; i = i->p_next) {
+        m_attr->m_next = attr, m_atail = attr;
+      /*xml::XmlAttr *i = m_attr;
+      for (; i && i->m_next; i = i->m_next) {
         // Check for duplicate tag if wanted
       }
-      i->p_next = attr;*/
+      i->m_next = attr;*/
     } else
-      p_attr = attr;
+      m_attr = attr;
   }
 
   void add_child (XmlElem *child) {
     if (!child)
       throw XmlResult (ALLOC, "Null elem");
-    child->p_parent = this;
-    if (p_child) {
-      xml::XmlElem *elem = p_child;
-      if (elem->p_tail)
-        elem->p_tail->p_next = child, elem->p_tail = child;
+    child->m_parent = this;
+    if (m_child) {
+      xml::XmlElem *elem = m_child;
+      if (elem->m_tail)
+        elem->m_tail->m_next = child, elem->m_tail = child;
       else
-        elem->p_next = child, elem->p_tail = child;
+        elem->m_next = child, elem->m_tail = child;
     } else {
-      child->p_next = NULL;
-      p_child       = child;
+      child->m_next = NULL;
+      m_child       = child;
+    }
+  }
+
+  /**
+   * @brief Removes this element from its parent's list of children, if
+   * possible.
+   *
+   */
+  void remove() {
+    if (!m_parent)
+      return;
+    xml::XmlElem *el = m_parent->child(), *pel = nullptr;
+    for (; el;) {
+      if (el == this) {
+        if (pel)
+          pel->m_next = m_next;
+        else
+          m_parent->m_child = m_next;
+        break;
+      }
+      pel = el;
+      el  = el->m_next;
     }
   }
 };
