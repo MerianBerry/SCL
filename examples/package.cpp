@@ -10,37 +10,64 @@
 #include "sclreduce.hpp"
 
 int main(int argc, char **argv) {
-  /*scl::pack::Packager pack;
+#if 1
+  long long          us, cs, uns;
+  double             cst, cet, ust, uet;
+  double             ratio;
 
-  scl::stream s1, s2;
-  s1.openMode ("archive.spk", "r");*/
-  scl::path   file = "a10.xml";
-  scl::stream fi;
-  fi.open(file, false, true);
-  long long us = fi.seek(scl::StreamPos::end, -1);
-  fi.seek(scl::StreamPos::start, 0);
+  scl::path          file       = "examples/a10.xml";
+  scl::path          compressed = "examples/compressed.bin";
+  scl::reduce_stream rs;
+  rs.open(compressed, true);
+  {
+    scl::stream fi;
+    fi.open(file, false, true);
 
-  double             ts = scl::clock();
-  scl::reduce_writer rw;
-  rw.open("compressed.bin", true, true);
-  rw.begin();
-  rw.write(fi);
-  rw.end();
-  double    te    = scl::clock();
-  long long cs    = rw.tell();
-  double    ratio = (double)cs / us;
+    rs.begin(scl::reduce_stream::Compress);
+    cst = scl::clock();
+
+    // Compress
+    rs.write(fi);
+
+    cet = scl::clock();
+
+    rs.end();
+
+    us = fi.tell();
+    cs = rs.tell();
+    fi.close();
+  }
+  rs.seek(scl::StreamPos::start, 0);
+  ratio = (double)cs / us;
+
+  {
+    rs.begin(scl::reduce_stream::Decompress);
+
+    scl::stream un;
+    ust = scl::clock();
+
+    // Decompress
+    un.reserve(us);
+    un.write(rs);
+
+    uet = scl::clock();
+    rs.end();
+    uns = un.tell();
+    rs.close();
+    un.close();
+  }
 
   printf("File: %s\n", file.cstr());
   printf("Uncompressed size: %0.1lfkb\n", us / 1024.0);
   printf("Compressed size: %0.1lfkb\n", cs / 1024.0);
   printf("Compression Ratio: %0.0lf%%\n", ratio * 100);
-  printf("Read + Compression + Write time: %0.2lfms\n", (te - ts) * 1000.0);
+  printf("Compression + Disk time: %0.2lfms\n", (cet - cst) * 1000.0);
+  printf("Decompressed size: %0.1lfkb\n", uns / 1024.0);
+  printf("Decompression + Disk read time: %0.2lfms\n", (uet - ust) * 1000.0);
+#else
+  scl::pack::Packager pack;
 
-  // auto *file = pack.open ("fun.txt");
-  //(*file)->write ("Hello\n");
-  // delete file;
-
-  // pack.write();
-
+  pack.write();
+#endif
   return 0;
 }

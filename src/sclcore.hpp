@@ -372,9 +372,9 @@ class stream {
 
   bool openMode(const scl::path &path, const scl::string &mode);
   bool open(const scl::path &path, bool trunc = true, bool binary = false);
-  void flush();
+  virtual void      flush();
 
-  virtual long long seek(StreamPos pos, long long off);
+  long long         seek(StreamPos pos, long long off);
   long long         tell() const;
   virtual long long read(void *buf, size_t n);
 

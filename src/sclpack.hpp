@@ -6,6 +6,7 @@
 #define SCL_PACKAGER_H
 
 #include "sclcore.hpp"
+#include "sclreduce.hpp"
 #include "scldict.hpp"
 #include "sclpath.hpp"
 #include "scljobs.hpp"
@@ -25,7 +26,7 @@ class PackWaitable : public jobs::waitable {
   stream *m_active;
 
  public:
-  PackWaitable (stream *cache, stream *active);
+  PackWaitable(stream *cache, stream *active);
 
   stream *content() {
     wait();
@@ -42,7 +43,7 @@ class PackFetchJob : public jobs::job<PackWaitable> {
  public:
   PackWaitable *getWaitable() const override;
 
-  void doJob (PackWaitable *wt, const jobs::JobWorker &worker) override;
+  void          doJob(PackWaitable *wt, const jobs::JobWorker &worker) override;
 };
 
 enum PackResult {
@@ -70,20 +71,20 @@ class Packager : protected std::mutex {
   bool load();
 
  private:
-  path                            m_name;
-  path                            m_dir;
-  std::vector<stream *>           m_streams;
-  std::vector<xml::XmlDocument *> m_mans;
+  path                                  m_family;
+  path                                  m_dir;
+  std::vector<stream *>                 m_streams;
+  std::vector<xml::XmlDocument *>       m_mans;
   // pair of {ismodified, file ptr}
   dictionary<std::pair<bool, stream *>> m_index;
   dictionary<stream>                    m_cache;
   dictionary<stream>                    m_activ;
 
  public:
-  bool          open (const scl::path &dir, const scl::string &familyName);
-  PackWaitable *openFile (const scl::path &path);
+  bool          open(const scl::path &dir, const scl::string &familyName);
+  PackWaitable *openFile(const scl::path &path);
 
-  bool write();
+  bool          write();
 };
 } // namespace pack
 } // namespace scl

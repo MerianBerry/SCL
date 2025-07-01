@@ -2,31 +2,52 @@
  *  Compression stream class.
  */
 
+#ifndef SCL_REDUCE_H
+#define SCL_REDUCE_H
 #include "sclcore.hpp"
 
 namespace scl {
-class reduce_writer : public stream {
+class reduce_stream : public stream {
+ public:
+  enum ReduceMode : bool {
+    Decompress = false,
+    Compress   = true,
+  };
+
  private:
   char  *m_inbuf = nullptr, *m_outbuf = nullptr;
-  void  *m_lz4ctx      = nullptr;
-  size_t m_outCapacity = 0;
-  bool   m_ready       = false;
+  void  *m_lz4ctx   = nullptr;
+  size_t m_consumed = 0, m_inSize = 0, m_outConsumed = 0, m_outSize = 0,
+         m_outCapacity = 0;
+  bool       m_ready   = false;
+  ReduceMode m_mode    = Decompress;
 
-  bool   compress_init();
-  size_t compress_flush();
-  size_t compress_chunk(const void *buf, size_t bytes, bool flush);
+  bool       compress_init();
+  size_t     compress_flush();
+  size_t     compress_chunk(const void *buf, size_t bytes, bool flush);
+  bool       compress_begin();
+  bool       compress_end();
+
+  bool       decompress_init();
+  size_t     decompress_chunk(void *buf, size_t bytes);
+  bool       decompress_begin();
+  bool       decompress_end();
+
+  void       close_internal();
+
 
  public:
-  reduce_writer();
-  ~reduce_writer() override;
+  reduce_stream() = default;
+  ~reduce_stream() override;
 
-  // long long seek (StreamPos pos, long long off) override;
+  bool      open(const scl::path &path, bool trunc = false);
+
+  bool      begin(ReduceMode mode = Decompress);
+  bool      end();
 
   long long read(void *buf, size_t n) override;
 
-  bool      begin();
-  bool      end();
-
+  void      flush() override;
   using stream::write;
   bool write(const void *buf, size_t n, size_t align) override;
   bool write(scl::stream &src) override;
@@ -34,3 +55,5 @@ class reduce_writer : public stream {
   void close() override;
 };
 } // namespace scl
+
+#endif

@@ -736,6 +736,8 @@ long long stream::read_internal(void *buf, size_t n) {
       seek(StreamPos::start, o);
       n = std::min(n, (size_t)l);
     }
+    if(feof(m_stream))
+      return 0;
     auto r = fread(buf, 1, n, m_stream);
     // Suggested by gnu.org, cause r+/w+ modes are weird
     fflush(m_stream);
@@ -872,7 +874,7 @@ bool stream::write(stream &src) {
     auto read = src.read(buf, SCL_STREAM_BUF);
     if(read)
       r = write(buf, read);
-    if(!r || read < SCL_STREAM_BUF)
+    if(!read || !r)
       break;
   } while(1);
   return r;
