@@ -223,6 +223,46 @@ void reduce_stream::close_internal() {
   m_ready       = false;
 }
 
+reduce_stream::reduce_stream(reduce_stream &&rhs) {
+  stream(std::move(rhs));
+  m_inbuf       = rhs.m_inbuf;
+  m_outbuf      = rhs.m_outbuf;
+  m_lz4ctx      = rhs.m_lz4ctx;
+  m_consumed    = rhs.m_consumed;
+  m_inSize      = rhs.m_inSize;
+  m_outConsumed = rhs.m_outConsumed;
+  m_outSize     = rhs.m_outSize;
+  m_outCapacity = rhs.m_outCapacity;
+  m_ready       = rhs.m_ready;
+  m_mode        = rhs.m_mode;
+}
+
+reduce_stream::reduce_stream(stream &&rhs) {
+  stream(std::move(rhs));
+}
+
+reduce_stream &reduce_stream::operator=(reduce_stream &&rhs) {
+  stream::operator=(std::move(rhs));
+  close_internal();
+  m_inbuf       = rhs.m_inbuf;
+  m_outbuf      = rhs.m_outbuf;
+  m_lz4ctx      = rhs.m_lz4ctx;
+  m_consumed    = rhs.m_consumed;
+  m_inSize      = rhs.m_inSize;
+  m_outConsumed = rhs.m_outConsumed;
+  m_outSize     = rhs.m_outSize;
+  m_outCapacity = rhs.m_outCapacity;
+  m_ready       = rhs.m_ready;
+  m_mode        = rhs.m_mode;
+  return *this;
+}
+
+reduce_stream &reduce_stream::operator=(stream &&rhs) {
+  stream::operator=(std::move(rhs));
+  close_internal();
+  return *this;
+}
+
 reduce_stream::~reduce_stream() {
   close_internal();
   stream::~stream();
@@ -293,7 +333,7 @@ void reduce_stream::flush() {
   stream::flush();
 }
 
-bool reduce_stream::write(const void *buf, size_t n, size_t align) {
+bool reduce_stream::write(const void *buf, size_t n, size_t align, bool flush) {
   if(!m_ready || m_mode != Compress)
     return false;
   for(; n > 0;) {
@@ -302,24 +342,22 @@ bool reduce_stream::write(const void *buf, size_t n, size_t align) {
     if(compress_chunk(buf, inSize, inSize == n) == (size_t)-1)
       return false;
 
+    if(flush && compress_flush() == (size_t)-1)
+      return false;
+
     buf = (char *)buf + inSize;
     n -= inSize;
   }
   return true;
 }
 
-bool reduce_stream::write(scl::stream &src) {
-  if(!m_ready || m_mode != Compress)
+bool reduce_stream::write_uncompressed(const void *buf, size_t n, size_t align,
+  bool flush) {
+  if(m_ready)
+    // Cannot write uncompressed while "active"
+    // TODO: allow this behavior during compression (lz4f allows it)
     return false;
-  for(;;) {
-    size_t inSize = src.read(m_inbuf, SCL_STREAM_BUF);
-    if(!inSize) {
-      return compress_flush() != (size_t)-1;
-    }
-    if(compress_chunk(m_inbuf, inSize, false) == (size_t)-1)
-      return false;
-  }
-  return true;
+  return write_internal(buf, n, align);
 }
 
 void reduce_stream::close() {

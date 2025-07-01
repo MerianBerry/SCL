@@ -360,6 +360,7 @@ class stream {
   char     *m_fp     = nullptr;
   size_t    m_size   = 0;
   bool      m_ronly = false, m_wonly = false;
+  bool      m_modified = false;
 
   long long bounds(const char *p, size_t n) const;
 
@@ -367,21 +368,32 @@ class stream {
   bool      write_internal(const void *buf, size_t n, size_t align);
 
  public:
-  stream() = default;
+  stream()                  = default;
+  stream(const stream &rhs) = delete;
+  stream(stream &&rhs);
+  stream &operator=(const stream &rhs) = delete;
+  stream &operator=(stream &&rhs);
+
   virtual ~stream();
 
-  bool openMode(const scl::path &path, const scl::string &mode);
-  bool open(const scl::path &path, bool trunc = true, bool binary = false);
+  bool      is_open() const;
+  bool      is_modified() const;
+  long long tell() const;
+
+  void      reset_modified();
+
+  bool      openMode(const scl::path &path, const scl::string &mode);
+  bool open(const scl::path &path, bool trunc = false, bool binary = false);
   virtual void      flush();
 
   long long         seek(StreamPos pos, long long off);
-  long long         tell() const;
   virtual long long read(void *buf, size_t n);
 
   bool              reserve(size_t n, bool force = false);
-  virtual bool      write(const void *buf, size_t n, size_t align = 1);
+  virtual bool      write(const void *buf, size_t n, size_t align = 1,
+         bool flush = true);
   bool              write(const scl::string &str, size_t align = 1);
-  virtual bool      write(scl::stream &src);
+  bool              write(scl::stream &src, size_t max = -1);
 
   virtual void      close();
   void             *release();
@@ -413,5 +425,19 @@ class str_iterator {
 };
 } // namespace internal
 
+/**
+ * @brief Initializes SCL global resources. Libraries currently requiring this
+ * is scl::pack.
+ *
+ * @return  Returns true on success, false on otherwise.
+ */
+bool init();
+
+/**
+ * @brief Releases SCL global resources. Libraries currently requiring this
+ * is scl::pack.
+ *
+ */
+void terminate();
 } // namespace scl
 #endif

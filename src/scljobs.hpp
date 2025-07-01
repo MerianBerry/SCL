@@ -39,7 +39,7 @@ class waitable {
   waitable();
 
   void complete();
-  bool wait (double timeout = -1);
+  bool wait(double timeout = -1);
 };
 
 class JobWorker;
@@ -56,23 +56,27 @@ class job {
 
  protected:
  public:
-  using Wt       = WtT;
-  virtual ~job() = default;
+  using Wt                         = WtT;
+  virtual ~job()                   = default;
 
-  virtual Wt *getWaitable() const = 0;
+  virtual Wt  *getWaitable() const = 0;
 
-  virtual void doJob (Wt *waitable, const JobWorker &worker) = 0;
+  virtual bool checkJob(const JobWorker &worker) const {
+    return true;
+  }
+
+  virtual void doJob(Wt *waitable, const JobWorker &worker) = 0;
 };
 
 class funcJob : public job<waitable> {
-  std::function<void (const JobWorker &worker)> m_func;
+  std::function<void(const JobWorker &worker)> m_func;
 
  public:
-  funcJob (std::function<void (const JobWorker &worker)> func);
+  funcJob(std::function<void(const JobWorker &worker)> func);
 
   waitable *getWaitable() const override;
 
-  void doJob (waitable *waitable, const JobWorker &worker) override;
+  void      doJob(waitable *waitable, const JobWorker &worker) override;
 };
 
 class JobWorker {
@@ -83,18 +87,19 @@ class JobWorker {
   std::atomic_bool m_busy;
   int              m_id;
 
-  void quit();
+  void             quit();
 
  public:
-  JobWorker (JobServer *serv, int id);
+  JobWorker(JobServer *serv, int id);
 
-  void sync (const std::function<void()> &func) const;
+  JobServer  &serv() const;
+  void        sync(const std::function<void()> &func) const;
 
-  int  id() const;
-  bool working() const;
-  bool busy() const;
+  int         id() const;
+  bool        working() const;
+  bool        busy() const;
 
-  static void work (JobWorker *inst);
+  static void work(JobWorker *inst);
 };
 
 class JobServer : protected std::mutex {
@@ -103,49 +108,56 @@ class JobServer : protected std::mutex {
   friend class JobWorker;
   std::vector<t_worker> m_workers;
   std::queue<t_wjob>    m_jobs;
+  std::atomic<size_t>   m_lockBits;
   int                   m_nworkers;
   std::atomic_bool      m_slow;
   std::atomic_bool      m_working;
 
 
-  bool takeJob (t_wjob &wjob);
+  bool                  takeJob(t_wjob &wjob, const JobWorker &worker);
 
  public:
-  JobServer (int workers = 0);
+  JobServer(int workers = 0);
   ~JobServer();
 
-  JobServer (const JobServer &)      = delete;
-  JobServer &operator= (JobServer &) = delete;
+  JobServer(const JobServer &)      = delete;
+  JobServer &operator=(JobServer &) = delete;
 
-  void start();
-  void slow (bool state = true);
-  bool waitidle (double timeout = -1);
-  void stop();
+  bool       is_working() const;
 
-  void clearjobs();
+  void       start();
+  void       slow(bool state = true);
+  bool       waitidle(double timeout = -1);
+  void       stop();
 
-  void sync (const std::function<void()> &func);
+  void       setLockBits(size_t bits);
+  void       unsetLockBits(size_t bits);
+  bool       hasLockBits(size_t bits) const;
+
+  void       clearjobs();
+
+  void       sync(const std::function<void()> &func);
 
   template <class Jb>
-  typename Jb::Wt *submitJob (Jb *job, bool autodelwt = false) {
+  typename Jb::Wt &submitJob(Jb *job, bool autodelwt = false) {
     waitable *wt = job->getWaitable();
     lock();
     scl::jobs::job<waitable> *job_ = (scl::jobs::job<waitable> *)job;
     job_->autodelwt                = autodelwt;
-    m_jobs.push (t_wjob (job_, wt));
+    m_jobs.push(t_wjob(job_, wt));
     unlock();
-    return (typename Jb::Wt *)wt;
+    return (typename Jb::Wt &)*wt;
   }
 
-  waitable *submitJob (std::function<void (const JobWorker &worker)> func,
-    bool autodelwt = true);
+  waitable   *submitJob(std::function<void(const JobWorker &worker)> func,
+      bool autodelwt = true);
 
-  int workerCount() const;
+  int         workerCount() const;
 
-  static int getnthreads (int threads);
+  static int  getnthreads(int threads);
 
-  static void multithread (std::function<void (int, int)> func,
-    int                                                   workers = 0);
+  static void multithread(std::function<void(int id, int workers)> func,
+    int                                                            workers = 0);
 };
 } // namespace jobs
 } // namespace scl

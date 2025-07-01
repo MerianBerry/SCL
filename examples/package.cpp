@@ -10,7 +10,8 @@
 #include "sclreduce.hpp"
 
 int main(int argc, char **argv) {
-#if 1
+  scl::init();
+#if 0
   long long          us, cs, uns;
   double             cst, cet, ust, uet;
   double             ratio;
@@ -41,7 +42,7 @@ int main(int argc, char **argv) {
   ratio = (double)cs / us;
 
   {
-    rs.begin(scl::reduce_stream::Decompress);
+    rs.begin();
 
     scl::stream un;
     ust = scl::clock();
@@ -65,9 +66,42 @@ int main(int argc, char **argv) {
   printf("Decompressed size: %0.1lfkb\n", uns / 1024.0);
   printf("Decompression + Disk read time: %0.2lfms\n", (uet - ust) * 1000.0);
 #else
-  scl::pack::Packager pack;
+  const bool          write = false;
 
-  pack.write();
+  scl::pack::Packager pack;
+  pack.open("test.spk");
+
+  std::vector<scl::path> files    = scl::path::glob("**/*.cpp");
+  auto                   headers  = scl::path::glob("**/*.hpp");
+  auto                   csources = scl::path::glob("**/*.c");
+  auto                   cheaders = scl::path::glob("**/*.h");
+  files.insert(files.end(), headers.begin(), headers.end());
+  files.insert(files.end(), csources.begin(), csources.end());
+  files.insert(files.end(), cheaders.begin(), cheaders.end());
+
+  auto   wts = pack.openFiles(files);
+
+  double cst = scl::clock();
+  for(size_t i = 0; i < wts.size(); i++) {
+    auto &wt   = *wts[i];
+    auto &file = files[i];
+    if(write) {
+      if(!wt->open(file, false, true)) {
+        fprintf(stderr, "Failed to open %s\n", file.cstr());
+        return 1;
+      }
+    } else {
+      scl::string str;
+      str.view((char *)wt->release());
+      printf("Read %s\n", file.cstr());
+    }
+  }
+  if(write)
+    pack.write();
+  double cet = scl::clock();
+  printf("time: %0.2lfms\n", (cet - cst) * 1000.0);
+
 #endif
+  scl::terminate();
   return 0;
 }

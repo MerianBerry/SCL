@@ -19,29 +19,44 @@ namespace pack {
 class Packager;
 class PackFetchJob;
 
+struct PackIndex {
+  scl::path m_file;
+  size_t    m_off = 0, m_size = 0, m_original = 0;
+};
+
 class PackWaitable : public jobs::waitable {
   friend class PackFetchJob;
 
-  stream *m_cache;
-  stream *m_active;
+  scl::stream *m_active;
 
  public:
-  PackWaitable(stream *cache, stream *active);
+  PackWaitable(scl::stream *active);
 
-  stream *content() {
+  scl::stream &content() {
     wait();
-    return m_active;
+    return *m_active;
   }
 
-  stream *operator->() {
+  scl::stream *operator->() {
     wait();
     return m_active;
   }
 };
 
+// Job to decompress a file from a stream into memory
 class PackFetchJob : public jobs::job<PackWaitable> {
+  PackIndex           m_indx;
+  scl::reduce_stream *m_archive;
+  scl::stream        *m_out;
+  int                 m_sid;
+
  public:
+  PackFetchJob(scl::reduce_stream *archive, scl::stream *out, PackIndex indx,
+    int sid);
+
   PackWaitable *getWaitable() const override;
+
+  bool          checkJob(const jobs::JobWorker &worker) const override;
 
   void          doJob(PackWaitable *wt, const jobs::JobWorker &worker) override;
 };
@@ -53,39 +68,26 @@ enum PackResult {
   FULL,
 };
 
-class Archive : std::mutex {
-  scl::stream      *m_stream;
-  xml::XmlDocument *m_manifest;
-
- public:
-};
-
-class PackIndex {
- private:
-  scl::stream *m_stream;
-  size_t       m_off;
-  size_t       m_size;
-};
-
 class Packager : protected std::mutex {
-  bool load();
-
  private:
-  path                                  m_family;
-  path                                  m_dir;
-  std::vector<stream *>                 m_streams;
-  std::vector<xml::XmlDocument *>       m_mans;
-  // pair of {ismodified, file ptr}
-  dictionary<std::pair<bool, stream *>> m_index;
-  dictionary<stream>                    m_cache;
-  dictionary<stream>                    m_activ;
+  scl::path                    m_family;
+  scl::path                    m_dir;
+  scl::reduce_stream           m_archive;
+  scl::dictionary<PackIndex>   m_index;
+  // Uncompressed files, user side
+  scl::dictionary<scl::stream> m_activ;
+  size_t                       m_ioff = 0;
 
  public:
-  bool          open(const scl::path &dir, const scl::string &familyName);
-  PackWaitable *openFile(const scl::path &path);
+  bool                        open(const scl::path &path);
+  PackWaitable               &openFile(const scl::path &path);
+  std::vector<PackWaitable *> openFiles(const std::vector<scl::path> &files);
 
-  bool          write();
+  bool                        write();
 };
+
+bool packInit();
+void packTerminate();
 } // namespace pack
 } // namespace scl
 

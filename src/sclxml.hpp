@@ -57,25 +57,26 @@ class XmlResult {
 
 
  public:
-  xml_excode code;
+  xml_excode code = OK;
 
-  XmlResult (xml_excode code, string info = string())
-      : code (code), info (info) {
+  XmlResult()     = default;
+
+  XmlResult(xml_excode code, string info = string()) : code(code), info(info) {
   }
 
   string what() const {
-    switch (code) {
+    switch(code) {
     case TAG:
     case TEXT:
     case SYNTAX:
     case MISMATCH: {
       string out = _errdescs[code];
-      if (info)
-        out += string::fmt (" (%s)", info.cstr());
+      if(info)
+        out += string::fmt(" (%s)", info.cstr());
       return out;
     }
     default:
-      if (code >= 0 && code < ENUM_MAX)
+      if(code >= 0 && code < ENUM_MAX)
         return _errdescs[code].cstr();
       return "";
     }
@@ -96,47 +97,47 @@ class XmlPage {
   XmlPage *next = NULL;
 
  public:
-  XmlPage (XmlPage *tonext = NULL) {
-    if (tonext) {
-      memcpy (this, tonext, sizeof (XmlPage));
-      memset (tonext, 0, sizeof (XmlPage));
+  XmlPage(XmlPage *tonext = NULL) {
+    if(tonext) {
+      memcpy(this, tonext, sizeof(XmlPage));
+      memset(tonext, 0, sizeof(XmlPage));
       tonext->next = this;
     }
   }
 
   void free() {
-    for (XmlPage *page = this; page;) {
+    for(XmlPage *page = this; page;) {
       XmlPage *next = page->next;
-      if (page->data)
-        delete[] (char *)page->data;
+      if(page->data)
+        delete[](char *)page->data;
       // All but the root page must be deleted manually
-      if (page != this)
+      if(page != this)
         delete page;
       page = next;
     }
   }
 
   template <class T = char>
-  T *alloc (int n = 1) {
-    if (n <= 0)
+  T *alloc(int n = 1) {
+    if(n <= 0)
       return NULL;
-    unsigned asz = sizeof (T) * n;
-    if (!data) {
+    unsigned asz = sizeof(T) * n;
+    if(!data) {
       unsigned req = asz > defaultSize ? asz : defaultSize;
       size         = req;
       data         = new char[size];
-      if (!data)
-        throw XmlResult (MEM);
+      if(!data)
+        throw XmlResult(MEM);
     }
-    if (used + asz > size) {
+    if(used + asz > size) {
       /* make a new page, and swap input page for new one */
       /* saves performance and cpu time looking of open slot */
-      new XmlPage<defaultSize> (this);
-      return alloc<T> (n);
+      new XmlPage<defaultSize>(this);
+      return alloc<T>(n);
     }
     void *ptr = (char *)data + used;
     used += asz;
-    memset (ptr, 0, asz);
+    memset(ptr, 0, asz);
     return (T *)ptr;
   }
 };
@@ -251,41 +252,41 @@ class XmlNode {
   char *m_data;
   N    *m_next;
 
-  bool skip (XmlPredicate pred, char *s, char **ep) {
+  bool  skip(XmlPredicate pred, char *s, char **ep) {
     char *p = s;
-    while (xctypes[*p] & pred)
+    while(xctypes[*p] & pred)
       p++;
     return (*ep) = p, s != p;
   }
 
-  void skip_delim (char delim, char *s, char **ep) {
+  void skip_delim(char delim, char *s, char **ep) {
     char *p = s;
-    while (*p && *p != delim)
+    while(*p && *p != delim)
       p++;
     (*ep) = p;
   }
 
-  void expand_text (char *s, char *e) {
+  void expand_text(char *s, char *e) {
     char    *p   = s;
     unsigned cut = 0;
-    while (p < (e - cut)) {
-      if (*p == '&') {
+    while(p < (e - cut)) {
+      if(*p == '&') {
         s = p++;
-        if (!strncmp (p, "lt;", 3))
+        if(!strncmp(p, "lt;", 3))
           (p += 3), (*s = '<');
-        else if (!strncmp (p, "gt;", 3))
+        else if(!strncmp(p, "gt;", 3))
           (p += 3), (*s = '>');
-        else if (!strncmp (p, "amp;", 4))
+        else if(!strncmp(p, "amp;", 4))
           (p += 4), (*s = '&');
-        else if (!strncmp (p, "apos;", 5))
+        else if(!strncmp(p, "apos;", 5))
           (p += 5), (*s = '\'');
-        else if (!strncmp (p, "quot;", 5))
+        else if(!strncmp(p, "quot;", 5))
           (p += 5), (*s = '\"');
         else
-          throw XmlResult (SPECIAL);
+          throw XmlResult(SPECIAL);
         s++;
         cut += (unsigned)(p - s);
-        memcpy (s, p, e - p);
+        memcpy(s, p, e - p);
         p          = s;
         *(e - cut) = '\0';
       }
@@ -294,57 +295,57 @@ class XmlNode {
   }
 
   template <int f>
-  void parse_text (XmlAllocator &allo, char delim, char *s, char **ep) {
+  void parse_text(XmlAllocator &allo, char delim, char *s, char **ep) {
     char *p    = s;
     char  hamp = 0;
     char  c;
-    while ((c = *p) && c != delim) {
+    while((c = *p) && c != delim) {
       p++;
       // For some reason, this is tanking the parsing speed.
-      if (!(f & no_special_expand))
+      if(!(f & no_special_expand))
         hamp = hamp || c == '&';
     }
 #if 1
-    if (hamp)
-      expand_text (s, p);
+    if(hamp)
+      expand_text(s, p);
 #endif
-    if (*p) {
+    if(*p) {
       (*ep)        = p;
       this->m_data = s != p ? s : NULL;
     } else
-      throw XmlResult (TEXT);
+      throw XmlResult(TEXT);
   }
 
   template <int step>
-  void print_text (stream &stream, const string &t) {
+  void print_text(stream &stream, const string &t) {
     char *s, *p = (char *)t.cstr();
     s = p;
-    for (; *p; p++) {
-      switch (*p) {
+    for(; *p; p++) {
+      switch(*p) {
       case '<':
-        stream.write ("&lt;", 4, step);
+        stream.write("&lt;", 4, step);
         break;
       case '>':
-        stream.write ("&gt;", 4, step);
+        stream.write("&gt;", 4, step);
         break;
       case '&':
-        stream.write ("&amp;", 5, step);
+        stream.write("&amp;", 5, step);
         break;
       case '\'':
-        stream.write ("&apos;", 6, step);
+        stream.write("&apos;", 6, step);
         break;
       case '\"':
-        stream.write ("&quot;", 6, step);
+        stream.write("&quot;", 6, step);
         break;
       default:
         continue;
       }
       *p = '\0';
-      stream.write ((const scl::string &)s, step);
+      stream.write((const scl::string &)s, step);
       s = p + 1;
     }
     *p = '\0';
-    stream.write ((const scl::string &)s, step);
+    stream.write((const scl::string &)s, step);
     s = p + 1;
   }
 
@@ -363,13 +364,31 @@ class XmlNode {
    * @param doc  Reference to the document that ownes this node.
    * @param tag  New tag.
    */
-  void set_tag (XmlAllocator &doc, const string &tag) {
-    m_tag = doc.txt.alloc ((int)tag.len() + 1);
-    memcpy (m_tag, tag.cstr(), tag.len());
+  void set_tag(XmlAllocator &doc, const string &tag) {
+    m_tag = doc.txt.alloc((int)tag.len() + 1);
+    memcpy(m_tag, tag.cstr(), tag.len());
   }
 
   string data() const {
     return m_data;
+  }
+
+  /**
+   * @return   Converts node data into a long long integer if possible.
+   */
+  long long data_int() const {
+    if(m_data)
+      return atoll(m_data);
+    return 0;
+  }
+
+  /**
+   * @return   Converts node data into a double if possible.
+   */
+  double data_float() const {
+    if(m_data)
+      return atof(m_data);
+    return 0.0;
   }
 
   /**
@@ -378,10 +397,10 @@ class XmlNode {
    * @param doc  Reference to the document that ownes this node.
    * @param data  New data.
    */
-  void set_data (XmlAllocator &doc, const string &data) {
-    if (data) {
-      m_data = doc.txt.alloc ((int)data.len() + 1);
-      memcpy (m_data, data.cstr(), data.len());
+  void set_data(XmlAllocator &doc, const string &data) {
+    if(data) {
+      m_data = doc.txt.alloc((int)data.len() + 1);
+      memcpy(m_data, data.cstr(), data.len());
     } else {
       m_data = NULL;
     }
@@ -393,33 +412,33 @@ class XmlAttr : public XmlNode<XmlAttr, XmlElem> {
 
  protected:
   template <int f>
-  void parse (XmlAllocator &allo, char *s, char **ep) {
+  void parse(XmlAllocator &allo, char *s, char **ep) {
     char *p = s;
-    if (!skip (TAG_PRED, s, &p))
-      throw XmlResult (TAG, s);
+    if(!skip(TAG_PRED, s, &p))
+      throw XmlResult(TAG, s);
     m_tag = s;
     // Check for =" syntax if wanted
-    if (!(f & no_syntax)) {
-      if (p[0] != '=' && p[1] != '\"')
-        throw XmlResult (SYNTAX, p);
+    if(!(f & no_syntax)) {
+      if(p[0] != '=' && p[1] != '\"')
+        throw XmlResult(SYNTAX, p);
     }
     *p         = '\0';
     char delim = p[1];
     s          = p + 2;
-    parse_text<f> (allo, delim, s, &p);
+    parse_text<f>(allo, delim, s, &p);
     *p    = '\0';
     (*ep) = p + 1;
   }
 
   template <int s>
-  XmlResult print (stream &stream) {
-    if (!m_tag)
-      throw XmlResult (NIL, "Incomplete attr");
-    stream.write (string::fmt ("%s=\"", m_tag), s);
-    print_text<s> (stream, m_data);
-    stream.write ("\"", 1, s);
-    if (m_next)
-      stream.write (" ", 1, s);
+  XmlResult print(stream &stream) {
+    if(!m_tag)
+      throw XmlResult(NIL, "Incomplete attr");
+    stream.write(string::fmt("%s=\"", m_tag), s);
+    print_text<s>(stream, m_data);
+    stream.write("\"", 1, s);
+    if(m_next)
+      stream.write(" ", 1, s);
     return OK;
   }
 };
@@ -432,88 +451,88 @@ class XmlElem : public XmlNode<XmlElem, XmlElem> {
   XmlAttr *m_attr;
   XmlAttr *m_atail;
 
-  void zero() {
-    memset (this, 0, sizeof (XmlElem));
+  void     zero() {
+    memset(this, 0, sizeof(XmlElem));
   }
 
   template <int f>
-  void parse_end (int &leave, XmlElem *parent, char *s, char **ep) {
+  void parse_end(int &leave, XmlElem *parent, char *s, char **ep) {
     char *p = s;
-    if (!skip (TAG_PRED, s, &p))
-      throw XmlResult (TAG, s);
-    if (!(f & no_tag_check)) {
+    if(!skip(TAG_PRED, s, &p))
+      throw XmlResult(TAG, s);
+    if(!(f & no_tag_check)) {
       // Check if parent tag and parsed tag are identical
-      if (!!strncmp (parent->m_tag, s, p - s)) {
+      if(!!strncmp(parent->m_tag, s, p - s)) {
         *p = '\0';
-        throw XmlResult (MISMATCH, string::fmt ("%s/%s", parent->m_tag, s));
+        throw XmlResult(MISMATCH, string::fmt("%s/%s", parent->m_tag, s));
       }
     }
     leave |= 1;
     (*ep) = ++p;
   }
 
-  void parse_pi (char *s, char **ep) {
+  void parse_pi(char *s, char **ep) {
     // Dont really care
-    skip_delim ('>', s, ep);
+    skip_delim('>', s, ep);
   }
 
   template <int f>
-  void parse (XmlAllocator &allo, XmlElem *parent, char *s, char **ep) {
+  void parse(XmlAllocator &allo, XmlElem *parent, char *s, char **ep) {
     static int leave = 0;
     char      *p     = s;
-    skip (SPACE_PRED, s, &p);
-    if (*p != '<')
-      throw XmlResult (INCOMPLETE);
+    skip(SPACE_PRED, s, &p);
+    if(*p != '<')
+      throw XmlResult(INCOMPLETE);
     m_parent = parent;
     s        = ++p;
-    if (*p == '/')
-      return parse_end<f> (leave, parent, p + 1, ep);
-    if (*p == '?') {
-      parse_pi (p + 1, &p);
+    if(*p == '/')
+      return parse_end<f>(leave, parent, p + 1, ep);
+    if(*p == '?') {
+      parse_pi(p + 1, &p);
       ++p;
-      return parse<f> (allo, parent, p, ep);
+      return parse<f>(allo, parent, p, ep);
     }
-    if (!skip (TAG_PRED, s, &p))
-      throw XmlResult (TAG, s);
+    if(!skip(TAG_PRED, s, &p))
+      throw XmlResult(TAG, s);
     char *pn = p;
     m_tag    = s;
-    skip (SPACE_PRED, p, &p);
-    while (*p != '>' && *p != '/' && *p) {
+    skip(SPACE_PRED, p, &p);
+    while(*p != '>' && *p != '/' && *p) {
       XmlAttr *attr = allo.nodes.alloc<xml::XmlAttr>();
-      attr->parse<f> (allo, p, &p);
-      add_attr (attr);
-      skip (SPACE_PRED, p, &p);
+      attr->parse<f>(allo, p, &p);
+      add_attr(attr);
+      skip(SPACE_PRED, p, &p);
     }
-    if (*p == '>') {
+    if(*p == '>') {
       *pn = '\0';
       s   = ++p;
-      skip (SPACE_PRED, p, &p);
-      parse_text<f> (allo, '<', p, &p);
+      skip(SPACE_PRED, p, &p);
+      parse_text<f>(allo, '<', p, &p);
       pn = p;
-      while (1) {
+      while(1) {
         xml::XmlElem *celem = allo.nodes.alloc<xml::XmlElem>();
-        celem->parse<f> (allo, this, p, &p);
+        celem->parse<f>(allo, this, p, &p);
         *pn = '\0';
-        if (m_data && !leave)
-          throw XmlResult (TEXT_CHILD, m_tag);
-        if (leave) {
+        if(m_data && !leave)
+          throw XmlResult(TEXT_CHILD, m_tag);
+        if(leave) {
           leave = 0;
           break;
         }
-        add_child (celem);
+        add_child(celem);
       }
       (*ep) = p;
       return;
-    } else if (*p == '/' || leave) {
-      if (!parent)
-        throw XmlResult (ROOT);
+    } else if(*p == '/' || leave) {
+      if(!parent)
+        throw XmlResult(ROOT);
       p += 1 + (*p == '/');
       leave = 0;
       *pn   = '\0';
       (*ep) = p;
       return;
     }
-    throw XmlResult (SYNTAX);
+    throw XmlResult(SYNTAX);
   }
 
  public:
@@ -533,43 +552,43 @@ class XmlElem : public XmlNode<XmlElem, XmlElem> {
    * Returns 0 on success.
    */
   template <int s = SCL_XML_DEFAULT_PRINT_STEP>
-  XmlResult print (stream &stream, bool format = true, int level = 0) {
+  XmlResult print(stream &stream, bool format = true, int level = 0) {
     try {
-      if (!m_tag)
-        throw XmlResult (NIL, "Incomplete elem");
-      if (level < 0)
-        throw XmlResult (LEVEL, string::fmt ("level=%i", level));
-      if (level == 0 && format)
-        stream.write ("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n", 39, s);
-      for (int i = 0; format && i < level; i++)
-        stream.write ("  ", 2, s);
-      stream.write (string::fmt ("<%s", m_tag), s);
-      if (m_attr) {
-        stream.write (" ", 1, s);
-        for (auto &a : attributes())
-          a->print<s> (stream);
+      if(!m_tag)
+        throw XmlResult(NIL, "Incomplete elem");
+      if(level < 0)
+        throw XmlResult(LEVEL, string::fmt("level=%i", level));
+      if(level == 0 && format)
+        stream.write("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n", 39, s);
+      for(int i = 0; format && i < level; i++)
+        stream.write("  ", 2, s);
+      stream.write(string::fmt("<%s", m_tag), s);
+      if(m_attr) {
+        stream.write(" ", 1, s);
+        for(auto &a : attributes())
+          a->print<s>(stream);
       }
-      if (!m_parent || m_data || m_child) {
-        stream.write (">", 1, s);
-        if (m_data) {
-          print_text<s> (stream, m_data);
+      if(!m_parent || m_data || m_child) {
+        stream.write(">", 1, s);
+        if(m_data) {
+          print_text<s>(stream, m_data);
         } else {
-          if (format)
-            stream.write ("\n", 1, s);
-          for (auto &c : children())
-            c->print (stream, format, level + 1);
-          for (int i = 0; format && i < level; i++)
-            stream.write ("  ", 2, s);
+          if(format)
+            stream.write("\n", 1, s);
+          for(auto &c : children())
+            c->print(stream, format, level + 1);
+          for(int i = 0; format && i < level; i++)
+            stream.write("  ", 2, s);
         }
-        stream.write (string::fmt ("</%s>", m_tag), s);
-        if (m_parent && format)
-          stream.write ("\n", 1, s);
+        stream.write(string::fmt("</%s>", m_tag), s);
+        if(m_parent && format)
+          stream.write("\n", 1, s);
       } else {
-        stream.write ("/>", 2, s);
-        if (m_parent && format)
-          stream.write ("\n", 1, s);
+        stream.write("/>", 2, s);
+        if(m_parent && format)
+          stream.write("\n", 1, s);
       }
-    } catch (XmlResult e) {
+    } catch(XmlResult e) {
       return e;
     }
     return OK;
@@ -585,12 +604,12 @@ class XmlElem : public XmlNode<XmlElem, XmlElem> {
    * Returns 0 on success.
    */
   template <int s = SCL_XML_DEFAULT_PRINT_STEP>
-  XmlResult print (scl::string &str, bool format = true) {
+  XmlResult print(scl::string &str, bool format = true) {
     scl::stream stream;
-    auto        r = print<s> (stream, format);
-    if (!r)
+    auto        r = print<s>(stream, format);
+    if(!r)
       return r;
-    str.claim ((const char *)stream.release());
+    str.claim((const char *)stream.release());
     return OK;
   }
 
@@ -600,31 +619,47 @@ class XmlElem : public XmlNode<XmlElem, XmlElem> {
 
   std::vector<XmlElem *> children() const {
     std::vector<XmlElem *> out;
-    for (XmlElem *i = m_child; i; i = i->m_next)
-      out.push_back (i);
+    for(XmlElem *i = m_child; i; i = i->m_next)
+      out.push_back(i);
     return out;
   }
 
   int num_attrs() const {
     int n = 0;
-    for (XmlAttr *i = m_attr; i; i = i->m_next)
+    for(XmlAttr *i = m_attr; i; i = i->m_next)
       n++;
     return n;
   }
 
   std::vector<XmlAttr *> attributes() const {
     std::vector<XmlAttr *> out;
-    for (XmlAttr *i = m_attr; i; i = i->m_next)
-      out.push_back (i);
+    for(XmlAttr *i = m_attr; i; i = i->m_next)
+      out.push_back(i);
     return out;
   }
 
-  void add_attr (XmlAttr *attr) {
-    if (!attr)
-      throw XmlResult (ALLOC, "Null attr");
+  /**
+   * @brief Searches this elements attributes for an attribute with the given
+   * name.
+   *
+   * @param name  Name of the attribute to find.
+   * @return   Pointer to the requested attribute. nullptr if no such attribute
+   * exists.
+   */
+  XmlAttr *find_attr(const scl::string &name) {
+    for(XmlAttr *i = m_attr; i; i = i->m_next) {
+      if(i->tag() == name)
+        return i;
+    }
+    return nullptr;
+  }
+
+  void add_attr(XmlAttr *attr) {
+    if(!attr)
+      throw XmlResult(ALLOC, "Null attr");
     // attr->m_parent = this;
-    if (m_attr) {
-      if (m_atail)
+    if(m_attr) {
+      if(m_atail)
         m_atail->m_next = attr, m_atail = attr;
       else
         m_attr->m_next = attr, m_atail = attr;
@@ -637,13 +672,13 @@ class XmlElem : public XmlNode<XmlElem, XmlElem> {
       m_attr = attr;
   }
 
-  void add_child (XmlElem *child) {
-    if (!child)
-      throw XmlResult (ALLOC, "Null elem");
+  void add_child(XmlElem *child) {
+    if(!child)
+      throw XmlResult(ALLOC, "Null elem");
     child->m_parent = this;
-    if (m_child) {
+    if(m_child) {
       xml::XmlElem *elem = m_child;
-      if (elem->m_tail)
+      if(elem->m_tail)
         elem->m_tail->m_next = child, elem->m_tail = child;
       else
         elem->m_next = child, elem->m_tail = child;
@@ -659,12 +694,12 @@ class XmlElem : public XmlNode<XmlElem, XmlElem> {
    *
    */
   void remove() {
-    if (!m_parent)
+    if(!m_parent)
       return;
     xml::XmlElem *el = m_parent->child(), *pel = nullptr;
-    for (; el;) {
-      if (el == this) {
-        if (pel)
+    for(; el;) {
+      if(el == this) {
+        if(pel)
           pel->m_next = m_next;
         else
           m_parent->m_child = m_next;
@@ -698,15 +733,15 @@ class XmlDocument : public XmlElem, public XmlAllocator {
    * Returns 0 on success.
    */
   template <int f = none>
-  XmlResult load_string (const string &content) {
+  XmlResult load_string(const string &content) {
     this->zero();
     source = content;
     try {
       char *p = (char *)source.cstr();
-      if (!p)
+      if(!p)
         return ERROR;
-      this->parse<f> (*this, NULL, p, &p);
-    } catch (XmlResult e) {
+      this->parse<f>(*this, NULL, p, &p);
+    } catch(XmlResult e) {
       nodes.free();
       return e;
     }
@@ -725,27 +760,27 @@ class XmlDocument : public XmlElem, public XmlAllocator {
    * Returns 0 on success.
    */
   template <int f = none>
-  XmlResult load_file (const string &path, long long *read = NULL) {
-    std::ifstream fi (path.cstr());
-    if (!fi)
+  XmlResult load_file(const string &path, long long *read = NULL) {
+    std::ifstream fi(path.cstr());
+    if(!fi)
       return FILE;
     fi >> source;
-    if (read)
+    if(read)
       (*read) += source.size();
     fi.close();
-    if (!source)
+    if(!source)
       return FILE;
-    return load_string<f> (source);
+    return load_string<f>(source);
   }
 
   /**
    * @brief Creates a new attribute, owned by this document.
    *
    */
-  XmlAttr *new_attr (const string &tag, const string &data) {
+  XmlAttr *new_attr(const string &tag, const string &data) {
     XmlAttr *a = nodes.alloc<XmlAttr>();
-    a->set_tag (*this, tag);
-    a->set_data (*this, data);
+    a->set_tag(*this, tag);
+    a->set_data(*this, data);
     return a;
   }
 
@@ -753,10 +788,10 @@ class XmlDocument : public XmlElem, public XmlAllocator {
    * @brief Creates a new element, owned by this document.
    *
    */
-  XmlElem *new_elem (const string &tag, string data = string()) {
+  XmlElem *new_elem(const string &tag, string data = string()) {
     XmlElem *e = nodes.alloc<XmlElem>();
-    e->set_tag (*this, tag);
-    e->set_data (*this, data);
+    e->set_tag(*this, tag);
+    e->set_data(*this, data);
     return e;
   }
 };

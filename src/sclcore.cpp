@@ -5,6 +5,7 @@
 #include <mutex>
 #include "sclcore.hpp"
 #include "sclpath.hpp"
+#include "sclpack.hpp"
 
 #ifdef _WIN32
 #  ifndef WIN32_LEAN_AND_MEAN
@@ -706,6 +707,43 @@ bool waitUntil(std::function<bool()> cond, double timeout, double sleep) {
   return !timedout;
 }
 
+stream::stream(stream &&rhs) {
+  m_stream       = rhs.m_stream;
+  m_data         = rhs.m_data;
+  m_fp           = rhs.m_fp;
+  m_size         = rhs.m_size;
+  m_ronly        = rhs.m_ronly;
+  m_wonly        = rhs.m_wonly;
+  m_modified     = rhs.m_modified;
+
+  rhs.m_stream   = 0;
+  rhs.m_data     = 0;
+  rhs.m_fp       = 0;
+  rhs.m_size     = 0;
+  rhs.m_ronly    = 0;
+  rhs.m_wonly    = 0;
+  rhs.m_modified = 0;
+}
+
+stream &stream::operator=(stream &&rhs) {
+  m_stream       = rhs.m_stream;
+  m_data         = rhs.m_data;
+  m_fp           = rhs.m_fp;
+  m_size         = rhs.m_size;
+  m_ronly        = rhs.m_ronly;
+  m_wonly        = rhs.m_wonly;
+  m_modified     = rhs.m_modified;
+
+  rhs.m_stream   = 0;
+  rhs.m_data     = 0;
+  rhs.m_fp       = 0;
+  rhs.m_size     = 0;
+  rhs.m_ronly    = 0;
+  rhs.m_wonly    = 0;
+  rhs.m_modified = 0;
+  return *this;
+}
+
 stream::~stream() {
   flush();
   if(m_stream) {
@@ -731,7 +769,7 @@ long long stream::read_internal(void *buf, size_t n) {
   if(m_stream) {
     if(n == (size_t)-1) {
       auto o = tell();
-      seek(StreamPos::end, -1);
+      seek(StreamPos::end, 0);
       auto l = tell() - o;
       seek(StreamPos::start, o);
       n = std::min(n, (size_t)l);
@@ -767,7 +805,27 @@ bool stream::write_internal(const void *buf, size_t n, size_t align) {
   }
   memcpy(m_fp, buf, n);
   m_fp += n;
+  m_modified = true;
   return true;
+}
+
+bool stream::is_open() const {
+  return m_stream;
+}
+
+bool stream::is_modified() const {
+  return m_modified;
+}
+
+long long stream::tell() const {
+  if(m_stream) {
+    return ftell(m_stream);
+  }
+  return m_fp - m_data;
+}
+
+void stream::reset_modified() {
+  m_modified = false;
 }
 
 bool stream::openMode(const scl::path &path, const scl::string &mode) {
@@ -821,13 +879,6 @@ long long stream::seek(StreamPos pos, long long off) {
   return m_fp - m_data;
 }
 
-long long stream::tell() const {
-  if(m_stream) {
-    return ftell(m_stream);
-  }
-  return m_fp - m_data;
-}
-
 long long stream::read(void *buf, size_t n) {
   if(m_wonly)
     return 0;
@@ -857,9 +908,10 @@ bool stream::reserve(size_t n, bool force) {
   return true;
 }
 
-bool stream::write(const void *buf, size_t n, size_t align) {
+bool stream::write(const void *buf, size_t n, size_t align, bool flush) {
   if(m_ronly)
     return false;
+  // Just ignore flush?
   return write_internal(buf, n, align);
 }
 
@@ -867,14 +919,22 @@ bool stream::write(const scl::string &str, size_t align) {
   return write(str.cstr(), str.len(), align);
 }
 
-bool stream::write(stream &src) {
-  char buf[SCL_STREAM_BUF];
-  bool r = false;
+bool stream::write(stream &src, size_t max) {
+  char   buf[SCL_STREAM_BUF];
+  size_t total = 0;
+  bool   r     = false;
   do {
-    auto read = src.read(buf, SCL_STREAM_BUF);
-    if(read)
-      r = write(buf, read);
-    if(!read || !r)
+    if(total >= max)
+      break;
+    size_t read      = src.read(buf, SCL_STREAM_BUF);
+    size_t avail     = max - total;
+    size_t readBytes = avail < read ? avail : read;
+    total += read;
+    if(readBytes)
+      // Write. Flush if the streaming buffer isnt full (usually end of
+      // streaming).
+      r = write(buf, readBytes, 1, readBytes < SCL_STREAM_BUF);
+    if(!readBytes || !r)
       break;
   } while(1);
   return r;
@@ -909,12 +969,13 @@ stream &stream::operator<<(const scl::string &str) {
 }
 
 stream &stream::operator>>(scl::string &str) {
-  long long end = seek(StreamPos::end, -1);
-  seek(StreamPos::start, 0);
+  auto      off = tell();
+  long long end = seek(StreamPos::end, 0);
+  seek(StreamPos::start, off);
   if(end >= UINT_MAX)
     return *this;
   char *buf = new char[SCL_STREAM_BUF];
-  str.reserve(end);
+  str.reserve((unsigned)end);
   for(;;) {
     auto readBytes = read(buf, SCL_STREAM_BUF - 1);
     if(!readBytes)
@@ -924,5 +985,14 @@ stream &stream::operator>>(scl::string &str) {
   }
   delete[] buf;
   return *this;
+}
+
+bool init() {
+  bool pack = pack::packInit();
+  return pack;
+}
+
+void terminate() {
+  pack::packTerminate();
 }
 } // namespace scl

@@ -38,6 +38,12 @@ class reduce_stream : public stream {
 
  public:
   reduce_stream() = default;
+
+  reduce_stream(reduce_stream &&rhs);
+  reduce_stream(stream &&rhs);
+  reduce_stream &operator=(reduce_stream &&rhs);
+  reduce_stream &operator=(stream &&rhs);
+
   ~reduce_stream() override;
 
   bool      open(const scl::path &path, bool trunc = false);
@@ -49,8 +55,10 @@ class reduce_stream : public stream {
 
   void      flush() override;
   using stream::write;
-  bool write(const void *buf, size_t n, size_t align) override;
-  bool write(scl::stream &src) override;
+  bool write(const void *buf, size_t n, size_t align,
+    bool flush = true) override;
+  bool write_uncompressed(const void *buf, size_t n, size_t align = 1,
+    bool flush = true);
 
   void close() override;
 };
