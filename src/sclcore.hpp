@@ -340,12 +340,12 @@ double      clock();
 /**
  * @brief Makes this thread sleep for a given amount of milliseconds.
  *
- * @param ms  Number of milliseconds to sleep for.
+ * @param sleemms  Number of milliseconds to sleep for.
  */
 void        waitms(double ms);
 
 bool        waitUntil(std::function<bool()> cond, double timeout = -1,
-         double sleep = 0.001);
+         double sleepms = 0.001);
 
 enum class StreamPos {
   start   = SEEK_SET,

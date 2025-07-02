@@ -694,13 +694,13 @@ void waitms(double ms) {
 #endif
 }
 
-bool waitUntil(std::function<bool()> cond, double timeout, double sleep) {
+bool waitUntil(std::function<bool()> cond, double timeout, double sleepms) {
   bool   infinite = timeout == -1;
   double cs       = scl::clock();
   double ce;
   bool   timedout = false;
   while(!cond() && !timedout) {
-    scl::waitms(sleep);
+    scl::waitms(sleepms);
     ce       = scl::clock();
     timedout = ((ce - cs) * 1000 < timeout && !infinite);
   }

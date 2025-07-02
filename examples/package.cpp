@@ -71,13 +71,15 @@ int main(int argc, char **argv) {
   scl::pack::Packager pack;
   pack.open("test.spk");
 
-  std::vector<scl::path> files    = scl::path::glob("**/*.cpp");
+  std::vector<scl::path> files = {"examples/horosont.glb"};
+#  if 0
   auto                   headers  = scl::path::glob("**/*.hpp");
   auto                   csources = scl::path::glob("**/*.c");
   auto                   cheaders = scl::path::glob("**/*.h");
   files.insert(files.end(), headers.begin(), headers.end());
   files.insert(files.end(), csources.begin(), csources.end());
   files.insert(files.end(), cheaders.begin(), cheaders.end());
+#  endif
 
   auto   wts = pack.openFiles(files);
 
@@ -100,6 +102,8 @@ int main(int argc, char **argv) {
     pack.write();
   double cet = scl::clock();
   printf("time: %0.2lfms\n", (cet - cst) * 1000.0);
+
+  pack.close();
 
 #endif
   scl::terminate();

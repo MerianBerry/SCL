@@ -10,8 +10,7 @@
 #define SPK_IOFF        8
 
 
-static scl::jobs::JobServer g_serv(4);
-static std::atomic_int      g_numpackages;
+static scl::jobs::JobServer g_serv;
 
 bool                        is_little_endiann() {
   volatile uint32_t i = 0x01234567;
@@ -26,16 +25,20 @@ PackWaitable::PackWaitable(scl::stream *active) {
   m_active = active;
 }
 
-PackFetchJob::PackFetchJob(scl::reduce_stream *archive, scl::stream *out,
-  PackIndex indx, int sid) {
+PackFetchJob::PackFetchJob(Packager *pack, scl::reduce_stream *archive,
+  scl::stream *out, PackIndex indx, int sid) {
   m_indx    = indx;
+  m_pack    = pack;
   m_archive = archive;
   m_out     = out;
   m_sid     = sid;
 }
 
 PackWaitable *PackFetchJob::getWaitable() const {
-  return new PackWaitable(m_out);
+  auto *wt = new PackWaitable(m_out);
+  // Add the waitable, to the package waitable dicitonary
+  m_pack->m_wts[m_indx.m_file] = wt;
+  return wt;
 }
 
 bool PackFetchJob::checkJob(const jobs::JobWorker &worker) const {
@@ -70,7 +73,13 @@ void PackFetchJob::doJob(PackWaitable *wt, const jobs::JobWorker &worker) {
       fflush(stdout);
     });
   }
+  // Remove the waitable from the package
+  m_pack->m_wts.remove(m_indx.m_file);
   worker.serv().unsetLockBits(bits);
+}
+
+Packager::~Packager() {
+  close();
 }
 
 bool Packager::open(const scl::path &path) {
@@ -149,7 +158,7 @@ PackWaitable &Packager::openFile(const path &path) {
     if(ii != m_index.end()) {
       // File is indexed, fetch it.
       auto &wt = g_serv.submitJob(
-        new PackFetchJob(&m_archive, &ia.value(), ii.value(), 0));
+        new PackFetchJob(this, &m_archive, &ia.value(), ii.value(), 0));
       unlock();
       return wt;
     } else {
@@ -256,9 +265,32 @@ bool Packager::write() {
   return true;
 }
 
+const scl::dictionary<PackIndex> &Packager::index() {
+  return m_index;
+}
+
+void Packager::close() {
+  lock();
+  // Wait for all the unfinished waitables, so they dont error
+  if(m_wts.size()) {
+    for(auto i = m_wts.begin(); i != m_wts.end(); i = m_wts.begin()) {
+      auto *wt = i.value();
+      unlock();
+      wt->wait();
+      lock();
+    }
+  }
+  m_family = path();
+  m_dir    = path();
+  m_archive.close();
+  m_index.clear();
+  m_activ.clear();
+  m_ioff = 0;
+  unlock();
+}
+
 bool packInit() {
-  g_numpackages = 0;
-  // g_serv.slow();
+  g_serv.slow();
   g_serv.start();
   return true;
 }

@@ -46,13 +46,14 @@ class PackWaitable : public jobs::waitable {
 // Job to decompress a file from a stream into memory
 class PackFetchJob : public jobs::job<PackWaitable> {
   PackIndex           m_indx;
+  Packager           *m_pack;
   scl::reduce_stream *m_archive;
   scl::stream        *m_out;
   int                 m_sid;
 
  public:
-  PackFetchJob(scl::reduce_stream *archive, scl::stream *out, PackIndex indx,
-    int sid);
+  PackFetchJob(Packager *pack, scl::reduce_stream *archive, scl::stream *out,
+    PackIndex indx, int sid);
 
   PackWaitable *getWaitable() const override;
 
@@ -69,21 +70,30 @@ enum PackResult {
 };
 
 class Packager : protected std::mutex {
+  friend class PackFetchJob;
+
  private:
-  scl::path                    m_family;
-  scl::path                    m_dir;
-  scl::reduce_stream           m_archive;
-  scl::dictionary<PackIndex>   m_index;
+  scl::path                         m_family;
+  scl::path                         m_dir;
+  scl::reduce_stream                m_archive;
+  scl::dictionary<PackIndex>        m_index;
   // Uncompressed files, user side
-  scl::dictionary<scl::stream> m_activ;
-  size_t                       m_ioff = 0;
+  scl::dictionary<scl::stream>      m_activ;
+  scl::dictionary<jobs::waitable *> m_wts;
+  size_t                            m_ioff = 0;
 
  public:
+  ~Packager();
+
   bool                        open(const scl::path &path);
   PackWaitable               &openFile(const scl::path &path);
   std::vector<PackWaitable *> openFiles(const std::vector<scl::path> &files);
 
-  bool                        write();
+  const scl::dictionary<PackIndex> &index();
+
+  void                              close();
+
+  bool                              write();
 };
 
 bool packInit();
