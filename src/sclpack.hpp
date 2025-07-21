@@ -10,7 +10,6 @@
 #include "scldict.hpp"
 #include "sclpath.hpp"
 #include "scljobs.hpp"
-#include "sclxml.hpp"
 
 #define SCL_MAX_CHUNKS 4
 

@@ -90,7 +90,7 @@ print("sources: ")
 for v in sources:
   print("  " + v)
 
-increg = re.compile(r'^[\t ]*#[\t ]*include "([\.\w\-\/]+\.hp{,2})"$', re.M)
+increg = re.compile(r'^[\t ]*#[\t ]*include "([\.\w\-\/]+\.hp{,2})"', re.M)
 sincreg = re.compile(r'#include <\w+\.hp{,2}>')
 
 # mini algorithm:
@@ -179,9 +179,10 @@ def write_file(fout, file: Path, parent: Path | None):
     if m == None:
       fout.write(line)
     else:
+      #print(f"{m.start()}, {m.end()}, {line[m.start():m.end()]}")
       p = file.parent / m.groups()[0]
       inc = str(p.resolve())
-      fout.write(f"/* {line[:len(line)-1]} */\n\n")
+      fout.write(f"/* {line[m.start():m.end()]} */ {line[m.end():len(line)-1]}\n\n")
       if written.get(inc) == None:
         write_file(fout, Path(inc), file)
   if parent != None:

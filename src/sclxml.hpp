@@ -14,9 +14,9 @@
 
 namespace scl {
 namespace xml {
-enum xml_excode {
+enum XmlCode {
   OK = 0,
-  ERROR,
+  ERR,
   MEM,
   FILE,
   ALLOC,
@@ -57,11 +57,11 @@ class XmlResult {
 
 
  public:
-  xml_excode code = OK;
+  XmlCode code = OK;
 
-  XmlResult()     = default;
+  XmlResult()  = default;
 
-  XmlResult(xml_excode code, string info = string()) : code(code), info(info) {
+  XmlResult(XmlCode code, string info = string()) : code(code), info(info) {
   }
 
   string what() const {
@@ -739,7 +739,7 @@ class XmlDocument : public XmlElem, public XmlAllocator {
     try {
       char *p = (char *)source.cstr();
       if(!p)
-        return ERROR;
+        return ERR;
       this->parse<f>(*this, NULL, p, &p);
     } catch(XmlResult e) {
       nodes.free();

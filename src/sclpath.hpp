@@ -10,50 +10,58 @@
 
 namespace scl {
 class path : public string {
+ public:
+  enum GlobMode {
+    GLOB_FILES = 1,
+    GLOB_DIRS  = 2,
+    GLOB_ANY   = 3,
+  };
+
+ private:
   path &fixendsplit();
 
  public:
   path();
-  path (const string &rhs);
-  path (const char *rhs);
+  path(const string &rhs);
+  path(const char *rhs);
 
   /**
    * @return Full OS path of this path.
    *
    */
-  path resolve() const;
+  path                     resolve() const;
 
-  bool haspath (const path &path) const;
+  bool                     haspath(const path &path) const;
 
   /**
    * @brief
    *
    */
-  path relative (const path &from = ".") const;
+  path                     relative(const path &from = ".") const;
 
   /**
    * @return Parent directory of this path.
    * Ex: foo/bar/fun.txt => foo/bar
    *
    */
-  path parentpath() const;
+  path                     parentpath() const;
 
   /**
    * @return  Returns the filename of this path.
    *
    */
-  path filename() const;
+  path                     filename() const;
 
   /**
    * @return Extension of this path.
    */
-  string extension() const;
+  string                   extension() const;
 
   /**
    * @return Stem component of this path.
    * Ex: foo/bar/fun.txt => fun
    */
-  path stem() const;
+  path                     stem() const;
 
   /**
    * @brief Returns whether or not this path contains a wildcard (*).
@@ -61,7 +69,7 @@ class path : public string {
    * @return <b>true</b> if this path contains a wildcard, <b>false</b> if
    * otherwise.
    */
-  bool iswild() const;
+  bool                     iswild() const;
 
   /**
    * @brief Splits this path into its individual compontents.
@@ -69,7 +77,7 @@ class path : public string {
    *
    * @return   Vector of each component of this path.
    */
-  std::vector<path> split() const;
+  std::vector<path>        split() const;
 
   /**
    * @brief Returns whether or not a directory or file exists at this path.
@@ -77,31 +85,31 @@ class path : public string {
    * @return   <b>true</b> if a directory or file exists, <b>false</b> if
    * otherwise.
    */
-  bool exists() const;
+  bool                     exists() const;
 
   /**
    * @return   Whether or not this path represents a file.
    */
-  bool isfile() const;
+  bool                     isfile() const;
 
   /**
    * @return   Whether or not this path represents a directory.
    */
-  bool isdirectory() const;
+  bool                     isdirectory() const;
 
   /**
    * @brief
    *
    * @return  Whether or not this path is an absolute path.
    */
-  bool isabsolute() const;
+  bool                     isabsolute() const;
 
   /**
    * @brief Returns the write time of the file at this path.
    *
    * @return   Write time in seconds since UNIX epoch.
    */
-  long long wtime() const;
+  long long                wtime() const;
 
   /**
    * @brief Deletes this file from the file system.
@@ -110,23 +118,23 @@ class path : public string {
    * scl::path::remove
    *
    */
-  void remove() const;
+  void                     remove() const;
 
-  path &replaceFilename (const path &nFile);
+  path                    &replaceFilename(const path &nFile);
 
-  path &replaceExtension (const path &nExt);
+  path                    &replaceExtension(const path &nExt);
 
-  path &replaceStem (const path &nName);
+  path                    &replaceStem(const path &nName);
 
   /**
    * @return   Current working directory of this program.
    */
-  static path cwd();
+  static path              cwd();
 
   /**
    * @return   Directory that this executable resides in.
    */
-  static path execdir();
+  static path              execdir();
 
   /**
    * @brief Changes the cwd of this executable.
@@ -134,7 +142,7 @@ class path : public string {
    * @param path  Path to cd into.
    * @return  <b>true</b> if the change in cwd was successful.
    */
-  static bool chdir (const path &path);
+  static bool              chdir(const path &path);
 
   /**
    * @brief Creates a directory.
@@ -145,15 +153,15 @@ class path : public string {
    * @return   <b>true</b> if the creation was succesful, <b>false</b> if
    * otherwise.
    */
-  static bool mkdir (const path &path);
-  static bool mkdir (std::vector<path> paths);
+  static bool              mkdir(const path &path);
+  static bool              mkdir(std::vector<path> paths);
 
   /**
    * @brief Recursively removes any files matching this pattern
    *
    * @param pattern  Glob expression to use.
    */
-  static void remove (const path &pattern);
+  static void              remove(const path &pattern);
 
   /**
    * @brief Copies a file from `from` to `to`.
@@ -162,7 +170,7 @@ class path : public string {
    * @param to  Destination path.
    * @return  True if the copy was successful, false if otherwise.
    */
-  static bool copyfile (const path &from, const path &to);
+  static bool              copyfile(const path &from, const path &to);
 
   /**
    * @brief Moves a file from `from` to `to`.
@@ -171,7 +179,7 @@ class path : public string {
    * @param to  Destination path.
    * @return  True if the move was successful, false if otherwise.
    */
-  static bool movefile (const path &from, const path &to);
+  static bool              movefile(const path &from, const path &to);
 
   /**
    * @brief Returns a vector of any existing files that match a glob pattern.
@@ -183,11 +191,20 @@ class path : public string {
    * @param pattern  Glob expression to use.
    * @return   Vector of any files that matched the glob expression.
    */
-  static std::vector<path> glob (const string &pattern);
+  static std::vector<path> glob(const string &pattern,
+    GlobMode                                  mode = GLOB_FILES);
 
-  static path join (std::vector<path> components, bool ignoreback = false);
+  static path join(std::vector<path> components, bool ignoreback = false);
 
-  path &join (const path &rhs, bool relative = true);
+  /**
+   * @brief Splits a list of paths, separated by semicolons, into a vector of
+   * individual paths.
+   *
+   * @return  Vector of each path in the list of paths.
+   */
+  static std::vector<path> splitPaths(const scl::string &paths);
+
+  path                    &join(const path &rhs, bool relative = true);
 
   /**
    * @brief Returns this path, with a component appended, seperated by the host
@@ -196,7 +213,7 @@ class path : public string {
    * @param rhs  Component to append.
    * @return  Composite path.
    */
-  path operator/ (const path &rhs) const;
+  path                     operator/(const path &rhs) const;
 
   /**
    * @brief Appends a component, seperated by the host
@@ -204,7 +221,7 @@ class path : public string {
    *
    * @param rhs  Component to append.
    */
-  path &operator/= (const path &rhs);
+  path                    &operator/=(const path &rhs);
 };
 } // namespace scl
 

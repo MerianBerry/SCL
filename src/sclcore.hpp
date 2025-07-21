@@ -7,8 +7,16 @@
 
 #include <fstream>
 #include <functional>
+#include <algorithm>
 #include <stdarg.h>
 #include <string.h>
+
+#ifdef max
+#  undef max
+#endif
+#ifdef min
+#  undef min
+#endif
 
 #define SCL_MAX_REFS 4096
 #ifndef SCL_STREAM_BUF
@@ -396,6 +404,15 @@ class stream {
   bool              write(scl::stream &src, size_t max = -1);
 
   virtual void      close();
+
+  /**
+   * @return   Returns a pointer to the internal data buffer, if operating in
+   * memory. Returns nullptr if operating in file mode.
+   * @warning Do not free the pointer that is returned by this method. And it is
+   * possible for this pointer to be invalidated, if the stream owning it
+   * releases it.
+   */
+  const void       *data();
   void             *release();
 
   stream           &operator<<(const scl::string &str);

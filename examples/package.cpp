@@ -11,12 +11,12 @@
 
 int main(int argc, char **argv) {
   scl::init();
-#if 0
+#if 1
   long long          us, cs, uns;
   double             cst, cet, ust, uet;
   double             ratio;
 
-  scl::path          file       = "examples/a10.xml";
+  scl::path          file       = "examples/horosont.glb";
   scl::path          compressed = "examples/compressed.bin";
   scl::reduce_stream rs;
   rs.open(compressed, true);
@@ -66,7 +66,7 @@ int main(int argc, char **argv) {
   printf("Decompressed size: %0.1lfkb\n", uns / 1024.0);
   printf("Decompression + Disk read time: %0.2lfms\n", (uet - ust) * 1000.0);
 #else
-  const bool          write = false;
+  const bool          write = true;
 
   scl::pack::Packager pack;
   pack.open("test.spk");

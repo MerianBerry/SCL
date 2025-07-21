@@ -11,7 +11,7 @@ function(minify name impflag guard headers sources)
   message("headers: ${headers}")
   add_custom_target(${name} ${Python3_EXECUTABLE}
     "${CMAKE_SOURCE_DIR}/scripts/mini.py"
-    "-o" "${CMAKE_BINARY_DIR}/${name}.h"
+    "-o" "${CMAKE_BINARY_DIR}/${name}"
     ${impflag}
     ${guard}
     "-h" "\"${headers}\""

@@ -33,9 +33,19 @@ path::path() {
 }
 
 path::path(const string &rhs) : string(rhs) {
+#ifdef _WIN32
+  replace("/", "\\");
+#else
+  replace("\\", "/");
+#endif
 }
 
 path::path(const char *rhs) : string(rhs) {
+#ifdef _WIN32
+  replace("/", "\\");
+#else
+  replace("\\", "/");
+#endif
 }
 
 path &path::fixendsplit() {
@@ -345,7 +355,7 @@ bool path::chdir(const path &path) {
 }
 
 static int glob_(const path &dir, const path &mask, std::vector<path> &globs,
-  bool files = true) {
+  scl::path::GlobMode mode = scl::path::GLOB_FILES) {
 #ifdef _WIN32
   const path       spec  = dir / (mask.iswild() ? "*" : mask);
   HANDLE           hFind = NULL;
@@ -367,8 +377,12 @@ static int glob_(const path &dir, const path &mask, std::vector<path> &globs,
     if (fn == "." || fn == "..")
       continue;
     path path = dir / (mask.iswild() ? fn : mask);
-    bool t    = (files && path.isfile()) || (!files && path.isdirectory());
-    if (t && (!mask.iswild() || string::match (fn.cstr(), mask.cstr()))) {
+    bool validt = true;
+    if (mode == scl::path::GLOB_FILES && !path.isfile())
+      validt = false;
+    else if (mode == scl::path::GLOB_DIRS && !path.isdirectory())
+      validt = false;
+    if (validt && (!mask.iswild() || string::match (fn.cstr(), mask.cstr()))) {
       globs.push_back (path);
     }
 #ifdef _WIN32
@@ -407,7 +421,7 @@ static int glob_recurse(const string &mask, std::vector<path> &dirs,
   while(dirs.size() > 0) {
     std::vector<path> ndirs;
     for(auto &i : dirs)
-      glob_(i, "*", ndirs, false);
+      glob_(i, "*", ndirs, path::GLOB_DIRS);
     if(misdir) {
       dirs.clear();
       for(auto &i : ndirs) {
@@ -425,7 +439,7 @@ static int glob_recurse(const string &mask, std::vector<path> &dirs,
   return 0;
 }
 
-std::vector<path> path::glob(const string &pattern) {
+std::vector<path> path::glob(const string &pattern, GlobMode mode) {
   auto                syms = path(pattern).split();
   /* LOOP (for each in syms)
     IF sym IS WILDCARD
@@ -456,26 +470,30 @@ std::vector<path> path::glob(const string &pattern) {
   }
   if(glob && !glob.iswild())
     globs.push_back(glob);
-  // For every dir glob, use previously expanded glob as a search dir (dirs),
-  // then set the search dirs with the results (ndirs).
-  // It is up to platform agnostic code to handle the bullshit that is **.
+  // For every glob expression from second element and up, use previously
+  // expanded expression as a search dir (dirs), then set the search dirs with
+  // the results (ndirs).
   std::vector<path> dirs = {globs[0]}, finds;
-  // For ever dir glob
-  for(int i = 1; i < globs.size() - 1; i++) {
+  // For every dir glob
+  for(long long i = 1; i < globs.size(); i++) {
     std::vector<path> ndirs;
     if(globs[i] == "**") {
-      glob_recurse(globs[(long long)i + 1], dirs, ndirs, i < globs.size() - 2);
-    } else {
-      // For every search dir
-      for(int j = 0; j < dirs.size(); j++)
-        glob_(dirs[j], globs[i], ndirs, false);
+      scl::string mask = "*";
+      if(i < globs.size() - 1)
+        mask = globs[i + 1];
+      glob_recurse(mask, dirs, ndirs, i < globs.size() - 2);
+      dirs = ndirs;
+    } else if(i != globs.size() - 1) {
+      // Find new search dirs
+      for(long long j = 0; j < dirs.size(); j++)
+        glob_(dirs[j], globs[i], ndirs, GLOB_DIRS);
+      dirs = ndirs;
     }
-    dirs = ndirs;
   }
   path fn = globs.back();
-  // For ever search dir
+  // Find requested items
   for(auto &dir : dirs)
-    glob_(dir, fn, finds);
+    glob_(dir, fn, finds, mode);
   return finds;
 }
 
@@ -498,17 +516,33 @@ path path::join(std::vector<path> components, bool ignoreback) {
   return out;
 }
 
+std::vector<path> path::splitPaths(const scl::string &paths) {
+  const char       *ps = paths.cstr(), *s = ps, *pe = s + paths.len();
+  std::vector<path> out;
+  while(*ps) {
+    auto p = scl::string::ffi(ps, ";");
+    if(p < 0)
+      p = strlen(ps);
+    out.push_back(paths.substr(ps - s, p));
+    ps += p + 1;
+  }
+  return out;
+}
+
 path &path::join(const path &rhs, bool relative) {
   scl::path second;
 
   if(*this) {
+    char c = this->len() > 0 ? this->cstr()[this->len() - 1] : 0;
 #ifdef _WIN32
-    this->operator+= <64>("\\");
+    if(c != '\\')
+      this->operator+= <64>("\\");
 #else
-    this->operator+= <64>("/");
+    if(c != '/')
+      this->operator+= <64>("/");
 #endif
   }
-  if(relative)
+  if(relative && !!*this)
     this->operator+= <64>(rhs.relative(*this));
   else
     this->operator+= <64>(rhs);

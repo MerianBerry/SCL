@@ -280,6 +280,8 @@ const char *string::cstr() const {
 }
 #ifdef _WIN32
 const wchar_t *string::wstr() const {
+  if(!m_buf)
+    return nullptr;
   int      wlen  = MultiByteToWideChar(CP_UTF8, 0, m_buf, -1, nullptr, 0);
   int      wsize = (wlen + 1);
   wchar_t *wstr  = new wchar_t[wsize];
@@ -948,8 +950,12 @@ void stream::close() {
   }
   if(m_data)
     delete[] m_data;
-  const int fmembr = offsetof(stream, m_stream);
-  memset((char *)this + fmembr, 0, sizeof(stream) - fmembr);
+  // Reset members
+  scl::stream();
+}
+
+const void *stream::data() {
+  return m_data;
 }
 
 void *stream::release() {
