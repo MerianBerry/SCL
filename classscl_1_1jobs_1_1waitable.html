@@ -98,32 +98,28 @@ $(document).ready(function(){initNavTree('classscl_1_1jobs_1_1waitable.html','')
   <div class="headertitle"><div class="title">scl::jobs::waitable Class Reference</div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>Class used by multithreaded jobs to pass results to a possibly syncronized environment.  
+ <a href="classscl_1_1jobs_1_1waitable.html#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="scljobs_8hpp_source.html">scljobs.hpp</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for scl::jobs::waitable:</div>
 <div class="dyncontent">
 <div class="center"><img src="classscl_1_1jobs_1_1waitable__inherit__graph.png" border="0" usemap="#ascl_1_1jobs_1_1waitable_inherit__map" alt="Inheritance graph"/></div>
 <map name="ascl_1_1jobs_1_1waitable_inherit__map" id="ascl_1_1jobs_1_1waitable_inherit__map">
-<area shape="rect" title=" " alt="" coords="5,79,144,104"/>
-<area shape="rect" title=" " alt="" coords="29,5,121,31"/>
-</map>
-<center><span class="legend">[<a target="top" href="graph_legend.html">legend</a>]</span></center></div>
-<div class="dynheader">
-Collaboration diagram for scl::jobs::waitable:</div>
-<div class="dyncontent">
-<div class="center"><img src="classscl_1_1jobs_1_1waitable__coll__graph.png" border="0" usemap="#ascl_1_1jobs_1_1waitable_coll__map" alt="Collaboration graph"/></div>
-<map name="ascl_1_1jobs_1_1waitable_coll__map" id="ascl_1_1jobs_1_1waitable_coll__map">
-<area shape="rect" title=" " alt="" coords="5,79,144,104"/>
-<area shape="rect" title=" " alt="" coords="29,5,121,31"/>
+<area shape="rect" title="Class used by multithreaded jobs to pass results to a possibly syncronized environment." alt="" coords="23,5,162,31"/>
+<area shape="rect" href="classscl_1_1pack_1_1PackWaitable.html" title=" " alt="" coords="5,79,180,104"/>
 </map>
 <center><span class="legend">[<a target="top" href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a656b1818097811280b9b59da840b0eff"><td class="memItemLeft" align="right" valign="top"><a id="a656b1818097811280b9b59da840b0eff" name="a656b1818097811280b9b59da840b0eff"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>complete</b> ()</td></tr>
+<tr class="memitem:a656b1818097811280b9b59da840b0eff"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscl_1_1jobs_1_1waitable.html#a656b1818097811280b9b59da840b0eff">complete</a> ()</td></tr>
+<tr class="memdesc:a656b1818097811280b9b59da840b0eff"><td class="mdescLeft">&#160;</td><td class="mdescRight">Completes the waitable.  <br /></td></tr>
 <tr class="separator:a656b1818097811280b9b59da840b0eff"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4a6174552db2a65a802fb08e8d811e09"><td class="memItemLeft" align="right" valign="top"><a id="a4a6174552db2a65a802fb08e8d811e09" name="a4a6174552db2a65a802fb08e8d811e09"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>wait</b> (double timeout=-1)</td></tr>
+<tr class="memitem:a4a6174552db2a65a802fb08e8d811e09"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscl_1_1jobs_1_1waitable.html#a4a6174552db2a65a802fb08e8d811e09">wait</a> (double timeout=-1)</td></tr>
+<tr class="memdesc:a4a6174552db2a65a802fb08e8d811e09"><td class="mdescLeft">&#160;</td><td class="mdescRight">Waits for this waitable to be marked completed.  <br /></td></tr>
 <tr class="separator:a4a6174552db2a65a802fb08e8d811e09"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="friends" name="friends"></a>
@@ -133,6 +129,55 @@ template&lt;class Wt &gt; </td></tr>
 <tr class="memitem:ae4c47bdc1852df782e422546964b708e"><td class="memTemplItemLeft" align="right" valign="top">class&#160;</td><td class="memTemplItemRight" valign="bottom"><b>job</b></td></tr>
 <tr class="separator:ae4c47bdc1852df782e422546964b708e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Class used by multithreaded jobs to pass results to a possibly syncronized environment. </p>
+</div><h2 class="groupheader">Member Function Documentation</h2>
+<a id="a656b1818097811280b9b59da840b0eff" name="a656b1818097811280b9b59da840b0eff"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a656b1818097811280b9b59da840b0eff">&#9670;&#160;</a></span>complete()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void scl::jobs::waitable::complete </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Completes the waitable. </p>
+
+</div>
+</div>
+<a id="a4a6174552db2a65a802fb08e8d811e09" name="a4a6174552db2a65a802fb08e8d811e09"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4a6174552db2a65a802fb08e8d811e09">&#9670;&#160;</a></span>wait()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool scl::jobs::waitable::wait </td>
+          <td>(</td>
+          <td class="paramtype">double&#160;</td>
+          <td class="paramname"><em>timeout</em> = <code>-1</code></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Waits for this waitable to be marked completed. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">timeout</td><td>Max number of seconds to wait. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>True: Wait did not time out, False: Wait did time out. </dd></dl>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following files:<ul>
 <li>src/<a class="el" href="scljobs_8hpp_source.html">scljobs.hpp</a></li>
 <li>src/scljobs.cpp</li>

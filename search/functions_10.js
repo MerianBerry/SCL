@@ -1,5 +1,18 @@
 var searchData=
 [
-  ['value_0',['value',['../classscl_1_1internal_1_1htab__iterator.html#a3821c23ae7137ba90120abf367d98e7e',1,'scl::internal::htab_iterator']]],
-  ['view_1',['view',['../classscl_1_1string.html#a00959967ae0b741b24cfcae270511d59',1,'scl::string']]]
+  ['serv_0',['serv',['../classscl_1_1jobs_1_1JobWorker.html#a8e2f3186fdfe1c1bcdadaa0a8d183574',1,'scl::jobs::JobWorker']]],
+  ['set_1',['set',['../classscl_1_1dictionary.html#a856c46e5ee93d0b717f2a1c56b8c5f03',1,'scl::dictionary::set(const K &amp;key, const T &amp;v)'],['../classscl_1_1dictionary.html#a0c201767a3977badba2a8098afcdda66',1,'scl::dictionary::set(const K &amp;key, T &amp;v)']]],
+  ['set_5fdata_2',['set_data',['../classscl_1_1xml_1_1XmlNode.html#afd958aa1ce86aa43ed58ea80888502a7',1,'scl::xml::XmlNode']]],
+  ['set_5ftag_3',['set_tag',['../classscl_1_1xml_1_1XmlNode.html#ab003c7eb012ae4441d9164066bb906b2',1,'scl::xml::XmlNode']]],
+  ['setlockbits_4',['setLockBits',['../classscl_1_1jobs_1_1JobServer.html#a9c090410893ffd4b63779a6ee4c67074',1,'scl::jobs::JobServer']]],
+  ['size_5',['size',['../classscl_1_1string.html#a804b2246595fc3748fe1c054629f3e56',1,'scl::string::size()'],['../classscl_1_1dictionary.html#a6b7107abe604d5b3013b5c500c0b7f5d',1,'scl::dictionary::size()']]],
+  ['slow_6',['slow',['../classscl_1_1jobs_1_1JobServer.html#a213abf0106c9e56e81dbd9be9da83034',1,'scl::jobs::JobServer']]],
+  ['split_7',['split',['../classscl_1_1path.html#a9dc878cf11f1af12d5e09bce6f2159ed',1,'scl::path']]],
+  ['splitpaths_8',['splitPaths',['../classscl_1_1path.html#adbda8136eff652035c7eef7e262bfc14',1,'scl::path']]],
+  ['start_9',['start',['../classscl_1_1jobs_1_1JobServer.html#a98127b1cb3f16d3c8248ecff6391a394',1,'scl::jobs::JobServer']]],
+  ['stem_10',['stem',['../classscl_1_1path.html#a3a0df8e6bcbdb1750e9e47ad2a353a25',1,'scl::path']]],
+  ['stop_11',['stop',['../classscl_1_1jobs_1_1JobServer.html#afa572880b59557705fb06f0dbec9c981',1,'scl::jobs::JobServer']]],
+  ['submitjob_12',['submitJob',['../classscl_1_1jobs_1_1JobServer.html#a16858a01f2e857450142e979fa6a5395',1,'scl::jobs::JobServer::submitJob(Jb *job, bool autodelwt=false)'],['../classscl_1_1jobs_1_1JobServer.html#ad9d8bfa1c13ddeaa76af2d0dc8222420',1,'scl::jobs::JobServer::submitJob(std::function&lt; void(const JobWorker &amp;worker)&gt; func, bool autodelwt=true)']]],
+  ['substr_13',['substr',['../classscl_1_1string.html#a7635bce00dc8840a74ae4ce6da1b3afd',1,'scl::string']]],
+  ['sync_14',['sync',['../classscl_1_1jobs_1_1JobWorker.html#a5fe98e7707d52bbe65367229ea011ba8',1,'scl::jobs::JobWorker::sync()'],['../classscl_1_1jobs_1_1JobServer.html#a420758382937961373ac122a735ed583',1,'scl::jobs::JobServer::sync()']]]
 ];

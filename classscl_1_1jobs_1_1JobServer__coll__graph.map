@@ -1,0 +1,4 @@
+<map id="scl::jobs::JobServer" name="scl::jobs::JobServer">
+<area shape="rect" id="node1" title="Class that allows submission of jobs from a syncronized environment, to a multithreaded environment." alt="" coords="5,79,151,104"/>
+<area shape="rect" id="node2" title=" " alt="" coords="32,5,124,31"/>
+</map>

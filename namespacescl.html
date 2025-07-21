@@ -95,6 +95,7 @@ $(document).ready(function(){initNavTree('namespacescl.html',''); initResizable(
 <a href="#namespaces">Namespaces</a> &#124;
 <a href="#nested-classes">Classes</a> &#124;
 <a href="#typedef-members">Typedefs</a> &#124;
+<a href="#enum-members">Enumerations</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle"><div class="title">scl Namespace Reference</div></div>
 </div><!--header-->
@@ -113,9 +114,11 @@ Namespaces</h2></td></tr>
 Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscl_1_1dictionary.html">dictionary</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscl_1_1Memory.html">Memory</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscl_1_1path.html">path</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscl_1_1reduce__stream.html">reduce_stream</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscl_1_1stream.html">stream</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscl_1_1string.html">string</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -126,6 +129,14 @@ Typedefs</h2></td></tr>
 typedef unsigned char&#160;</td><td class="memItemRight" valign="bottom"><b>uchar</b></td></tr>
 <tr class="separator:a0c9cb15c070464aae662eb0d45629646"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
+Enumerations</h2></td></tr>
+<tr class="memitem:ab04f31d146131b724a312ab1987f6149"><td class="memItemLeft" align="right" valign="top"><a id="ab04f31d146131b724a312ab1987f6149" name="ab04f31d146131b724a312ab1987f6149"></a>enum class &#160;</td><td class="memItemRight" valign="bottom"><b>StreamPos</b> { <b>start</b> = SEEK_SET
+, <b>end</b> = SEEK_END
+, <b>current</b> = SEEK_CUR
+ }</td></tr>
+<tr class="separator:ab04f31d146131b724a312ab1987f6149"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:aabdb5543aa15a210e1c3f61d5a5a25a7"><td class="memItemLeft" align="right" valign="top"><a id="aabdb5543aa15a210e1c3f61d5a5a25a7" name="aabdb5543aa15a210e1c3f61d5a5a25a7"></a>
@@ -134,9 +145,9 @@ unsigned char&#160;</td><td class="memItemRight" valign="bottom"><b>log2i</b> (u
 <tr class="memitem:a7d6932d4e602b2e64cf3e95215939ef8"><td class="memItemLeft" align="right" valign="top"><a id="a7d6932d4e602b2e64cf3e95215939ef8" name="a7d6932d4e602b2e64cf3e95215939ef8"></a>
 std::ifstream &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator&gt;&gt;</b> (std::ifstream &amp;in, <a class="el" href="classscl_1_1string.html">string</a> &amp;str)</td></tr>
 <tr class="separator:a7d6932d4e602b2e64cf3e95215939ef8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4437531aa002c094ad3757bc51d928db"><td class="memItemLeft" align="right" valign="top"><a id="a4437531aa002c094ad3757bc51d928db" name="a4437531aa002c094ad3757bc51d928db"></a>
-<a class="el" href="classscl_1_1string.html">scl::string</a>&#160;</td><td class="memItemRight" valign="bottom"><b>operator+</b> (<a class="el" href="classscl_1_1string.html">scl::string</a> const &amp;str, char const *str2)</td></tr>
-<tr class="separator:a4437531aa002c094ad3757bc51d928db"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0446da0cc86576d316790d90c95f0aec"><td class="memItemLeft" align="right" valign="top"><a id="a0446da0cc86576d316790d90c95f0aec" name="a0446da0cc86576d316790d90c95f0aec"></a>
+<a class="el" href="classscl_1_1string.html">scl::string</a>&#160;</td><td class="memItemRight" valign="bottom"><b>operator+</b> (const <a class="el" href="classscl_1_1string.html">scl::string</a> &amp;str, const char *str2)</td></tr>
+<tr class="separator:a0446da0cc86576d316790d90c95f0aec"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae467da0f74e2708ee4b549d0f3681e2b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacescl.html#ae467da0f74e2708ee4b549d0f3681e2b">resetclock</a> ()</td></tr>
 <tr class="memdesc:ae467da0f74e2708ee4b549d0f3681e2b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resets the output of <a class="el" href="namespacescl.html#a0bccf89fa43b8dbe5251bb6032810327">scl::clock()</a>, making current time epoch.  <br /></td></tr>
 <tr class="separator:ae467da0f74e2708ee4b549d0f3681e2b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -145,9 +156,15 @@ std::ifstream &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operat
 <tr class="memitem:a457b3ca5121388b4a54d0d0c41b613cf"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacescl.html#a457b3ca5121388b4a54d0d0c41b613cf">waitms</a> (double ms)</td></tr>
 <tr class="memdesc:a457b3ca5121388b4a54d0d0c41b613cf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Makes this thread sleep for a given amount of milliseconds.  <br /></td></tr>
 <tr class="separator:a457b3ca5121388b4a54d0d0c41b613cf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a449bdb6b7259c9aea237f105309fc33a"><td class="memItemLeft" align="right" valign="top"><a id="a449bdb6b7259c9aea237f105309fc33a" name="a449bdb6b7259c9aea237f105309fc33a"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>waitUntil</b> (std::function&lt; bool()&gt; cond, double timeout, double sleep)</td></tr>
-<tr class="separator:a449bdb6b7259c9aea237f105309fc33a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a89ba2d429db625f8a9cd93e31a717a06"><td class="memItemLeft" align="right" valign="top"><a id="a89ba2d429db625f8a9cd93e31a717a06" name="a89ba2d429db625f8a9cd93e31a717a06"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>waitUntil</b> (std::function&lt; bool()&gt; cond, double timeout, double sleepms)</td></tr>
+<tr class="separator:a89ba2d429db625f8a9cd93e31a717a06"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8a3d8636963d99ff5601e65f6af720f5"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacescl.html#a8a3d8636963d99ff5601e65f6af720f5">init</a> ()</td></tr>
+<tr class="memdesc:a8a3d8636963d99ff5601e65f6af720f5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes SCL global resources. Libraries currently requiring this is scl::pack.  <br /></td></tr>
+<tr class="separator:a8a3d8636963d99ff5601e65f6af720f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8b68b2f2927a4da038dc43b305fe2993"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacescl.html#a8b68b2f2927a4da038dc43b305fe2993">terminate</a> ()</td></tr>
+<tr class="memdesc:a8b68b2f2927a4da038dc43b305fe2993"><td class="mdescLeft">&#160;</td><td class="mdescRight">Releases SCL global resources. Libraries currently requiring this is scl::pack.  <br /></td></tr>
+<tr class="separator:a8b68b2f2927a4da038dc43b305fe2993"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Main SCL namespace. </p>
@@ -171,6 +188,26 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>waitUntil</b> (std::f
 
 </div>
 </div>
+<a id="a8a3d8636963d99ff5601e65f6af720f5" name="a8a3d8636963d99ff5601e65f6af720f5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8a3d8636963d99ff5601e65f6af720f5">&#9670;&#160;</a></span>init()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool scl::init </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Initializes SCL global resources. Libraries currently requiring this is scl::pack. </p>
+<dl class="section return"><dt>Returns</dt><dd>Returns true on success, false on otherwise. </dd></dl>
+
+</div>
+</div>
 <a id="ae467da0f74e2708ee4b549d0f3681e2b" name="ae467da0f74e2708ee4b549d0f3681e2b"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ae467da0f74e2708ee4b549d0f3681e2b">&#9670;&#160;</a></span>resetclock()</h2>
 
@@ -187,6 +224,25 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>waitUntil</b> (std::f
 </div><div class="memdoc">
 
 <p>Resets the output of <a class="el" href="namespacescl.html#a0bccf89fa43b8dbe5251bb6032810327">scl::clock()</a>, making current time epoch. </p>
+
+</div>
+</div>
+<a id="a8b68b2f2927a4da038dc43b305fe2993" name="a8b68b2f2927a4da038dc43b305fe2993"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8b68b2f2927a4da038dc43b305fe2993">&#9670;&#160;</a></span>terminate()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void scl::terminate </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Releases SCL global resources. Libraries currently requiring this is scl::pack. </p>
 
 </div>
 </div>
@@ -209,7 +265,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>waitUntil</b> (std::f
 <p>Makes this thread sleep for a given amount of milliseconds. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">ms</td><td>Number of milliseconds to sleep for. </td></tr>
+    <tr><td class="paramname">sleemms</td><td>Number of milliseconds to sleep for. </td></tr>
   </table>
   </dd>
 </dl>

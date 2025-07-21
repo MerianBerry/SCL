@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.9.6"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>SCL: scl::internal::htab_iterator&lt; T, K &gt; Class Template Reference</title>
+<title>SCL: scl::internal::htab_iterator&lt; T, K, NC &gt; Class Template Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -94,68 +94,68 @@ $(document).ready(function(){initNavTree('classscl_1_1internal_1_1htab__iterator
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="classscl_1_1internal_1_1htab__iterator-members.html">List of all members</a>  </div>
-  <div class="headertitle"><div class="title">scl::internal::htab_iterator&lt; T, K &gt; Class Template Reference</div></div>
+  <div class="headertitle"><div class="title">scl::internal::htab_iterator&lt; T, K, NC &gt; Class Template Reference</div></div>
 </div><!--header-->
 <div class="contents">
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:ad42416b9f887237bbb1b673b51c8656a"><td class="memItemLeft" align="right" valign="top"><a id="ad42416b9f887237bbb1b673b51c8656a" name="ad42416b9f887237bbb1b673b51c8656a"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>htab_iterator</b> (<a class="el" href="structscl_1_1internal_1_1hnode.html">hnode</a> *node, <a class="el" href="classscl_1_1dictionary.html">dictionary</a>&lt; T, K &gt; &amp;dict)</td></tr>
-<tr class="separator:ad42416b9f887237bbb1b673b51c8656a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2cb975ad75cd3a8e8dc2dff1da509b48"><td class="memItemLeft" align="right" valign="top"><a id="a2cb975ad75cd3a8e8dc2dff1da509b48" name="a2cb975ad75cd3a8e8dc2dff1da509b48"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>htab_iterator</b> (K const &amp;k, <a class="el" href="classscl_1_1dictionary.html">dictionary</a>&lt; T, K &gt; &amp;dict)</td></tr>
-<tr class="separator:a2cb975ad75cd3a8e8dc2dff1da509b48"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad3e79604e0e69ad97be9867f6a0f22be"><td class="memItemLeft" align="right" valign="top"><a id="ad3e79604e0e69ad97be9867f6a0f22be" name="ad3e79604e0e69ad97be9867f6a0f22be"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>operator==</b> (<a class="el" href="classscl_1_1internal_1_1htab__iterator.html">htab_iterator</a> const &amp;rhs) const</td></tr>
-<tr class="separator:ad3e79604e0e69ad97be9867f6a0f22be"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac28d9b9d61c33cbbedf8b9c5aecf0359"><td class="memItemLeft" align="right" valign="top"><a id="ac28d9b9d61c33cbbedf8b9c5aecf0359" name="ac28d9b9d61c33cbbedf8b9c5aecf0359"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>operator!=</b> (<a class="el" href="classscl_1_1internal_1_1htab__iterator.html">htab_iterator</a> const &amp;rhs) const</td></tr>
-<tr class="separator:ac28d9b9d61c33cbbedf8b9c5aecf0359"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a61b2397b810a7acea43613ac730e3e18"><td class="memItemLeft" align="right" valign="top"><a id="a61b2397b810a7acea43613ac730e3e18" name="a61b2397b810a7acea43613ac730e3e18"></a>
+<tr class="memitem:a676c80be0cb1cc3ccfb4281f1f18bb53"><td class="memItemLeft" align="right" valign="top"><a id="a676c80be0cb1cc3ccfb4281f1f18bb53" name="a676c80be0cb1cc3ccfb4281f1f18bb53"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>htab_iterator</b> (const <a class="el" href="classscl_1_1dictionary.html">dictionary</a>&lt; T, K &gt; &amp;dict, unsigned hash)</td></tr>
+<tr class="separator:a676c80be0cb1cc3ccfb4281f1f18bb53"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac8c86dfc7ee790ce35f2966b8764fee5"><td class="memItemLeft" align="right" valign="top"><a id="ac8c86dfc7ee790ce35f2966b8764fee5" name="ac8c86dfc7ee790ce35f2966b8764fee5"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>htab_iterator</b> (const <a class="el" href="classscl_1_1dictionary.html">dictionary</a>&lt; T, K &gt; &amp;dict, unsigned hash, const K &amp;<a class="el" href="classscl_1_1internal_1_1htab__iterator.html#a381f37f4b9cffe0cf4fff0bd04b34217">key</a>)</td></tr>
+<tr class="separator:ac8c86dfc7ee790ce35f2966b8764fee5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2a486a975efb331237c4fd6ea02cd661"><td class="memItemLeft" align="right" valign="top"><a id="a2a486a975efb331237c4fd6ea02cd661" name="a2a486a975efb331237c4fd6ea02cd661"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>operator==</b> (const <a class="el" href="classscl_1_1internal_1_1htab__iterator.html">htab_iterator</a> &amp;rhs) const</td></tr>
+<tr class="separator:a2a486a975efb331237c4fd6ea02cd661"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2e96718837cfec38c23a817b9e904b32"><td class="memItemLeft" align="right" valign="top"><a id="a2e96718837cfec38c23a817b9e904b32" name="a2e96718837cfec38c23a817b9e904b32"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>operator!=</b> (const <a class="el" href="classscl_1_1internal_1_1htab__iterator.html">htab_iterator</a> &amp;rhs) const</td></tr>
+<tr class="separator:a2e96718837cfec38c23a817b9e904b32"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a39d5cd99f67db1001e18dc5770fc6430"><td class="memItemLeft" align="right" valign="top"><a id="a39d5cd99f67db1001e18dc5770fc6430" name="a39d5cd99f67db1001e18dc5770fc6430"></a>
 <a class="el" href="classscl_1_1internal_1_1htab__iterator.html">htab_iterator</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator++</b> ()</td></tr>
-<tr class="separator:a61b2397b810a7acea43613ac730e3e18"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2ec6dcff4806a4e69905b44837faba2c"><td class="memItemLeft" align="right" valign="top">K const &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscl_1_1internal_1_1htab__iterator.html#a2ec6dcff4806a4e69905b44837faba2c">key</a> () const</td></tr>
-<tr class="memdesc:a2ec6dcff4806a4e69905b44837faba2c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the key pointed to by this iterator.  <br /></td></tr>
-<tr class="separator:a2ec6dcff4806a4e69905b44837faba2c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3821c23ae7137ba90120abf367d98e7e"><td class="memItemLeft" align="right" valign="top">T &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscl_1_1internal_1_1htab__iterator.html#a3821c23ae7137ba90120abf367d98e7e">value</a> () const</td></tr>
-<tr class="memdesc:a3821c23ae7137ba90120abf367d98e7e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the value pointed to by this iterator.  <br /></td></tr>
-<tr class="separator:a3821c23ae7137ba90120abf367d98e7e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a34a63d03bad49c698119cadd05f86fdf"><td class="memItemLeft" align="right" valign="top"><a id="a34a63d03bad49c698119cadd05f86fdf" name="a34a63d03bad49c698119cadd05f86fdf"></a>
+<tr class="separator:a39d5cd99f67db1001e18dc5770fc6430"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a381f37f4b9cffe0cf4fff0bd04b34217"><td class="memItemLeft" align="right" valign="top">const K &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscl_1_1internal_1_1htab__iterator.html#a381f37f4b9cffe0cf4fff0bd04b34217">key</a> () const</td></tr>
+<tr class="memdesc:a381f37f4b9cffe0cf4fff0bd04b34217"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the key pointed to by this iterator.  <br /></td></tr>
+<tr class="separator:a381f37f4b9cffe0cf4fff0bd04b34217"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afc6f8aa398ff8fda0721f5da7bf661d2"><td class="memItemLeft" align="right" valign="top">T &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classscl_1_1internal_1_1htab__iterator.html#afc6f8aa398ff8fda0721f5da7bf661d2">value</a> () const</td></tr>
+<tr class="memdesc:afc6f8aa398ff8fda0721f5da7bf661d2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the value pointed to by this iterator.  <br /></td></tr>
+<tr class="separator:afc6f8aa398ff8fda0721f5da7bf661d2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab8dff2d1849d5225f078c600bf9c4d1c"><td class="memItemLeft" align="right" valign="top"><a id="ab8dff2d1849d5225f078c600bf9c4d1c" name="ab8dff2d1849d5225f078c600bf9c4d1c"></a>
 T *&#160;</td><td class="memItemRight" valign="bottom"><b>operator-&gt;</b> () const</td></tr>
-<tr class="separator:a34a63d03bad49c698119cadd05f86fdf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa574d619a82355b2b0e9cafd86103890"><td class="memItemLeft" align="right" valign="top"><a id="aa574d619a82355b2b0e9cafd86103890" name="aa574d619a82355b2b0e9cafd86103890"></a>
+<tr class="separator:ab8dff2d1849d5225f078c600bf9c4d1c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae1b1389e5e921a339a5e7e700fb8fbb0"><td class="memItemLeft" align="right" valign="top"><a id="ae1b1389e5e921a339a5e7e700fb8fbb0" name="ae1b1389e5e921a339a5e7e700fb8fbb0"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>operator T&amp;</b> () const</td></tr>
-<tr class="separator:aa574d619a82355b2b0e9cafd86103890"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae2b5c173d9779dc0790dcbdb669e406c"><td class="memItemLeft" align="right" valign="top"><a id="ae2b5c173d9779dc0790dcbdb669e406c" name="ae2b5c173d9779dc0790dcbdb669e406c"></a>
-<a class="el" href="classscl_1_1internal_1_1htab__iterator.html">htab_iterator</a> const &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator*</b> () const</td></tr>
-<tr class="separator:ae2b5c173d9779dc0790dcbdb669e406c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2f0cd0bdc0a960250ab8a26e475bd060"><td class="memItemLeft" align="right" valign="top"><a id="a2f0cd0bdc0a960250ab8a26e475bd060" name="a2f0cd0bdc0a960250ab8a26e475bd060"></a>
+<tr class="separator:ae1b1389e5e921a339a5e7e700fb8fbb0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2c5f6f22eff45ef4fa761019552c9707"><td class="memItemLeft" align="right" valign="top"><a id="a2c5f6f22eff45ef4fa761019552c9707" name="a2c5f6f22eff45ef4fa761019552c9707"></a>
+const <a class="el" href="classscl_1_1internal_1_1htab__iterator.html">htab_iterator</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator*</b> () const</td></tr>
+<tr class="separator:a2c5f6f22eff45ef4fa761019552c9707"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adfde357f8916444b6e06aa39edcbf09d"><td class="memItemLeft" align="right" valign="top"><a id="adfde357f8916444b6e06aa39edcbf09d" name="adfde357f8916444b6e06aa39edcbf09d"></a>
 <a class="el" href="classscl_1_1internal_1_1htab__iterator.html">htab_iterator</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator*</b> ()</td></tr>
-<tr class="separator:a2f0cd0bdc0a960250ab8a26e475bd060"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a44a912c678f3b93e348d29981459b9f9"><td class="memTemplParams" colspan="2"><a id="a44a912c678f3b93e348d29981459b9f9" name="a44a912c678f3b93e348d29981459b9f9"></a>
-template&lt;class X  = T, std::enable_if_t&lt; std::is_copy_assignable&lt; X &gt;<a class="el" href="classscl_1_1internal_1_1htab__iterator.html#a3821c23ae7137ba90120abf367d98e7e">::value</a>, bool &gt;  = true&gt; </td></tr>
-<tr class="memitem:a44a912c678f3b93e348d29981459b9f9"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classscl_1_1internal_1_1htab__iterator.html">htab_iterator</a> &amp;&#160;</td><td class="memTemplItemRight" valign="bottom"><b>operator=</b> (T const &amp;val)</td></tr>
-<tr class="separator:a44a912c678f3b93e348d29981459b9f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a88092f866114a3b64ceb0b7d31d358aa"><td class="memTemplParams" colspan="2"><a id="a88092f866114a3b64ceb0b7d31d358aa" name="a88092f866114a3b64ceb0b7d31d358aa"></a>
-template&lt;class X  = T, std::enable_if_t&lt;!std::is_copy_assignable&lt; X &gt;<a class="el" href="classscl_1_1internal_1_1htab__iterator.html#a3821c23ae7137ba90120abf367d98e7e">::value</a> &amp;&amp;std::is_move_assignable&lt; X &gt;<a class="el" href="classscl_1_1internal_1_1htab__iterator.html#a3821c23ae7137ba90120abf367d98e7e">::value</a>, bool &gt;  = true&gt; </td></tr>
-<tr class="memitem:a88092f866114a3b64ceb0b7d31d358aa"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classscl_1_1internal_1_1htab__iterator.html">htab_iterator</a> &amp;&#160;</td><td class="memTemplItemRight" valign="bottom"><b>operator=</b> (T &amp;val)</td></tr>
-<tr class="separator:a88092f866114a3b64ceb0b7d31d358aa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="separator:adfde357f8916444b6e06aa39edcbf09d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a776442902ba203f8167052723f55f7fb"><td class="memTemplParams" colspan="2"><a id="a776442902ba203f8167052723f55f7fb" name="a776442902ba203f8167052723f55f7fb"></a>
+template&lt;class X  = T, std::enable_if_t&lt; std::is_copy_assignable&lt; X &gt;<a class="el" href="classscl_1_1internal_1_1htab__iterator.html#afc6f8aa398ff8fda0721f5da7bf661d2">::value</a> &amp;&amp;NC, bool &gt;  = true&gt; </td></tr>
+<tr class="memitem:a776442902ba203f8167052723f55f7fb"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classscl_1_1internal_1_1htab__iterator.html">htab_iterator</a> &amp;&#160;</td><td class="memTemplItemRight" valign="bottom"><b>operator=</b> (const T &amp;val)</td></tr>
+<tr class="separator:a776442902ba203f8167052723f55f7fb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a91322204e1108d63c12b2eb472eab94d"><td class="memTemplParams" colspan="2"><a id="a91322204e1108d63c12b2eb472eab94d" name="a91322204e1108d63c12b2eb472eab94d"></a>
+template&lt;class X  = T, std::enable_if_t&lt;!std::is_copy_assignable&lt; X &gt;<a class="el" href="classscl_1_1internal_1_1htab__iterator.html#afc6f8aa398ff8fda0721f5da7bf661d2">::value</a> &amp;&amp;std::is_move_assignable&lt; X &gt;<a class="el" href="classscl_1_1internal_1_1htab__iterator.html#afc6f8aa398ff8fda0721f5da7bf661d2">::value</a> &amp;&amp;NC, bool &gt;  = true&gt; </td></tr>
+<tr class="memitem:a91322204e1108d63c12b2eb472eab94d"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classscl_1_1internal_1_1htab__iterator.html">htab_iterator</a> &amp;&#160;</td><td class="memTemplItemRight" valign="bottom"><b>operator=</b> (T &amp;&amp;val)</td></tr>
+<tr class="separator:a91322204e1108d63c12b2eb472eab94d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a id="a2ec6dcff4806a4e69905b44837faba2c" name="a2ec6dcff4806a4e69905b44837faba2c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2ec6dcff4806a4e69905b44837faba2c">&#9670;&#160;</a></span>key()</h2>
+<a id="a381f37f4b9cffe0cf4fff0bd04b34217" name="a381f37f4b9cffe0cf4fff0bd04b34217"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a381f37f4b9cffe0cf4fff0bd04b34217">&#9670;&#160;</a></span>key()</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class T , class K &gt; </div>
+template&lt;class T , class K , bool NC&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">K const  &amp; <a class="el" href="classscl_1_1internal_1_1htab__iterator.html">scl::internal::htab_iterator</a>&lt; T, K &gt;::key </td>
+          <td class="memname">const K &amp; <a class="el" href="classscl_1_1internal_1_1htab__iterator.html">scl::internal::htab_iterator</a>&lt; T, K, NC &gt;::key </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -171,7 +171,7 @@ template&lt;class T , class K &gt; </div>
 <p>Returns the key pointed to by this iterator. </p>
 <dl class="exception"><dt>Exceptions</dt><dd>
   <table class="exception">
-    <tr><td class="paramname">std::out_of_range</td><td>The key of this iterator is NULL.</td></tr>
+    <tr><td class="paramname">std::out_of_range.</td><td></td></tr>
   </table>
   </dd>
 </dl>
@@ -179,19 +179,19 @@ template&lt;class T , class K &gt; </div>
 
 </div>
 </div>
-<a id="a3821c23ae7137ba90120abf367d98e7e" name="a3821c23ae7137ba90120abf367d98e7e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3821c23ae7137ba90120abf367d98e7e">&#9670;&#160;</a></span>value()</h2>
+<a id="afc6f8aa398ff8fda0721f5da7bf661d2" name="afc6f8aa398ff8fda0721f5da7bf661d2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afc6f8aa398ff8fda0721f5da7bf661d2">&#9670;&#160;</a></span>value()</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class T , class K &gt; </div>
+template&lt;class T , class K , bool NC&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">T &amp; <a class="el" href="classscl_1_1internal_1_1htab__iterator.html">scl::internal::htab_iterator</a>&lt; T, K &gt;::value </td>
+          <td class="memname">T &amp; <a class="el" href="classscl_1_1internal_1_1htab__iterator.html">scl::internal::htab_iterator</a>&lt; T, K, NC &gt;::value </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -207,7 +207,7 @@ template&lt;class T , class K &gt; </div>
 <p>Returns the value pointed to by this iterator. </p>
 <dl class="exception"><dt>Exceptions</dt><dd>
   <table class="exception">
-    <tr><td class="paramname">std::out_of_range</td><td>No element exists.</td></tr>
+    <tr><td class="paramname">std::out_of_range.</td><td></td></tr>
   </table>
   </dd>
 </dl>

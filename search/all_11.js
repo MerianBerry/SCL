@@ -1,5 +1,6 @@
 var searchData=
 [
-  ['value_0',['value',['../classscl_1_1internal_1_1htab__iterator.html#a3821c23ae7137ba90120abf367d98e7e',1,'scl::internal::htab_iterator']]],
-  ['view_1',['view',['../classscl_1_1string.html#a00959967ae0b741b24cfcae270511d59',1,'scl::string']]]
+  ['terminate_0',['terminate',['../namespacescl.html#a8b68b2f2927a4da038dc43b305fe2993',1,'scl']]],
+  ['toint_1',['toInt',['../classscl_1_1string.html#a0e6b70e46f1a79d06b43583d4b30d99e',1,'scl::string']]],
+  ['toupper_2',['toUpper',['../classscl_1_1string.html#a5aa49d31191c4d2722c98b607198c4cf',1,'scl::string']]]
 ];

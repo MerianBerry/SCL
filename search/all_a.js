@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['len_0',['len',['../classscl_1_1string.html#aaca2c46424de21622e7e8f338da63192',1,'scl::string']]],
-  ['load_5ffile_1',['load_file',['../classscl_1_1xml_1_1xml__doc.html#ad41a2838280fc64e7c748cf1ecf079cf',1,'scl::xml::xml_doc']]],
-  ['load_5fstring_2',['load_string',['../classscl_1_1xml_1_1xml__doc.html#aed6f0d8056115d83ece8f1b1aac90c95',1,'scl::xml::xml_doc']]]
+  ['len_0',['len',['../classscl_1_1string.html#a76e83ce14125c026d675fd42c8f2ca37',1,'scl::string']]],
+  ['load_5ffile_1',['load_file',['../classscl_1_1xml_1_1XmlDocument.html#ab4f9c1e9587a7972d1502c898cf6f7f7',1,'scl::xml::XmlDocument']]],
+  ['load_5fstring_2',['load_string',['../classscl_1_1xml_1_1XmlDocument.html#a300420beeb9efe24eb6f3201866daf19',1,'scl::xml::XmlDocument']]]
 ];

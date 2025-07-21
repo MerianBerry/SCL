@@ -93,25 +93,60 @@ $(document).ready(function(){initNavTree('classscl_1_1pack_1_1Packager.html','')
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#friends">Friends</a> &#124;
 <a href="classscl_1_1pack_1_1Packager-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">scl::pack::Packager Class Reference</div></div>
 </div><!--header-->
 <div class="contents">
+<div class="dynheader">
+Inheritance diagram for scl::pack::Packager:</div>
+<div class="dyncontent">
+<div class="center"><img src="classscl_1_1pack_1_1Packager__inherit__graph.png" border="0" usemap="#ascl_1_1pack_1_1Packager_inherit__map" alt="Inheritance graph"/></div>
+<map name="ascl_1_1pack_1_1Packager_inherit__map" id="ascl_1_1pack_1_1Packager_inherit__map">
+<area shape="rect" title=" " alt="" coords="5,79,151,104"/>
+<area shape="rect" title=" " alt="" coords="32,5,124,31"/>
+</map>
+<center><span class="legend">[<a target="top" href="graph_legend.html">legend</a>]</span></center></div>
+<div class="dynheader">
+Collaboration diagram for scl::pack::Packager:</div>
+<div class="dyncontent">
+<div class="center"><img src="classscl_1_1pack_1_1Packager__coll__graph.png" border="0" usemap="#ascl_1_1pack_1_1Packager_coll__map" alt="Collaboration graph"/></div>
+<map name="ascl_1_1pack_1_1Packager_coll__map" id="ascl_1_1pack_1_1Packager_coll__map">
+<area shape="rect" title=" " alt="" coords="5,79,151,104"/>
+<area shape="rect" title=" " alt="" coords="32,5,124,31"/>
+</map>
+<center><span class="legend">[<a target="top" href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a88dd2b47df00b6b6edd5e43726c98781"><td class="memItemLeft" align="right" valign="top"><a id="a88dd2b47df00b6b6edd5e43726c98781" name="a88dd2b47df00b6b6edd5e43726c98781"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>Packager</b> (<a class="el" href="classscl_1_1pack_1_1Packager.html">Packager</a> const &amp;)=delete</td></tr>
-<tr class="separator:a88dd2b47df00b6b6edd5e43726c98781"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aabbd6cfe9883cd36b61dde51d01856db"><td class="memItemLeft" align="right" valign="top"><a id="aabbd6cfe9883cd36b61dde51d01856db" name="aabbd6cfe9883cd36b61dde51d01856db"></a>
-<a class="el" href="classscl_1_1pack_1_1Packager.html">Packager</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (<a class="el" href="classscl_1_1pack_1_1Packager.html">Packager</a> const &amp;)=delete</td></tr>
-<tr class="separator:aabbd6cfe9883cd36b61dde51d01856db"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad361c55ca8c8a3e05ec883f16702ef0a"><td class="memItemLeft" align="right" valign="top"><a id="ad361c55ca8c8a3e05ec883f16702ef0a" name="ad361c55ca8c8a3e05ec883f16702ef0a"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>create</b> (<a class="el" href="classscl_1_1path.html">path</a> const &amp;colpath)</td></tr>
-<tr class="separator:ad361c55ca8c8a3e05ec883f16702ef0a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae7e196bf12950275fb37f14feecf10f5"><td class="memItemLeft" align="right" valign="top"><a id="ae7e196bf12950275fb37f14feecf10f5" name="ae7e196bf12950275fb37f14feecf10f5"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>open</b> (const <a class="el" href="classscl_1_1path.html">scl::path</a> &amp;<a class="el" href="classscl_1_1path.html">path</a>)</td></tr>
+<tr class="separator:ae7e196bf12950275fb37f14feecf10f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae8c1ece9a2057fb425116528b3900e13"><td class="memItemLeft" align="right" valign="top"><a id="ae8c1ece9a2057fb425116528b3900e13" name="ae8c1ece9a2057fb425116528b3900e13"></a>
+<a class="el" href="classscl_1_1pack_1_1PackWaitable.html">PackWaitable</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>openFile</b> (const <a class="el" href="classscl_1_1path.html">scl::path</a> &amp;<a class="el" href="classscl_1_1path.html">path</a>)</td></tr>
+<tr class="separator:ae8c1ece9a2057fb425116528b3900e13"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a79a77bcd03aace7b3e0cd76adf09b079"><td class="memItemLeft" align="right" valign="top"><a id="a79a77bcd03aace7b3e0cd76adf09b079" name="a79a77bcd03aace7b3e0cd76adf09b079"></a>
+std::vector&lt; <a class="el" href="classscl_1_1pack_1_1PackWaitable.html">PackWaitable</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>openFiles</b> (const std::vector&lt; <a class="el" href="classscl_1_1path.html">scl::path</a> &gt; &amp;files)</td></tr>
+<tr class="separator:a79a77bcd03aace7b3e0cd76adf09b079"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a257fdf6c4365f047a56db139ea09c201"><td class="memItemLeft" align="right" valign="top"><a id="a257fdf6c4365f047a56db139ea09c201" name="a257fdf6c4365f047a56db139ea09c201"></a>
+const <a class="el" href="classscl_1_1dictionary.html">scl::dictionary</a>&lt; <a class="el" href="structscl_1_1pack_1_1PackIndex.html">PackIndex</a> &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>index</b> ()</td></tr>
+<tr class="separator:a257fdf6c4365f047a56db139ea09c201"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3edf2b68791941a69bf8260d6aa3c51b"><td class="memItemLeft" align="right" valign="top"><a id="a3edf2b68791941a69bf8260d6aa3c51b" name="a3edf2b68791941a69bf8260d6aa3c51b"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>close</b> ()</td></tr>
+<tr class="separator:a3edf2b68791941a69bf8260d6aa3c51b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a539da96d2b0971af273f4718028a680f"><td class="memItemLeft" align="right" valign="top"><a id="a539da96d2b0971af273f4718028a680f" name="a539da96d2b0971af273f4718028a680f"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>write</b> ()</td></tr>
+<tr class="separator:a539da96d2b0971af273f4718028a680f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="friends" name="friends"></a>
+Friends</h2></td></tr>
+<tr class="memitem:ae3726f50cab57a1631760f8b0ee707e4"><td class="memItemLeft" align="right" valign="top"><a id="ae3726f50cab57a1631760f8b0ee707e4" name="ae3726f50cab57a1631760f8b0ee707e4"></a>
+class&#160;</td><td class="memItemRight" valign="bottom"><b>PackFetchJob</b></td></tr>
+<tr class="separator:ae3726f50cab57a1631760f8b0ee707e4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<hr/>The documentation for this class was generated from the following file:<ul>
+<hr/>The documentation for this class was generated from the following files:<ul>
 <li>src/<a class="el" href="sclpack_8hpp_source.html">sclpack.hpp</a></li>
+<li>src/sclpack.cpp</li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->
