@@ -56,7 +56,8 @@ class reduce_stream : public stream {
   bool      open(const scl::path &path, bool trunc = false);
 
   /**
-   * @brief  Begins either a decompression or compression state. Will fail if a
+   * @brief  Begins either a decompression or compression state.
+   * @warning Will fail if a
    * state is already active (see end()).
    * @note  If reading, this only accepts compressed data written by this class,
    * aka LZ4's frame format. If the data present in this stream is not in LZ4's

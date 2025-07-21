@@ -283,31 +283,31 @@ class JobServer : protected std::mutex {
   /**
    * @brief Submits a lambda function to be worked on by the job server.
    *
-   * @param func  Lambda function to call.
-   * @param autodelwt  Whether the waitable should be automatically deleted when
-   * the job is complete.
+   * @param  func  Lambda function to call.
+   * @param  autodelwt  Whether the waitable should be automatically deleted
+   * when the job is complete.
    * @return  Waitable handle. Only necessary if you need to wait for the job to
    * be complete.
-   * @note If autodelwt = false, you must free the waitable handle.
+   * @note  If autodelwt = false, you must free the waitable handle.
    */
   waitable   *submitJob(std::function<void(const JobWorker &worker)> func,
       bool autodelwt = true);
 
   /**
-   * @return   Number of workers in this server.
+   * @return  Number of workers in this server.
    */
   int         workerCount() const;
 
   /**
-   * @return   Number of logical processors (threads) of the system.
+   * @return  Number of logical processors (threads) of the system.
    */
   static int  GetNumThreads();
 
   /**
-   * @brief Multithreads a lambda function over a given number of threads.
+   * @brief  Multithreads a lambda function over a given number of threads.
    *
-   * @param func  Lambda function to be multithreaded.
-   * @param workers  Number of threads to multithread with, with a max of the
+   * @param  func  Lambda function to be multithreaded.
+   * @param  workers  Number of threads to multithread with, with a max of the
    * number of threads in the system.
    */
   static void Multithread(std::function<void(int id, int workers)> func,
