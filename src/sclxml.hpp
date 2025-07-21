@@ -53,7 +53,7 @@ static const scl::string _errdescs[] = {
 
 class XmlResult {
  protected:
-  string info;
+  scl::string info;
 
 
  public:
@@ -61,18 +61,22 @@ class XmlResult {
 
   XmlResult()  = default;
 
-  XmlResult(XmlCode code, string info = string()) : code(code), info(info) {
+  XmlResult(XmlCode code, scl::string info = scl::string())
+      : code(code), info(info) {
   }
 
-  string what() const {
+  /**
+   * @return  A brief explenation of this result.
+   */
+  scl::string what() const {
     switch(code) {
     case TAG:
     case TEXT:
     case SYNTAX:
     case MISMATCH: {
-      string out = _errdescs[code];
+      scl::string out = _errdescs[code];
       if(info)
-        out += string::fmt(" (%s)", info.cstr());
+        out += scl::string::fmt(" (%s)", info.cstr());
       return out;
     }
     default:
@@ -350,11 +354,19 @@ class XmlNode {
   }
 
  public:
+  /**
+   * @return  Pointer to the next node.
+   */
   N *next() const {
     return m_next;
   }
 
-  string tag() const {
+  /**
+   * @return  This nodes tag. This string does not own its data. If
+   * you need the this value to persist after the owning document is destroyed,
+   * use scl::string::copy() on this value.
+   */
+  scl::string tag() const {
     return m_tag;
   }
 
@@ -364,12 +376,17 @@ class XmlNode {
    * @param doc  Reference to the document that ownes this node.
    * @param tag  New tag.
    */
-  void set_tag(XmlAllocator &doc, const string &tag) {
+  void set_tag(XmlAllocator &doc, const scl::string &tag) {
     m_tag = doc.txt.alloc((int)tag.len() + 1);
     memcpy(m_tag, tag.cstr(), tag.len());
   }
 
-  string data() const {
+  /**
+   * @return  This nodes data. This string does not own its data. If
+   * you need the this value to persist after the owning document is destroyed,
+   * use scl::string::copy() on this value.
+   */
+  scl::string data() const {
     return m_data;
   }
 
@@ -613,10 +630,16 @@ class XmlElem : public XmlNode<XmlElem, XmlElem> {
     return OK;
   }
 
+  /**
+   * @return  Pointer to this element's first child.
+   */
   XmlElem *child() const {
     return m_child;
   }
 
+  /**
+   * @return  A vector of this element's children.
+   */
   std::vector<XmlElem *> children() const {
     std::vector<XmlElem *> out;
     for(XmlElem *i = m_child; i; i = i->m_next)
@@ -624,6 +647,9 @@ class XmlElem : public XmlNode<XmlElem, XmlElem> {
     return out;
   }
 
+  /**
+   * @return  Number of this element's attributes.
+   */
   int num_attrs() const {
     int n = 0;
     for(XmlAttr *i = m_attr; i; i = i->m_next)
@@ -631,6 +657,9 @@ class XmlElem : public XmlNode<XmlElem, XmlElem> {
     return n;
   }
 
+  /**
+   * @return  A Vector of this element's attributes.
+   */
   std::vector<XmlAttr *> attributes() const {
     std::vector<XmlAttr *> out;
     for(XmlAttr *i = m_attr; i; i = i->m_next)
@@ -639,11 +668,11 @@ class XmlElem : public XmlNode<XmlElem, XmlElem> {
   }
 
   /**
-   * @brief Searches this elements attributes for an attribute with the given
+   * @brief  Searches this elements attributes for an attribute with the given
    * name.
    *
-   * @param name  Name of the attribute to find.
-   * @return   Pointer to the requested attribute. nullptr if no such attribute
+   * @param  name  Name of the attribute to find.
+   * @return  Pointer to the requested attribute. nullptr if no such attribute
    * exists.
    */
   XmlAttr *find_attr(const scl::string &name) {
@@ -654,6 +683,11 @@ class XmlElem : public XmlNode<XmlElem, XmlElem> {
     return nullptr;
   }
 
+  /**
+   * @brief  Adds an attribute to this element.
+   *
+   * @param  attr  Pointer to an attribute to add. See XmlDoc::new_attr().
+   */
   void add_attr(XmlAttr *attr) {
     if(!attr)
       throw XmlResult(ALLOC, "Null attr");
@@ -672,6 +706,11 @@ class XmlElem : public XmlNode<XmlElem, XmlElem> {
       m_attr = attr;
   }
 
+  /**
+   * @brief  Adds an element as a child to this element.
+   *
+   * @param  child  Pointer to an element to add. See XmlDoc::new_elem().
+   */
   void add_child(XmlElem *child) {
     if(!child)
       throw XmlResult(ALLOC, "Null elem");
@@ -689,7 +728,7 @@ class XmlElem : public XmlNode<XmlElem, XmlElem> {
   }
 
   /**
-   * @brief Removes this element from its parent's list of children, if
+   * @brief  Removes this element from its parent's list of children, if
    * possible.
    *
    */
@@ -724,11 +763,11 @@ class XmlDocument : public XmlElem, public XmlAllocator {
   }
 
   /**
-   * @brief Loads and parses an XML string into this document.
+   * @brief  Loads and parses an XML string into this document.
    * Accepts flags defined in the XmlFlags enum.
    *
    * @tparam  f flags to be passed to the library.
-   * @param content
+   * @param  content
    * @return  Non zero on failure, with an attached description.
    * Returns 0 on success.
    */
@@ -753,8 +792,8 @@ class XmlDocument : public XmlElem, public XmlAllocator {
    * Accepts flags defined in the XmlFlags enum.
    *
    * @tparam  f flags to be passed to the library.
-   * @param path
-   * @param read  Pointer to a variable, that gets set to the number of bytes
+   * @param  path  Path to a file to read from.
+   * @param  read  Pointer to a variable, that gets set to the number of bytes
    * read from the file.
    * @return  Non zero on failure, with an attached description.
    * Returns 0 on success.
@@ -774,7 +813,7 @@ class XmlDocument : public XmlElem, public XmlAllocator {
   }
 
   /**
-   * @brief Creates a new attribute, owned by this document.
+   * @brief  Creates a new attribute, owned by this document.
    *
    */
   XmlAttr *new_attr(const string &tag, const string &data) {
@@ -785,7 +824,7 @@ class XmlDocument : public XmlElem, public XmlAllocator {
   }
 
   /**
-   * @brief Creates a new element, owned by this document.
+   * @brief  Creates a new element, owned by this document.
    *
    */
   XmlElem *new_elem(const string &tag, string data = string()) {

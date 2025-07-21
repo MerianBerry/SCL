@@ -9,14 +9,13 @@
 #include <vector>
 
 namespace scl {
-class path : public string {
- public:
-  enum GlobMode {
-    GLOB_FILES = 1,
-    GLOB_DIRS  = 2,
-    GLOB_ANY   = 3,
-  };
+enum class GlobMode {
+  FILES = 1,
+  DIRS  = 2,
+  ANY   = 3,
+};
 
+class path : public string {
  private:
   path &fixendsplit();
 
@@ -192,7 +191,7 @@ class path : public string {
    * @return   Vector of any files that matched the glob expression.
    */
   static std::vector<path> glob(const string &pattern,
-    GlobMode                                  mode = GLOB_FILES);
+    GlobMode                                  mode = GlobMode::FILES);
 
   static path join(std::vector<path> components, bool ignoreback = false);
 

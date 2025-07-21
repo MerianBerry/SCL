@@ -355,7 +355,7 @@ bool path::chdir(const path &path) {
 }
 
 static int glob_(const path &dir, const path &mask, std::vector<path> &globs,
-  scl::path::GlobMode mode = scl::path::GLOB_FILES) {
+  scl::GlobMode mode = scl::GlobMode::FILES) {
 #ifdef _WIN32
   const path       spec  = dir / (mask.iswild() ? "*" : mask);
   HANDLE           hFind = NULL;
@@ -378,9 +378,9 @@ static int glob_(const path &dir, const path &mask, std::vector<path> &globs,
       continue;
     path path = dir / (mask.iswild() ? fn : mask);
     bool validt = true;
-    if (mode == scl::path::GLOB_FILES && !path.isfile())
+    if (mode == scl::GlobMode::FILES && !path.isfile())
       validt = false;
-    else if (mode == scl::path::GLOB_DIRS && !path.isdirectory())
+    else if (mode == scl::GlobMode::DIRS && !path.isdirectory())
       validt = false;
     if (validt && (!mask.iswild() || string::match (fn.cstr(), mask.cstr()))) {
       globs.push_back (path);
@@ -421,7 +421,7 @@ static int glob_recurse(const string &mask, std::vector<path> &dirs,
   while(dirs.size() > 0) {
     std::vector<path> ndirs;
     for(auto &i : dirs)
-      glob_(i, "*", ndirs, path::GLOB_DIRS);
+      glob_(i, "*", ndirs, GlobMode::DIRS);
     if(misdir) {
       dirs.clear();
       for(auto &i : ndirs) {
@@ -486,7 +486,7 @@ std::vector<path> path::glob(const string &pattern, GlobMode mode) {
     } else if(i != globs.size() - 1) {
       // Find new search dirs
       for(long long j = 0; j < dirs.size(); j++)
-        glob_(dirs[j], globs[i], ndirs, GLOB_DIRS);
+        glob_(dirs[j], globs[i], ndirs, GlobMode::DIRS);
       dirs = ndirs;
     }
   }

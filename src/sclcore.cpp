@@ -518,7 +518,7 @@ internal::str_iterator string::end() {
 
 internal::str_iterator string::operator[](long long i) {
   if(!m_buf || (unsigned)i > m_ln || i < 0)
-    return internal::str_iterator();
+    return end();
   return internal::str_iterator(*this, (unsigned)i);
 }
 
@@ -888,8 +888,10 @@ long long stream::read(void *buf, size_t n) {
 }
 
 bool stream::reserve(size_t n, bool force) {
+  // Ignore file mode
   if(m_stream)
     return true;
+  // Remaining length
   long long rl = (m_data + m_size) - m_fp;
   if(rl < (long long)n || force) {
     size_t    nsz  = m_size + n;
@@ -917,8 +919,8 @@ bool stream::write(const void *buf, size_t n, size_t align, bool flush) {
   return write_internal(buf, n, align);
 }
 
-bool stream::write(const scl::string &str, size_t align) {
-  return write(str.cstr(), str.len(), align);
+bool stream::write(const scl::string &str, size_t align, bool flush) {
+  return write(str.cstr(), str.len(), align, flush);
 }
 
 bool stream::write(stream &src, size_t max) {
@@ -961,10 +963,9 @@ const void *stream::data() {
 void *stream::release() {
   void *ptr = nullptr;
   if(m_data) {
-    ptr    = m_data;
-    m_data = nullptr;
-    m_fp   = nullptr;
-    m_size = 0;
+    ptr = m_data;
+    // Reset members
+    scl::stream();
   }
   return ptr;
 }

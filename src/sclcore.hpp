@@ -123,14 +123,14 @@ class string : public internal::RefObj {
 #ifdef _WIN32
   string(const wchar_t *);
 #endif
-  string(const string &);
+  string(const scl::string &);
   ~string() override;
 
   /**
    * @brief Clears this strings memory.
    *
    */
-  void        clear();
+  void         clear();
 
   /**
    * @brief Takes ownership of `ptr`.
@@ -139,14 +139,14 @@ class string : public internal::RefObj {
    *
    * @param ptr Pointer to take ownership of.
    */
-  string     &claim(const char *ptr);
+  scl::string &claim(const char *ptr);
 
   /**
    * @brief Turns this string into a readonly layer above a given string buffer.
    *
    * @param ptr Pointer to string buffer to view.
    */
-  string     &view(const char *ptr);
+  scl::string &view(const char *ptr);
 
   /**
    * @brief Increases the capacity of this string object, copying the original
@@ -154,7 +154,7 @@ class string : public internal::RefObj {
    *
    * @param size Size in bytes to set the capacity to.
    */
-  string     &reserve(unsigned size);
+  scl::string &reserve(unsigned size);
 
   /**
    * @brief Returns the managed string buffer of this string object. Does not
@@ -165,7 +165,7 @@ class string : public internal::RefObj {
    * @return Pointer to this string's managed buffer. NULL if
    * this string has no contents.
    */
-  const char *cstr() const;
+  const char  *cstr() const;
 #ifdef _WIN32
   /**
    * @brief Returns a wchar_t version of this string.
@@ -184,21 +184,21 @@ class string : public internal::RefObj {
    *
    * @return  An integer representation of this string.
    */
-  long long              toInt() const;
+  long long        toInt() const;
 
   /**
    * @brief Returns the length of this string, excluding null terminator.
    *
    * @return Length in bytes.
    */
-  unsigned               len() const;
+  unsigned         len() const;
 
   /**
    * @brief Returns the capacity of this string.
    *
    * @return Capacity in bytes.
    */
-  unsigned               size() const;
+  unsigned         size() const;
 
   /**
    * @brief Finds the first instance of a pattern in this string.
@@ -207,7 +207,7 @@ class string : public internal::RefObj {
    * @return Index of the first instance found. -1 if no instance is
    * found.
    */
-  long long              ffi(const string &pattern) const;
+  long long        ffi(const scl::string &pattern) const;
 
   /**
    * @brief Finds the last instance of a pattern in this string.
@@ -216,7 +216,7 @@ class string : public internal::RefObj {
    * @return Index of the last instance found. -1 if no instance is
    * found.
    */
-  long long              fli(const string &pattern) const;
+  long long        fli(const scl::string &pattern) const;
 
   /**
    * @brief Returns whether or not this string ends with a pattern.
@@ -224,23 +224,23 @@ class string : public internal::RefObj {
    * @param pattern A string pattern to check with (no wildcard supported).
    * @return true if this string ends with `pattern`, false if otherwise.
    */
-  bool                   endswith(const string &pattern) const;
+  bool             endswith(const scl::string &pattern) const;
 
   /**
-   * @brief Reterns whether or not this string constains a pattern.
+   * @brief Reterns whether or not this string matches a pattern.
    *
-   * @param pattern A string pattern to search for (wildcard and ?
+   * @param pattern A string pattern to match with (wildcard and ?
    * supported).
-   * @return true if this string contains `pattern` at least once, false if
+   * @return true if this string matches `pattern` at least once, false if
    * otherwise.
    */
-  bool                   match(const string &pattern) const;
+  bool             match(const scl::string &pattern) const;
 
   /**
    * @brief Returns a hash of this string.
    *
    */
-  unsigned               hash() const;
+  unsigned         hash() const;
 
   /**
    * @brief Returns a substring of this string.
@@ -248,12 +248,12 @@ class string : public internal::RefObj {
    * @param i The start index of the substring.
    * @param j The length of the substring.
    */
-  string                 substr(unsigned i, unsigned j = -1) const;
+  scl::string      substr(unsigned i, unsigned j = -1) const;
 
   /**
    * @brief Returns a unique copy of this string.
    */
-  string                 copy() const;
+  scl::string      copy() const;
 
   /**
    * @brief Replaces any instance of a pattern in this string with a
@@ -262,24 +262,40 @@ class string : public internal::RefObj {
    * @param pattern A string pattern to replace (no wildcard supported).
    * @param with Replacement string.
    */
-  string                &replace(const string &pattern, const string &with);
+  scl::string     &replace(const scl::string &pattern, const scl::string &with);
 
   /**
    * @brief Replaces all lowercase ascii characters with their uppercase
    * counterparts.
    */
-  string                &toUpper();
+  scl::string     &toUpper();
 
-  static long long       ffi(const char *str, const char *pattern);
-  static string          substr(const char *str, unsigned i, unsigned j);
+  /**
+   * @brief  Finds the first instance of a pattern in the given string.
+   *
+   * @param  str  String to process.
+   * @param  pattern  A string pattern to search for (no wildcard supported).
+   * @return  Index of the first instance found. -1 if no instance is
+   * found.
+   */
+  static long long ffi(const char *str, const char *pattern);
+
+  /**
+   * @brief  Returns a substring of the given string.
+   *
+   * @param  str  String to process.
+   * @param  i  The start index of the substring.
+   * @param  j  The length of the substring.
+   */
+  static scl::string     substr(const char *str, unsigned i, unsigned j);
 
   /**
    * @brief Returns a randomized string of a specified length.
    *
    * @param len Length in characters of the randomized string.
    */
-  static string          rand(unsigned len);
-  static string          vfmt(const char *fmt, va_list args);
+  static scl::string     rand(unsigned len);
+  static scl::string     vfmt(const char *fmt, va_list args);
 
   /**
    * @brief Returns a formatted string.
@@ -287,29 +303,70 @@ class string : public internal::RefObj {
    * @param fmt A C-Style string format.
    * @param ... Formatting arguments.
    */
-  static string          fmt(const char *fmt, ...);
-  static unsigned        hash(const string &str);
+  static scl::string     fmt(const char *fmt, ...);
+
+  /**
+   * @brief  Creates a hash of an scl::string.
+   *
+   * @param  str  String to hash.
+   * @return  Hash.
+   */
+  static unsigned        hash(const scl::string &str);
   static bool            match(const char *str, const char *pattern);
 
+  /**
+   * @return  An iterator to the start of this string.
+   */
   internal::str_iterator begin();
+
+  /**
+   * @return  An iterator to one past the length of this string.
+   */
   internal::str_iterator end();
 
+  /**
+   * @brief  Returns an iterator to the given index.
+   *
+   * @param  long  Index.
+   * @return  Iterator to the given index. Returns end() if the index is
+   * invalid.
+   */
   internal::str_iterator operator[](long long);
 
-  bool                   operator==(const string &) const;
-  bool                   operator!=(const string &) const;
-  bool                   operator<(const string &) const;
+  bool                   operator==(const scl::string &) const;
+  bool                   operator!=(const scl::string &) const;
 
-  string                 operator+(const string &) const;
+  /**
+   * @brief  Equivalent to strcmp() < 0
+   */
+  bool                   operator<(const scl::string &) const;
 
+  scl::string            operator+(const scl::string &) const;
+
+  /**
+   * @brief  Concatenates this string and a char.
+   *
+   * @tparam  step  How to align reserve space. By default 1. If multiple
+   * additions occur on this string, increasing this value can dramatically
+   * improve performance.
+   * @param  rhs  Char to concatenate with.
+   */
   template <int step = 1>
-  string &operator+=(char rhs) {
+  scl::string &operator+=(char rhs) {
     char s[2] = {rhs, '\0'};
-    return (*this).operator+= <step>(string().view(s));
+    return (*this).operator+= <step>(scl::string().view(s));
   }
 
+  /**
+   * @brief  Concatenates this string and another string.
+   *
+   * @tparam  step  How to align reserve space. By default 1. If multiple
+   * additions occur on this string, increasing this value can dramatically
+   * improve performance.
+   * @param  rhs  String to concatenate with.
+   */
   template <int step = 1>
-  string &operator+=(const string &rhs) {
+  scl::string &operator+=(const scl::string &rhs) {
     if(!rhs)
       return *this;
     make_unique();
@@ -325,9 +382,9 @@ class string : public internal::RefObj {
 
   operator bool() const;
 
-  string               &operator=(const string &);
+  scl::string          &operator=(const scl::string &);
 
-  friend std::ifstream &operator>>(std::ifstream &in, string &str);
+  friend std::ifstream &operator>>(std::ifstream &in, scl::string &str);
 };
 
 scl::string operator+(const scl::string &str, const char *str2);
@@ -352,6 +409,15 @@ double      clock();
  */
 void        waitms(double ms);
 
+/**
+ * @brief  Waits until the given lamda function returns true.
+ *
+ * @param  cond  Lambda function to be called.
+ * @param  timeout  Max number of seconds to wait. By default -1 (infinite).
+ * @param  sleepms  Number of milliseconds to sleep for inbetween condition
+ * checks. By default 0.001ms.
+ * @return  true: Wait did not time out, false: Wait did time out.
+ */
 bool        waitUntil(std::function<bool()> cond, double timeout = -1,
          double sleepms = 0.001);
 
@@ -384,39 +450,149 @@ class stream {
 
   virtual ~stream();
 
+  /**
+   * @return  true if this stream is in file mode, and target file was opened
+   * successfully.
+   */
   bool      is_open() const;
-  bool      is_modified() const;
-  long long tell() const;
-
-  void      reset_modified();
-
-  bool      openMode(const scl::path &path, const scl::string &mode);
-  bool open(const scl::path &path, bool trunc = false, bool binary = false);
-  virtual void      flush();
-
-  long long         seek(StreamPos pos, long long off);
-  virtual long long read(void *buf, size_t n);
-
-  bool              reserve(size_t n, bool force = false);
-  virtual bool      write(const void *buf, size_t n, size_t align = 1,
-         bool flush = true);
-  bool              write(const scl::string &str, size_t align = 1);
-  bool              write(scl::stream &src, size_t max = -1);
-
-  virtual void      close();
 
   /**
-   * @return   Returns a pointer to the internal data buffer, if operating in
-   * memory. Returns nullptr if operating in file mode.
+   * @return  true if this stream has been written to.
+   */
+  bool      is_modified() const;
+
+  /**
+   * @return  Offset in bytes of the rw pointer.
+   */
+  long long tell() const;
+
+  /**
+   * @brief  Resets the modified status of this stream to false.
+   *
+   */
+  void      reset_modified();
+
+  /**
+   * @brief  Opens this stream to a path, with a specific mode.
+   *
+   * @param  path  Path to open.
+   * @param  mode  Open mode. See C fopen modes.
+   * @return  true if the operation was successful.
+   */
+  bool      openMode(const scl::path &path, const scl::string &mode);
+
+  /**
+   * @brief  Opens this stream to a path.
+   *
+   * @param  path  Path to open.
+   * @param  trunc  Whether or not to truncate (erase) existing file contents.
+   * @param  binary  Whether or not to open in binary mode (/r/n -> /n while
+   * reading in non-binary mode).
+   * @return  true if the operation was successful.
+   */
+  bool open(const scl::path &path, bool trunc = false, bool binary = false);
+
+  /**
+   * @brief  Used to flush internal buffers. Does nothing in memory mode.
+   *
+   */
+  virtual void      flush();
+
+  /**
+   * @brief  Moves the rw pointer to the given position.
+   *
+   * @param  pos  Seek position.
+   * @param  off  Offset from the given seek position.
+   * @return  New offset of the rw pointer. Equivalent to calling tell() right
+   * after this method call.
+   */
+  long long         seek(StreamPos pos, long long off);
+
+  /**
+   * @brief  Reads `n` bytes from this stream into `buf`. If not enough bytes
+   * are able to be read, returns the number of read bytes. If the operation
+   * errored, or there is nothing left to read, returns 0.
+   *
+   * @param  buf  Buffer to store read data.
+   * @param  n  Number of bytes to read.
+   * @return  Number of bytes read, 0 if nothing was read, or if an error
+   * occured.
+   */
+  virtual long long read(void *buf, size_t n);
+
+  /**
+   * @brief  Reserves space while in memory mode. Reserves space starting at the
+   * rw pointer, not buffer start. By default does nothing if there is enough
+   * space remaining.
+   *
+   * @param  n  Number of bytes to reserve.
+   * @param  force  Reserve space, even if there is enough space.
+   * @return  true if the operation was successful.
+   */
+  bool              reserve(size_t n, bool force = false);
+
+  /**
+   * @brief  Writes a memory buffer to this stream.
+   *
+   * @param  buf  Buffer to write.
+   * @param  n  Number of bytes to write.
+   * @param  align  How to align reserve space. By default 1. If a multitude of
+   * writes occur to this stream, increasing this value can dramatically
+   * increase performance.
+   * @param  flush  true: Automatically calls flush().
+   * @return  true if the operation was successful.
+   */
+  virtual bool      write(const void *buf, size_t n, size_t align = 1,
+         bool flush = true);
+
+  /**
+   * @brief  Writes an scl::string's length to this stream.
+   *
+   * @param  str  String to write.
+   * @param  align  How to align reserve space. By default 1. If a multitude of
+   * writes occur to this stream, increasing this value can dramatically
+   * increase performance.
+   * @param  flush  true: Automatically calls flush().
+   * @return  true if the operation was successful.
+   */
+  bool write(const scl::string &str, size_t align = 1, bool flush = true);
+
+  /**
+   * @brief  Writes another scl::string into this stream.
+   *
+   * @param  src  Stream to read from.
+   * @param  max  Max number of bytes to write. By default -1 (infinite).
+   * @return  true if the operation was successful.
+   */
+  bool write(scl::stream &src, size_t max = -1);
+
+  /**
+   * @brief  Closes this stream. Closes the file in file mode, and releases
+   * buffers in memory mode.
+   *
+   */
+  virtual void close();
+
+  /**
+   * @return   Returns a pointer to the internal data buffer, if in memory mode.
+   * Returns nullptr if operating in file mode.
    * @warning Do not free the pointer that is returned by this method. And it is
    * possible for this pointer to be invalidated, if the stream owning it
    * releases it.
    */
-  const void       *data();
-  void             *release();
+  const void  *data();
 
-  stream           &operator<<(const scl::string &str);
-  stream           &operator>>(scl::string &str);
+  /**
+   * @brief  Releases the internal data buffer from this streams control, if in
+   * memory mode. This stream will be reset after this call.
+   *
+   * @return  Pointer to this streams internal data buffer. If valid, you must
+   * free it.
+   */
+  void        *release();
+
+  stream      &operator<<(const scl::string &str);
+  stream      &operator>>(scl::string &str);
 };
 
 namespace internal {
