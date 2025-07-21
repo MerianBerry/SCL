@@ -1,6 +1,7 @@
 var searchData=
 [
-  ['operator_2f_0',['operator/',['../classscl_1_1path.html#a92eeab078fbb608aaabf9b6b602b3433',1,'scl::path']]],
-  ['operator_2f_3d_1',['operator/=',['../classscl_1_1path.html#ac4d772a8d666aa1b2ec5be6f1aab856a',1,'scl::path']]],
-  ['operator_5b_5d_2',['operator[]',['../classscl_1_1dictionary.html#ab6bcdc268b120fc258ba86faa96505ff',1,'scl::dictionary::operator[](const K &amp;key)'],['../classscl_1_1dictionary.html#ad3b00d965ca74971e1af010f654c3da0',1,'scl::dictionary::operator[](const K &amp;key) const']]]
+  ['new_5fattr_0',['new_attr',['../classscl_1_1xml_1_1XmlDocument.html#aaa64129f9e9bfe7087551aa040ae8fae',1,'scl::xml::XmlDocument']]],
+  ['new_5felem_1',['new_elem',['../classscl_1_1xml_1_1XmlDocument.html#ac2b0ef56237246c17166ab8333879962',1,'scl::xml::XmlDocument']]],
+  ['next_2',['next',['../classscl_1_1xml_1_1XmlNode.html#a95a3ca13abe1656865a5e67fde674f77',1,'scl::xml::XmlNode']]],
+  ['num_5fattrs_3',['num_attrs',['../classscl_1_1xml_1_1XmlElem.html#a6841aaebb9ada04bfeec0d35c271545c',1,'scl::xml::XmlElem']]]
 ];

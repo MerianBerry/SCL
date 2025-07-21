@@ -136,6 +136,11 @@ Enumerations</h2></td></tr>
 , <b>current</b> = SEEK_CUR
  }</td></tr>
 <tr class="separator:ab04f31d146131b724a312ab1987f6149"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9b162bdf6bc365c4a3481170ccf5b358"><td class="memItemLeft" align="right" valign="top"><a id="a9b162bdf6bc365c4a3481170ccf5b358" name="a9b162bdf6bc365c4a3481170ccf5b358"></a>enum class &#160;</td><td class="memItemRight" valign="bottom"><b>GlobMode</b> { <b>FILES</b> = 1
+, <b>DIRS</b> = 2
+, <b>ANY</b> = 3
+ }</td></tr>
+<tr class="separator:a9b162bdf6bc365c4a3481170ccf5b358"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
@@ -156,9 +161,9 @@ std::ifstream &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operat
 <tr class="memitem:a457b3ca5121388b4a54d0d0c41b613cf"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacescl.html#a457b3ca5121388b4a54d0d0c41b613cf">waitms</a> (double ms)</td></tr>
 <tr class="memdesc:a457b3ca5121388b4a54d0d0c41b613cf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Makes this thread sleep for a given amount of milliseconds.  <br /></td></tr>
 <tr class="separator:a457b3ca5121388b4a54d0d0c41b613cf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a89ba2d429db625f8a9cd93e31a717a06"><td class="memItemLeft" align="right" valign="top"><a id="a89ba2d429db625f8a9cd93e31a717a06" name="a89ba2d429db625f8a9cd93e31a717a06"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>waitUntil</b> (std::function&lt; bool()&gt; cond, double timeout, double sleepms)</td></tr>
-<tr class="separator:a89ba2d429db625f8a9cd93e31a717a06"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a727b3a281546dc5e6f2ae29c11793f5f"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacescl.html#a727b3a281546dc5e6f2ae29c11793f5f">waitUntil</a> (std::function&lt; bool()&gt; cond, double timeout=-1, double sleepms=0.001)</td></tr>
+<tr class="memdesc:a727b3a281546dc5e6f2ae29c11793f5f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Waits until the given lamda function returns true.  <br /></td></tr>
+<tr class="separator:a727b3a281546dc5e6f2ae29c11793f5f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8a3d8636963d99ff5601e65f6af720f5"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacescl.html#a8a3d8636963d99ff5601e65f6af720f5">init</a> ()</td></tr>
 <tr class="memdesc:a8a3d8636963d99ff5601e65f6af720f5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes SCL global resources. Libraries currently requiring this is scl::pack.  <br /></td></tr>
 <tr class="separator:a8a3d8636963d99ff5601e65f6af720f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -269,6 +274,51 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>waitUntil</b> (std::f
   </table>
   </dd>
 </dl>
+
+</div>
+</div>
+<a id="a727b3a281546dc5e6f2ae29c11793f5f" name="a727b3a281546dc5e6f2ae29c11793f5f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a727b3a281546dc5e6f2ae29c11793f5f">&#9670;&#160;</a></span>waitUntil()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool scl::waitUntil </td>
+          <td>(</td>
+          <td class="paramtype">std::function&lt; bool()&gt;&#160;</td>
+          <td class="paramname"><em>cond</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double&#160;</td>
+          <td class="paramname"><em>timeout</em> = <code>-1</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double&#160;</td>
+          <td class="paramname"><em>sleepms</em> = <code>0.001</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Waits until the given lamda function returns true. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">cond</td><td>Lambda function to be called. </td></tr>
+    <tr><td class="paramname">timeout</td><td>Max number of seconds to wait. By default -1 (infinite). </td></tr>
+    <tr><td class="paramname">sleepms</td><td>Number of milliseconds to sleep for inbetween condition checks. By default 0.001ms. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true: Wait did not time out, false: Wait did time out. </dd></dl>
 
 </div>
 </div>

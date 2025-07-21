@@ -27,11 +27,11 @@ var annotated_dup =
         [ "XmlElem", "classscl_1_1xml_1_1XmlElem.html", "classscl_1_1xml_1_1XmlElem" ],
         [ "XmlNode", "classscl_1_1xml_1_1XmlNode.html", "classscl_1_1xml_1_1XmlNode" ],
         [ "XmlPage", "classscl_1_1xml_1_1XmlPage.html", null ],
-        [ "XmlResult", "classscl_1_1xml_1_1XmlResult.html", null ]
+        [ "XmlResult", "classscl_1_1xml_1_1XmlResult.html", "classscl_1_1xml_1_1XmlResult" ]
       ] ],
       [ "dictionary", "classscl_1_1dictionary.html", "classscl_1_1dictionary" ],
       [ "path", "classscl_1_1path.html", "classscl_1_1path" ],
-      [ "reduce_stream", "classscl_1_1reduce__stream.html", null ],
+      [ "reduce_stream", "classscl_1_1reduce__stream.html", "classscl_1_1reduce__stream" ],
       [ "stream", "classscl_1_1stream.html", "classscl_1_1stream" ],
       [ "string", "classscl_1_1string.html", "classscl_1_1string" ]
     ] ]
