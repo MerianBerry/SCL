@@ -648,6 +648,21 @@ class XmlElem : public XmlNode<XmlElem, XmlElem> {
   }
 
   /**
+   * @brief Returns a vector of child elements with a tag matching a given name.
+   * @param name Tag name to match.
+   *
+   * @return  A vector of the matching child elements.
+   */
+  std::vector<XmlElem *> find_children(const scl::string &name) const {
+    std::vector<XmlElem *> out;
+    for(XmlElem *i = m_child; i; i = i->m_next) {
+      if(i->tag() == name)
+        out.push_back(i);
+    }
+    return out;
+  }
+
+  /**
    * @return  Number of this element's attributes.
    */
   int num_attrs() const {
@@ -665,6 +680,21 @@ class XmlElem : public XmlNode<XmlElem, XmlElem> {
     for(XmlAttr *i = m_attr; i; i = i->m_next)
       out.push_back(i);
     return out;
+  }
+
+  /**
+   * @brief Returns an attribute with a tag matching the given name, if it
+   * exists.
+   * @param name Tag name to match.
+   *
+   * @return  A pointer to the matching attribute. NULL if it doesn't exist.
+   */
+  XmlAttr *find_attribute(const scl::string &name) const {
+    for(XmlAttr *i = m_attr; i; i = i->m_next) {
+      if(i->tag() == name)
+        return i;
+    }
+    return nullptr;
   }
 
   /**

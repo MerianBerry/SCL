@@ -96,12 +96,15 @@ namespace internal {
 // It works fine right, now but has some drawbacks (syncronous linear time slot
 // allocation), which i feel could be better
 
-static uchar      refs[SCL_MAX_REFS] = {0};
-static std::mutex g_mmut;
+static uchar       refs[SCL_MAX_REFS] = {0};
+static std::mutex *g_mmut             = nullptr;
 
-bool              RefObj::findslot() {
+bool               RefObj::findslot() {
   bool out = false;
-  g_mmut.lock();
+  // Shrug
+  if(!g_mmut)
+    return false;
+  g_mmut->lock();
   for(int i = 1; i < SCL_MAX_REFS; i++) {
     if(!internal::refs[i]) {
       m_refi = i;
@@ -111,25 +114,29 @@ bool              RefObj::findslot() {
       break;
     }
   }
-  g_mmut.unlock();
+  g_mmut->unlock();
   return out;
 }
 
 void RefObj::incslot() const {
-  g_mmut.lock();
+  if(!g_mmut)
+    return;
+  g_mmut->lock();
   if(m_refi)
     internal::refs[m_refi]++;
-  g_mmut.unlock();
+  g_mmut->unlock();
 }
 
 bool RefObj::decslot() {
-  g_mmut.lock();
+  if(!g_mmut)
+    return false;
+  g_mmut->lock();
   bool out = false;
   if(m_refi && !--internal::refs[m_refi]) {
     m_refi = 0;
     out    = true;
   }
-  g_mmut.unlock();
+  g_mmut->unlock();
   return out;
 }
 
@@ -995,11 +1002,15 @@ stream &stream::operator>>(scl::string &str) {
 }
 
 bool init() {
-  bool pack = pack::packInit();
+  internal::g_mmut = new std::mutex();
+  bool pack        = pack::packInit();
   return pack;
 }
 
 void terminate() {
   pack::packTerminate();
+  delete internal::g_mmut;
+  memset(internal::refs, 0, sizeof(internal::refs));
+  internal::g_mmut = nullptr;
 }
 } // namespace scl

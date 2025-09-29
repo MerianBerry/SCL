@@ -30,24 +30,29 @@ class path : public string {
    */
   path                     resolve() const;
 
+  /**
+   * @param  path  Path to check for.
+   *
+   * @return True of this path has the given path in it.
+   */
   bool                     haspath(const path &path) const;
 
   /**
-   * @brief
+   * @param base  Path to make a relative path from. Defalts to cwd.
+   *
+   * @return A relative path of this path from the given base.
    *
    */
-  path                     relative(const path &from = ".") const;
+  path                     relative(const path &base = ".") const;
 
   /**
    * @return Parent directory of this path.
    * Ex: foo/bar/fun.txt => foo/bar
-   *
    */
   path                     parentpath() const;
 
   /**
    * @return  Returns the filename of this path.
-   *
    */
   path                     filename() const;
 

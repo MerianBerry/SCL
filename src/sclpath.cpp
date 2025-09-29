@@ -20,7 +20,7 @@
 #  include <dirent.h>
 #  include <unistd.h>
 #  ifdef __APPLE__
-#    incldue < libproc.h>
+#    include <libproc.h>
 #  endif
 #endif
 
@@ -88,10 +88,10 @@ static path trimpath(const path &path, const scl::path &with) {
   return path::join(comp);
 }
 
-path path::relative(const path &from) const {
+path path::relative(const path &base) const {
   if(!isabsolute())
     return *this;
-  scl::path copy = from.resolve();
+  scl::path copy = base.resolve();
   scl::path out;
   while(copy) {
     if(haspath(copy)) {
@@ -365,7 +365,7 @@ static int glob_(const path &dir, const path &mask, std::vector<path> &globs,
     return 1;
   do {
     path fn = ffd.cFileName;
-#elif defined(_DIRENT_H)
+#elif defined(_DIRENT_H) || defined(_SYS_DIRENT_H)
   /* clang-format off */
   DIR           *handle = opendir (dir.cstr());
   struct dirent *dp;
@@ -388,14 +388,14 @@ static int glob_(const path &dir, const path &mask, std::vector<path> &globs,
 #ifdef _WIN32
   } while (FindNextFile (hFind, &ffd) != 0);
   FindClose (hFind);
-#elif defined(_DIRENT_H)
+#elif defined(_DIRENT_H) || defined(_SYS_DIRENT_H)
   }
   if (handle)
     closedir (handle);
 
 /* clang-format on */
 #else
-#  message "scl::io::glob missing implementation :("
+#  pragma message("scl::io::glob has no implementation for this platform")
 #endif
   return 0;
 }

@@ -119,7 +119,6 @@ class string : public internal::RefObj {
  public:
   string();
   string(const char *);
-  string(char);
 #ifdef _WIN32
   string(const wchar_t *);
 #endif
