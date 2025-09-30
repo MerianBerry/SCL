@@ -185,14 +185,12 @@ bool RefObj::operator==(const RefObj &rhs) const {
 string::string() {
 }
 
-string::string(const char *str) {
-  view(str);
+string::string(const std::string &str) {
+  *this = string(str.c_str()).copy();
 }
 
-string::~string() {
-  if(deref() && *this) {
-    delete[] m_buf;
-  }
+string::string(const char *str) {
+  view(str);
 }
 
 #ifdef _WIN32
@@ -211,6 +209,12 @@ string::string(const wchar_t *wstr) {
 
 string::string(const string &rhs)
     : RefObj(rhs), m_buf(rhs.m_buf), m_ln(rhs.m_ln), m_sz(rhs.m_sz) {
+}
+
+string::~string() {
+  if(deref() && *this) {
+    delete[] m_buf;
+  }
 }
 
 string &string::operator=(const string &rhs) {

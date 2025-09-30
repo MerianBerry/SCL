@@ -118,6 +118,7 @@ class string : public internal::RefObj {
 
  public:
   string();
+  string(const std::string &);
   string(const char *);
 #ifdef _WIN32
   string(const wchar_t *);
