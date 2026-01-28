@@ -1,38 +1,38 @@
 var annotated_dup =
 [
-    [ "scl", "namespacescl.html", [
-      [ "internal", "namespacescl_1_1internal.html", [
-        [ "hnode", "structscl_1_1internal_1_1hnode.html", null ],
-        [ "htab_iterator", "classscl_1_1internal_1_1htab__iterator.html", "classscl_1_1internal_1_1htab__iterator" ],
-        [ "RefObj", "classscl_1_1internal_1_1RefObj.html", "classscl_1_1internal_1_1RefObj" ],
-        [ "str_iterator", "classscl_1_1internal_1_1str__iterator.html", null ]
+    [ "scl", "d3/dbf/namespacescl.html", [
+      [ "internal", "d7/d6b/namespacescl_1_1internal.html", [
+        [ "hnode", "d3/da7/structscl_1_1internal_1_1hnode.html", null ],
+        [ "htab_iterator", "d6/da9/classscl_1_1internal_1_1htab__iterator.html", "d6/da9/classscl_1_1internal_1_1htab__iterator" ],
+        [ "RefObj", "d5/dd5/classscl_1_1internal_1_1RefObj.html", "d5/dd5/classscl_1_1internal_1_1RefObj" ],
+        [ "str_iterator", "d6/d8f/classscl_1_1internal_1_1str__iterator.html", null ]
       ] ],
       [ "jobs", null, [
-        [ "funcJob", "classscl_1_1jobs_1_1funcJob.html", "classscl_1_1jobs_1_1funcJob" ],
-        [ "job", "classscl_1_1jobs_1_1job.html", "classscl_1_1jobs_1_1job" ],
-        [ "JobServer", "classscl_1_1jobs_1_1JobServer.html", "classscl_1_1jobs_1_1JobServer" ],
-        [ "JobWorker", "classscl_1_1jobs_1_1JobWorker.html", "classscl_1_1jobs_1_1JobWorker" ],
-        [ "waitable", "classscl_1_1jobs_1_1waitable.html", "classscl_1_1jobs_1_1waitable" ]
+        [ "funcJob", "d6/d64/classscl_1_1jobs_1_1funcJob.html", "d6/d64/classscl_1_1jobs_1_1funcJob" ],
+        [ "job", "d1/d74/classscl_1_1jobs_1_1job.html", "d1/d74/classscl_1_1jobs_1_1job" ],
+        [ "JobServer", "df/db5/classscl_1_1jobs_1_1JobServer.html", "df/db5/classscl_1_1jobs_1_1JobServer" ],
+        [ "JobWorker", "d1/d65/classscl_1_1jobs_1_1JobWorker.html", "d1/d65/classscl_1_1jobs_1_1JobWorker" ],
+        [ "waitable", "d2/dc2/classscl_1_1jobs_1_1waitable.html", "d2/dc2/classscl_1_1jobs_1_1waitable" ]
       ] ],
       [ "pack", null, [
-        [ "Packager", "classscl_1_1pack_1_1Packager.html", null ],
-        [ "PackFetchJob", "classscl_1_1pack_1_1PackFetchJob.html", "classscl_1_1pack_1_1PackFetchJob" ],
-        [ "PackIndex", "structscl_1_1pack_1_1PackIndex.html", null ],
-        [ "PackWaitable", "classscl_1_1pack_1_1PackWaitable.html", null ]
+        [ "Packager", "de/d13/classscl_1_1pack_1_1Packager.html", null ],
+        [ "PackFetchJob", "d9/d15/classscl_1_1pack_1_1PackFetchJob.html", "d9/d15/classscl_1_1pack_1_1PackFetchJob" ],
+        [ "PackIndex", "d5/d19/structscl_1_1pack_1_1PackIndex.html", null ],
+        [ "PackWaitable", "d1/da7/classscl_1_1pack_1_1PackWaitable.html", null ]
       ] ],
       [ "xml", null, [
-        [ "XmlAllocator", "classscl_1_1xml_1_1XmlAllocator.html", null ],
-        [ "XmlAttr", "classscl_1_1xml_1_1XmlAttr.html", null ],
-        [ "XmlDocument", "classscl_1_1xml_1_1XmlDocument.html", "classscl_1_1xml_1_1XmlDocument" ],
-        [ "XmlElem", "classscl_1_1xml_1_1XmlElem.html", "classscl_1_1xml_1_1XmlElem" ],
-        [ "XmlNode", "classscl_1_1xml_1_1XmlNode.html", "classscl_1_1xml_1_1XmlNode" ],
-        [ "XmlPage", "classscl_1_1xml_1_1XmlPage.html", null ],
-        [ "XmlResult", "classscl_1_1xml_1_1XmlResult.html", "classscl_1_1xml_1_1XmlResult" ]
+        [ "XmlAllocator", "d8/dff/classscl_1_1xml_1_1XmlAllocator.html", null ],
+        [ "XmlAttr", "d9/de8/classscl_1_1xml_1_1XmlAttr.html", null ],
+        [ "XmlDocument", "d3/d57/classscl_1_1xml_1_1XmlDocument.html", "d3/d57/classscl_1_1xml_1_1XmlDocument" ],
+        [ "XmlElem", "d9/d02/classscl_1_1xml_1_1XmlElem.html", "d9/d02/classscl_1_1xml_1_1XmlElem" ],
+        [ "XmlNode", "d9/d5e/classscl_1_1xml_1_1XmlNode.html", "d9/d5e/classscl_1_1xml_1_1XmlNode" ],
+        [ "XmlPage", "d5/d47/classscl_1_1xml_1_1XmlPage.html", null ],
+        [ "XmlResult", "d7/db8/classscl_1_1xml_1_1XmlResult.html", "d7/db8/classscl_1_1xml_1_1XmlResult" ]
       ] ],
-      [ "dictionary", "classscl_1_1dictionary.html", "classscl_1_1dictionary" ],
-      [ "path", "classscl_1_1path.html", "classscl_1_1path" ],
-      [ "reduce_stream", "classscl_1_1reduce__stream.html", "classscl_1_1reduce__stream" ],
-      [ "stream", "classscl_1_1stream.html", "classscl_1_1stream" ],
-      [ "string", "classscl_1_1string.html", "classscl_1_1string" ]
+      [ "dictionary", "d2/d78/classscl_1_1dictionary.html", "d2/d78/classscl_1_1dictionary" ],
+      [ "path", "d4/dc8/classscl_1_1path.html", "d4/dc8/classscl_1_1path" ],
+      [ "reduce_stream", "d1/d31/classscl_1_1reduce__stream.html", "d1/d31/classscl_1_1reduce__stream" ],
+      [ "stream", "dc/d00/classscl_1_1stream.html", "dc/d00/classscl_1_1stream" ],
+      [ "string", "d3/db9/classscl_1_1string.html", "d3/db9/classscl_1_1string" ]
     ] ]
 ];

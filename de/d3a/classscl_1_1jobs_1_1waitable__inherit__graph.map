@@ -1,0 +1,4 @@
+<map id="scl::jobs::waitable" name="scl::jobs::waitable">
+<area shape="rect" id="node1" title="Class used by multithreaded jobs to pass results to a possibly syncronized environment." alt="" coords="23,5,162,31"/>
+<area shape="rect" id="node2" href="$d1/da7/classscl_1_1pack_1_1PackWaitable.html" title=" " alt="" coords="5,79,180,104"/>
+</map>

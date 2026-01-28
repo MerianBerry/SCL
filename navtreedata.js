@@ -25,9 +25,12 @@
 var NAVTREE =
 [
   [ "SCL", "index.html", [
-    [ "SCL Usage Manual", "md_docs_manual.html", [
-      [ "Including", "md_docs_manual.html#autotoc_md1", [
-        [ "Examples", "md_docs_manual.html#autotoc_md2", null ]
+    [ "SCL Usage Manual", "d1/db5/md_docs_manual.html", [
+      [ "Including", "d1/db5/md_docs_manual.html#autotoc_md1", [
+        [ "Examples", "d1/db5/md_docs_manual.html#autotoc_md2", null ]
+      ] ],
+      [ "Initializing", "d1/db5/md_docs_manual.html#autotoc_md3", [
+        [ "Example", "d1/db5/md_docs_manual.html#autotoc_md4", null ]
       ] ]
     ] ],
     [ "Namespaces", "namespaces.html", [
@@ -55,7 +58,7 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "annotated.html",
-"functions_func.html"
+"dc/d00/classscl_1_1stream.html#ad1ec88c1ef8ca37c2b03c3dee90db262"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';
