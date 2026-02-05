@@ -32,7 +32,7 @@ namespace scl {
 path::path() {
 }
 
-path::path(const string &rhs) : string(rhs) {
+path::path(const string& rhs) : string(rhs) {
 #ifdef _WIN32
   replace("/", "\\");
 #else
@@ -40,7 +40,7 @@ path::path(const string &rhs) : string(rhs) {
 #endif
 }
 
-path::path(const char *rhs) : string(rhs) {
+path::path(const char* rhs) : string(rhs) {
 #ifdef _WIN32
   replace("/", "\\");
 #else
@@ -48,7 +48,7 @@ path::path(const char *rhs) : string(rhs) {
 #endif
 }
 
-path &path::fixendsplit() {
+path& path::fixendsplit() {
   unsigned p = len() - 1;
   for(char c;
     p != (unsigned)-1 && p >= 0 && (c = (*this)[p]) && (c == '/' || c == '\\');
@@ -66,17 +66,17 @@ path path::resolve() const {
 #if defined(_WIN32)
   _fullpath(fpath, cstr(), PATH_MAX);
 #elif defined(__unix__) || defined(__APPLE__)
-  char *_ = realpath(cstr(), fpath);
+  char* _ = realpath(cstr(), fpath);
 #endif
   return path(fpath).copy();
 }
 
-bool path::haspath(const path &path) const {
+bool path::haspath(const path& path) const {
   scl::path fixed = path.resolve().fixendsplit();
   return resolve().ffi(fixed) >= 0;
 }
 
-static path trimpath(const path &path, const scl::path &with) {
+static path trimpath(const path& path, const scl::path& with) {
   std::vector<scl::path> comp;
   auto                   frc = with.split();
   auto                   fic = path.split();
@@ -88,7 +88,7 @@ static path trimpath(const path &path, const scl::path &with) {
   return path::join(comp);
 }
 
-path path::relative(const path &base) const {
+path path::relative(const path& base) const {
   if(!isabsolute())
     return *this;
   scl::path copy = base.resolve();
@@ -111,9 +111,9 @@ path path::parentpath() const {
   if(!*this)
     return "";
   auto        real = resolve();
-  const char *abs  = real.cstr();
+  const char* abs  = real.cstr();
   int         l    = real.len();
-  char       *p    = (char *)abs + l - 1;
+  char*       p    = (char*)abs + l - 1;
   int         n    = -1;
   for(; *p && p >= abs; --p)
     if(*p == '/' || *p == '\\') {
@@ -152,7 +152,7 @@ bool path::iswild() const {
 
 std::vector<path> path::split() const {
   std::vector<path> syms;
-  const char       *s = cstr(), *p = cstr();
+  const char *      s = cstr(), *p = cstr();
   if(!s)
     return syms;
   while(*s && *p) {
@@ -244,7 +244,7 @@ void path::remove() const {
     return;
 }
 
-path &path::replaceFilename(const path &nFile) {
+path& path::replaceFilename(const path& nFile) {
   auto c = split();
   if(c.size() > 0) {
     c.back() = nFile;
@@ -253,20 +253,20 @@ path &path::replaceFilename(const path &nFile) {
   return *this;
 }
 
-path &path::replaceExtension(const path &nExt) {
+path& path::replaceExtension(const path& nExt) {
   auto c = split();
   if(c.size() > 0) {
-    auto &file = c.back();
+    auto& file = c.back();
     file.replace(file.extension(), nExt);
     *this = join(c);
   }
   return *this;
 }
 
-path &path::replaceStem(const path &nName) {
+path& path::replaceStem(const path& nName) {
   auto c = split();
   if(c.size() > 0) {
-    auto &file = c.back();
+    auto& file = c.back();
     file.replace(file.stem(), nName);
     *this = join(c);
   }
@@ -293,10 +293,10 @@ path path::execdir() {
   return path(buf).parentpath();
 }
 
-bool path::mkdir(const path &path) {
+bool path::mkdir(const path& path) {
   auto       dirs = path.split();
   class path dir;
-  for(auto &i : dirs) {
+  for(auto& i : dirs) {
     dir = dir / i;
     if(!dir.exists()) {
 #if defined(__unix__) || defined(__APPLE__)
@@ -314,7 +314,7 @@ bool path::mkdir(const path &path) {
   return true;
 }
 
-bool path::copyfile(const path &from, const path &to) {
+bool path::copyfile(const path& from, const path& to) {
   scl::path::mkdir(to.parentpath());
   std::ifstream in(from.cstr(), std::ios_base::in | std::ios_base::binary);
   if(!in.is_open())
@@ -330,7 +330,7 @@ bool path::copyfile(const path &from, const path &to) {
   return true;
 }
 
-bool path::movefile(const path &from, const path &to) {
+bool path::movefile(const path& from, const path& to) {
 #ifdef _WIN32
   return !!MoveFileA(from.cstr(), to.cstr());
 #else
@@ -339,14 +339,19 @@ bool path::movefile(const path &from, const path &to) {
 }
 
 bool path::mkdir(std::vector<path> paths) {
-  for(auto &i : paths) {
+  for(auto& i : paths) {
+#ifdef _WIN32
+    if(!CreateDirectoryA(i.cstr(), NULL))
+      return false;
+#else
     if(!::mkdir(i.cstr(), 0777))
       return false;
+#endif
   }
   return true;
 }
 
-bool path::chdir(const path &path) {
+bool path::chdir(const path& path) {
 #if defined(_WIN32)
   return SetCurrentDirectory(path.cstr());
 #elif defined(__unix__) || defined(__APPLE__)
@@ -354,7 +359,7 @@ bool path::chdir(const path &path) {
 #endif
 }
 
-static int glob_(const path &dir, const path &mask, std::vector<path> &globs,
+static int glob_(const path& dir, const path& mask, std::vector<path>& globs,
   scl::GlobMode mode = scl::GlobMode::FILES) {
 #ifdef _WIN32
   const path       spec  = dir / (mask.iswild() ? "*" : mask);
@@ -400,8 +405,8 @@ static int glob_(const path &dir, const path &mask, std::vector<path> &globs,
   return 0;
 }
 
-static int glob_recurse(const string &mask, std::vector<path> &dirs,
-  std::vector<path> &finds, bool misdir = true) {
+static int glob_recurse(const string& mask, std::vector<path>& dirs,
+  std::vector<path>& finds, bool misdir = true) {
   // For each in dirs, add to finds.
   /* LOOP
     For each in dirs, search for every directory (ndirs).
@@ -416,22 +421,22 @@ static int glob_recurse(const string &mask, std::vector<path> &dirs,
     For each in ndirs, add to finds.
     Set dirs to ndirs. Repeat until dirs is empty.
   */
-  for(auto &i : dirs)
+  for(auto& i : dirs)
     finds.push_back(i);
   while(dirs.size() > 0) {
     std::vector<path> ndirs;
-    for(auto &i : dirs)
+    for(auto& i : dirs)
       glob_(i, "*", ndirs, GlobMode::DIRS);
     if(misdir) {
       dirs.clear();
-      for(auto &i : ndirs) {
+      for(auto& i : ndirs) {
         if(i.match(mask))
           finds.push_back(i);
         else
           dirs.push_back(i);
       }
     } else {
-      for(auto &i : ndirs)
+      for(auto& i : ndirs)
         finds.push_back(i);
     }
     dirs = ndirs;
@@ -439,7 +444,7 @@ static int glob_recurse(const string &mask, std::vector<path> &dirs,
   return 0;
 }
 
-std::vector<path> path::glob(const string &pattern, GlobMode mode) {
+std::vector<path> path::glob(const string& pattern, GlobMode mode) {
   auto                syms = path(pattern).split();
   /* LOOP (for each in syms)
     IF sym IS WILDCARD
@@ -456,7 +461,7 @@ std::vector<path> path::glob(const string &pattern, GlobMode mode) {
   //   Add glob to globs.
   std::vector<string> globs;
   path                glob;
-  for(auto &sym : syms) {
+  for(auto& sym : syms) {
     if(sym.iswild()) {
       if(glob)
         globs.push_back(glob);
@@ -492,14 +497,14 @@ std::vector<path> path::glob(const string &pattern, GlobMode mode) {
   }
   path fn = globs.back();
   // Find requested items
-  for(auto &dir : dirs)
+  for(auto& dir : dirs)
     glob_(dir, fn, finds, mode);
   return finds;
 }
 
 path path::join(std::vector<path> components, bool ignoreback) {
   path out;
-  for(auto &i : components) {
+  for(auto& i : components) {
     if(i == ".")
       continue;
     if(i == "..") {
@@ -516,8 +521,8 @@ path path::join(std::vector<path> components, bool ignoreback) {
   return out;
 }
 
-std::vector<path> path::splitPaths(const scl::string &paths) {
-  const char       *ps = paths.cstr(), *s = ps, *pe = s + paths.len();
+std::vector<path> path::splitPaths(const scl::string& paths) {
+  const char *      ps = paths.cstr(), *s = ps, *pe = s + paths.len();
   std::vector<path> out;
   while(*ps) {
     auto p = scl::string::ffi(ps, ";");
@@ -529,7 +534,7 @@ std::vector<path> path::splitPaths(const scl::string &paths) {
   return out;
 }
 
-path &path::join(const path &rhs, bool relative) {
+path& path::join(const path& rhs, bool relative) {
   scl::path second;
 
   if(*this) {
@@ -550,7 +555,7 @@ path &path::join(const path &rhs, bool relative) {
   return *this;
 }
 
-path path::operator/(const path &rhs) const {
+path path::operator/(const path& rhs) const {
   path out = *this;
   return out.join(rhs);
 }

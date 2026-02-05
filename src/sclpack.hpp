@@ -23,18 +23,18 @@ class PackWaitable : public jobs::waitable {
   friend class PackIndex;
   friend class PackFetchJob;
 
-  scl::stream *m_stream = nullptr;
+  scl::stream* m_stream = nullptr;
 
  public:
   PackWaitable() = default;
-  PackWaitable(scl::stream *stream);
+  PackWaitable(scl::stream* stream);
 
-  scl::stream &stream() {
+  scl::stream& stream() {
     wait();
     return *m_stream;
   }
 
-  scl::stream *operator->() {
+  scl::stream* operator->() {
     wait();
     return m_stream;
   }
@@ -50,12 +50,15 @@ class PackIndex {
 
  private:
   PackWaitable m_wt;
+  scl::string& m_file;
   uint32_t     m_off = 0, m_size = 0, m_original = 0;
   bool         m_active = 0, m_submitted = 0;
   uint8_t      m_pack = 0;
 
  public:
-  PackIndex() = default;
+  PackIndex(const scl::string& file);
+  PackIndex(PackIndex&& rhs);
+  PackIndex&    operator=(PackIndex&& rhs);
 
   /**
    * @brief Returns this file's waitable.
@@ -64,9 +67,9 @@ class PackIndex {
    *
    * @return waitable reference
    */
-  PackWaitable &waitable();
+  PackWaitable& waitable();
 
-  scl::stream  *operator->() {
+  scl::stream*  operator->() {
     return m_wt.m_stream;
   }
 
@@ -88,22 +91,22 @@ class PackIndex {
 
 // Job to decompress a file from a stream into memory
 class PackFetchJob : public jobs::job<PackWaitable> {
-  PackIndex          &m_indx;
+  PackIndex&          m_indx;
   scl::path           m_file;
-  Packager           *m_pack;
-  scl::reduce_stream *m_archive;
-  scl::stream        *m_out;
+  Packager*           m_pack;
+  scl::reduce_stream* m_archive;
+  scl::stream*        m_out;
   int                 m_sid;
 
  public:
-  PackFetchJob(Packager *pack, scl::reduce_stream *archive, scl::stream *out,
-    PackIndex &indx, scl::path file, int sid);
+  PackFetchJob(Packager* pack, scl::reduce_stream* archive, scl::stream* out,
+    PackIndex& indx, scl::path file, int sid);
 
-  PackWaitable *getWaitable() const override;
+  PackWaitable* getWaitable() const override;
 
-  bool          checkJob(const jobs::JobWorker &worker) const override;
+  bool          checkJob(const jobs::JobWorker& worker) const override;
 
-  void          doJob(PackWaitable *wt, const jobs::JobWorker &worker) override;
+  void          doJob(PackWaitable* wt, const jobs::JobWorker& worker) override;
 };
 
 /**
@@ -118,7 +121,7 @@ class Packager : protected std::mutex {
   scl::path                  m_family;
   scl::path                  m_ext;
   scl::dictionary<PackIndex> m_index;
-  std::vector<PackIndex *>   m_submitted;
+  std::vector<PackIndex*>    m_submitted;
   std::atomic_uint32_t       m_waiting;
   bool                       m_open = false;
 
@@ -126,22 +129,21 @@ class Packager : protected std::mutex {
     // Continue
     OK = 0,
     // Current element overflowed member pack. Attempt on new member
-    OVERFLOW = 1,
+    WOVERFLOW = 1,
     // Error
     ERROR = 2,
   };
 
-  bool     readIndex(scl::reduce_stream &archive);
-  mPackRes writeMemberPack(scl::reduce_stream &archive, size_t &elemid,
-    int &memberid);
+  bool     readIndex(scl::stream& archive);
+  mPackRes writeMemberPack(scl::stream& archive, size_t& elemid, int memberid);
 
  public:
   Packager();
   ~Packager();
 
-  bool                        open(const scl::path &path);
-  PackWaitable               &openFile(const scl::path &path);
-  std::vector<PackWaitable *> openFiles(const std::vector<scl::path> &files);
+  bool                       open(const scl::path& path);
+  PackWaitable&              openFile(const scl::path& path);
+  std::vector<PackWaitable*> openFiles(const std::vector<scl::path>& files);
   /**
    * @brief Submits a file to be written to the pack when write() is called.
    *  Note: Files will only be submitted if they have been opened, and are
@@ -152,7 +154,7 @@ class Packager : protected std::mutex {
    * @param  path
    * @return <b>true</b> if file was successfully submitted.
    */
-  bool                        submit(const scl::path &path);
+  bool                       submit(const scl::path& path);
 
   /**
    * @brief Writes all submitted files to the pack.
@@ -162,9 +164,9 @@ class Packager : protected std::mutex {
    * @return
    * @return
    */
-  bool                        write(bool unload = false);
+  bool                       write(bool unload = false);
 
-  const scl::dictionary<PackIndex> &index();
+  const scl::dictionary<PackIndex>& index();
 
   void                              close();
 };

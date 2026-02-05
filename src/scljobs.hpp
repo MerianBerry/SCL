@@ -43,8 +43,8 @@ class waitable {
  protected:
  public:
   waitable();
-  waitable(waitable &&rhs);
-  waitable &operator=(waitable &&rhs);
+  waitable(waitable&& rhs);
+  waitable& operator=(waitable&& rhs);
 
   /**
    * @brief Completes the waitable.
@@ -98,7 +98,7 @@ class job {
    * @return   A NEW handle to this jobs waitable. It will be passed back to it
    * when doJob() is called.
    */
-  virtual Wt  *getWaitable() const = 0;
+  virtual Wt*  getWaitable() const = 0;
 
   /**
    * @brief Virtual method called by workers, to check if a job can be taken.
@@ -106,28 +106,28 @@ class job {
    * @param worker  Reference to the calling job worker.
    * @return   Whether or not this job can be taken.
    */
-  virtual bool checkJob(const JobWorker &worker) const {
+  virtual bool checkJob(const JobWorker& worker) const {
     return true;
   }
 
-  virtual void doJob(Wt *waitable, const JobWorker &worker) = 0;
+  virtual void doJob(Wt* waitable, const JobWorker& worker) = 0;
 };
 
 class funcJob : public job<waitable> {
-  std::function<void(const JobWorker &worker)> m_func;
+  std::function<void(const JobWorker& worker)> m_func;
 
  public:
-  funcJob(std::function<void(const JobWorker &worker)> func);
+  funcJob(std::function<void(const JobWorker& worker)> func);
 
-  waitable *getWaitable() const override;
+  waitable* getWaitable() const override;
 
-  void      doJob(waitable *waitable, const JobWorker &worker) override;
+  void      doJob(waitable* waitable, const JobWorker& worker) override;
 };
 
 class JobWorker {
   friend class JobServer;
   scl::string      m_desc;
-  JobServer       *m_serv;
+  JobServer*       m_serv;
   std::atomic_bool m_working;
   std::atomic_bool m_busy;
   int              m_id;
@@ -135,12 +135,12 @@ class JobWorker {
   void             quit();
 
  public:
-  JobWorker(JobServer *serv, int id);
+  JobWorker(JobServer* serv, int id);
 
   /**
    * @return   Job server that owns this worker.
    */
-  JobServer  &serv() const;
+  JobServer&  serv() const;
 
   /**
    * @brief  Syncs the job server (freezes job queue, and waits for all workers
@@ -148,7 +148,7 @@ class JobWorker {
    *
    * @param func  Lambda function to call while synced.
    */
-  void        sync(const std::function<void()> &func) const;
+  void        sync(const std::function<void()>& func) const;
 
   /**
    * @return   This workers id.
@@ -165,7 +165,7 @@ class JobWorker {
    */
   bool        busy() const;
 
-  static void work(JobWorker *inst);
+  static void work(JobWorker* inst);
 };
 
 /**
@@ -174,8 +174,8 @@ class JobWorker {
  *
  */
 class JobServer : protected std::mutex {
-  using t_worker = std::pair<std::thread, JobWorker *>;
-  using t_wjob   = std::pair<job<waitable> *, waitable *>;
+  using t_worker = std::pair<std::thread, JobWorker*>;
+  using t_wjob   = std::pair<job<waitable>*, waitable*>;
   friend class JobWorker;
   std::vector<t_worker> m_workers;
   std::queue<t_wjob>    m_jobs;
@@ -185,7 +185,7 @@ class JobServer : protected std::mutex {
   std::atomic_bool      m_working;
 
 
-  bool                  takeJob(t_wjob &wjob, const JobWorker &worker);
+  bool                  takeJob(t_wjob& wjob, const JobWorker& worker);
 
   static int            ClampThreads(int threads);
 
@@ -199,8 +199,8 @@ class JobServer : protected std::mutex {
   JobServer(int workers = INT_MAX);
   ~JobServer();
 
-  JobServer(const JobServer &)      = delete;
-  JobServer &operator=(JobServer &) = delete;
+  JobServer(const JobServer&)      = delete;
+  JobServer& operator=(JobServer&) = delete;
 
   /**
    * @return Whether or not this job server is accepting jobs.
@@ -268,7 +268,7 @@ class JobServer : protected std::mutex {
    *
    * @param func  Lambda function to call while synced.
    */
-  void       sync(const std::function<void()> &func);
+  void       sync(const std::function<void()>& func);
 
   /**
    * @brief Submits a job instance to the job server.
@@ -281,14 +281,14 @@ class JobServer : protected std::mutex {
    * wait for job completion, and get results.
    */
   template <class Jb>
-  typename Jb::Wt &submitJob(Jb *job, bool autodelwt = false) {
-    waitable *wt = job->getWaitable();
+  typename Jb::Wt& submitJob(Jb* job, bool autodelwt = false) {
+    waitable* wt = job->getWaitable();
     lock();
-    scl::jobs::job<waitable> *job_ = (scl::jobs::job<waitable> *)job;
+    scl::jobs::job<waitable>* job_ = (scl::jobs::job<waitable>*)job;
     job_->autodelwt                = autodelwt;
     m_jobs.push(t_wjob(job_, wt));
     unlock();
-    return (typename Jb::Wt &)*wt;
+    return (typename Jb::Wt&)*wt;
   }
 
   /**
@@ -301,7 +301,7 @@ class JobServer : protected std::mutex {
    * be complete.
    * @note  If autodelwt = false, you must free the waitable handle.
    */
-  waitable   *submitJob(std::function<void(const JobWorker &worker)> func,
+  waitable*   submitJob(std::function<void(const JobWorker& worker)> func,
       bool autodelwt = true);
 
   /**
@@ -317,7 +317,7 @@ class JobServer : protected std::mutex {
   /**
    * @brief  Multithreads a lambda function over a given number of threads.
    *
-   * @param  func  Lambda function to be multithreaded.
+   * @param  func(id, n)  Lambda function to be multithreaded.
    * @param  workers  Number of threads to multithread with, with a max of the
    * number of threads in the system.
    */

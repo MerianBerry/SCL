@@ -106,7 +106,7 @@ function(clangd)
   set(CLANGD_CONFIG_COMPILE_STUFF
 "CompileFlags:
   Add: [-xc${CLANG_LANG_POSTFIX}, -std=c${CLANG_LANG_POSTFIX}${CLANGD_LANG_STANDARD}${CLANGD_CONFIG_DEFINITIONS}${CLANGD_CONFIG_WARNINGS}${CLANGD_INCLUDE_DIRS}]
-  Remove: [-std:*, -wd*, -we*]
+  Remove: [-std:*, -wd*, -we*, -MD*]
   Compiler: clang${CLANG_LANG_POSTFIX}")
 
   if (NOT CLANGD_UNUSED_INCLUDES)

@@ -15,8 +15,8 @@ class reduce_stream : public stream {
   };
 
  private:
-  char  *m_inbuf = nullptr, *m_outbuf = nullptr;
-  void  *m_lz4ctx   = nullptr;
+  char * m_inbuf = nullptr, *m_outbuf = nullptr;
+  void*  m_lz4ctx   = nullptr;
   size_t m_consumed = 0, m_inSize = 0, m_outConsumed = 0, m_outSize = 0,
          m_outCapacity = 0;
   bool       m_ready   = false;
@@ -24,12 +24,12 @@ class reduce_stream : public stream {
 
   bool       compress_init();
   size_t     compress_flush();
-  size_t     compress_chunk(const void *buf, size_t bytes, bool flush);
+  size_t     compress_chunk(const void* buf, size_t bytes, bool flush);
   bool       compress_begin();
   bool       compress_end();
 
   bool       decompress_init();
-  size_t     decompress_chunk(void *buf, size_t bytes);
+  size_t     decompress_chunk(void* buf, size_t bytes);
   bool       decompress_begin();
   bool       decompress_end();
 
@@ -39,10 +39,10 @@ class reduce_stream : public stream {
  public:
   reduce_stream() = default;
 
-  reduce_stream(reduce_stream &&rhs);
-  reduce_stream(stream &&rhs);
-  reduce_stream &operator=(reduce_stream &&rhs);
-  reduce_stream &operator=(stream &&rhs);
+  reduce_stream(reduce_stream&& rhs);
+  reduce_stream(stream&& rhs);
+  reduce_stream& operator=(reduce_stream&& rhs);
+  reduce_stream& operator=(stream&& rhs);
 
   ~reduce_stream() override;
 
@@ -53,7 +53,7 @@ class reduce_stream : public stream {
    * @param  trunc  Whether or not to truncate (erase) existing file contents.
    * @return  true if the operation was successful.
    */
-  bool      open(const scl::path &path, bool trunc = false);
+  bool      open(const scl::path& path, OpenMode mode);
 
   /**
    * @brief  Begins either a decompression or compression state.
@@ -88,7 +88,7 @@ class reduce_stream : public stream {
    * @return  Number of decompressed bytes read. 0 if the operation errored, or
    * there was nothing to read.
    */
-  long long read(void *buf, size_t n) override;
+  long long read(void* buf, size_t n) override;
 
   /**
    * @brief  Flushes internal buffers.
@@ -111,7 +111,7 @@ class reduce_stream : public stream {
    * @param  flush  true: Automatically calls flush(). By default true.
    * @return  true if the operation was successful.
    */
-  bool write(const void *buf, size_t n, size_t align = 1,
+  bool write(const void* buf, size_t n, size_t align = 1,
     bool flush = true) override;
 
   /**
@@ -128,7 +128,7 @@ class reduce_stream : public stream {
    * @param  flush  true: Automatically calls flush(). By default true.
    * @return  true if the operation was successful.
    */
-  bool write_uncompressed(const void *buf, size_t n, size_t align = 1,
+  bool write_uncompressed(const void* buf, size_t n, size_t align = 1,
     bool flush = true);
 
   /**

@@ -29,11 +29,15 @@ set(SCL_SOURCES
   "src/lz4/lz4hc.c"
   "src/lz4/xxhash.c")
 
-
 minify(miniscl.hpp SCL_IMPL "" "${SCL_HEADERS}" "${SCL_SOURCES}")
 
+if (NOT DEFINED SCL_EXAMPLES)
+  set(SCL_EXAMPLES TRUE)
+endif()
 
-add_executable(package "examples/package.cpp" ${SCL_SOURCES})
+if (SCL_EXAMPLES)
+  add_executable(package "examples/package.cpp" ${SCL_SOURCES})
+endif()
 #target_compile_definitions(package PUBLIC LZ4F_STATIC_LINKING_ONLY)
 clangd(
   INLAY_HINTS

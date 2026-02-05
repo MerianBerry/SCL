@@ -44,11 +44,11 @@ static uint64_t fasthash64_mix(uint64_t h) {
   return h;
 }
 
-static uint64_t fasthash64(const void *m_buf, size_t len, uint64_t seed) {
+static uint64_t fasthash64(const void* m_buf, size_t len, uint64_t seed) {
   const uint64_t       m   = 0x880355f21e6d1965ULL;
-  const uint64_t      *pos = (const uint64_t *)m_buf;
-  const uint64_t      *end = pos + (len / 8);
-  const unsigned char *pos2;
+  const uint64_t*      pos = (const uint64_t*)m_buf;
+  const uint64_t*      end = pos + (len / 8);
+  const unsigned char* pos2;
   uint64_t             h = seed ^ (len * m);
   uint64_t             v;
 
@@ -58,7 +58,7 @@ static uint64_t fasthash64(const void *m_buf, size_t len, uint64_t seed) {
     h *= m;
   }
 
-  pos2 = (const unsigned char *)pos;
+  pos2 = (const unsigned char*)pos;
   v    = 0;
 
   switch(len & 7) {
@@ -97,7 +97,7 @@ namespace internal {
 // allocation), which i feel could be better
 
 static uchar       refs[SCL_MAX_REFS] = {0};
-static std::mutex *g_mmut             = nullptr;
+static std::mutex* g_mmut             = nullptr;
 
 bool               RefObj::findslot() {
   bool out = false;
@@ -144,7 +144,7 @@ RefObj::RefObj() {
   findslot();
 }
 
-RefObj::RefObj(const RefObj &ro) {
+RefObj::RefObj(const RefObj& ro) {
   m_refi = ro.m_refi;
   incslot();
 }
@@ -171,13 +171,13 @@ bool RefObj::make_unique(bool copy) {
   return true;
 }
 
-void RefObj::ref(const RefObj &ro) {
+void RefObj::ref(const RefObj& ro) {
   deref();
   m_refi = ro.m_refi;
   incslot();
 }
 
-bool RefObj::operator==(const RefObj &rhs) const {
+bool RefObj::operator==(const RefObj& rhs) const {
   return m_refi && m_refi == rhs.m_refi;
 }
 } // namespace internal
@@ -185,16 +185,16 @@ bool RefObj::operator==(const RefObj &rhs) const {
 string::string() {
 }
 
-string::string(const std::string &str) {
+string::string(const std::string& str) {
   *this = string(str.c_str()).copy();
 }
 
-string::string(const char *str) {
+string::string(const char* str) {
   view(str);
 }
 
 #ifdef _WIN32
-string::string(const wchar_t *wstr) {
+string::string(const wchar_t* wstr) {
   m_sz  = 0;
   m_buf = nullptr;
   if(wstr) {
@@ -207,7 +207,7 @@ string::string(const wchar_t *wstr) {
 }
 #endif
 
-string::string(const string &rhs)
+string::string(const string& rhs)
     : RefObj(rhs), m_buf(rhs.m_buf), m_ln(rhs.m_ln), m_sz(rhs.m_sz) {
 }
 
@@ -217,7 +217,7 @@ string::~string() {
   }
 }
 
-string &string::operator=(const string &rhs) {
+string& string::operator=(const string& rhs) {
   if(this->internal::RefObj::operator==(rhs))
     return *this;
   clear();
@@ -232,7 +232,7 @@ void string::mutate(bool free) {
   m_ln = m_buf ? m_ln : 0;
   m_sz = m_buf ? m_sz : 0;
   if(m_ln) {
-    char *nbuf = new char[m_sz + 1];
+    char* nbuf = new char[m_sz + 1];
     memset(nbuf, 0, (size_t)m_sz + 1);
     if(m_buf) {
       memcpy(nbuf, m_buf, m_sz);
@@ -256,25 +256,25 @@ void string::clear() {
   m_sz  = 0;
 }
 
-string &string::claim(const char *ptr) {
+string& string::claim(const char* ptr) {
   clear();
-  m_buf = (char *)ptr;
+  m_buf = (char*)ptr;
   m_ln  = ptr ? (unsigned)strlen(ptr) : 0;
   m_sz  = m_ln;
   return *this;
 }
 
-string &string::view(const char *ptr) {
+string& string::view(const char* ptr) {
   // Become untracked, as we are only viewing
   deref();
-  m_buf = (char *)ptr;
+  m_buf = (char*)ptr;
   m_ln  = ptr ? (unsigned)strlen(ptr) : 0;
   m_sz  = m_ln;
   return *this;
 }
 
-string &string::reserve(unsigned size) {
-  char *nbuf = new char[size + 1];
+string& string::reserve(unsigned size) {
+  char* nbuf = new char[size + 1];
   if(!nbuf)
     throw "out of stream";
   memset(nbuf, 0, (size_t)size + 1);
@@ -286,16 +286,16 @@ string &string::reserve(unsigned size) {
   return *this;
 }
 
-const char *string::cstr() const {
+const char* string::cstr() const {
   return m_buf;
 }
 #ifdef _WIN32
-const wchar_t *string::wstr() const {
+const wchar_t* string::wstr() const {
   if(!m_buf)
     return nullptr;
   int      wlen  = MultiByteToWideChar(CP_UTF8, 0, m_buf, -1, nullptr, 0);
   int      wsize = (wlen + 1);
-  wchar_t *wstr  = new wchar_t[wsize];
+  wchar_t* wstr  = new wchar_t[wsize];
   memset(wstr, 0, sizeof(wchar_t) * wsize);
   MultiByteToWideChar(CP_UTF8, 0, m_buf, -1, wstr, wlen);
   return wstr;
@@ -339,10 +339,10 @@ unsigned string::size() const {
   return m_sz;
 }
 
-long long string::ffi(const string &pattern) const {
+long long string::ffi(const string& pattern) const {
   if(!*this || !pattern)
     return -1;
-  const char *p   = m_buf;
+  const char* p   = m_buf;
   unsigned    csl = (unsigned)pattern.len();
   for(; *p; p++) {
     if(!strncmp(p, pattern.cstr(), csl))
@@ -351,12 +351,12 @@ long long string::ffi(const string &pattern) const {
   return -1;
 }
 
-long long string::fli(const string &pattern) const {
+long long string::fli(const string& pattern) const {
   if(!*this || !pattern)
     return -1;
   const unsigned l   = m_ln;
   unsigned       csl = pattern.m_ln;
-  const char    *p   = m_buf + l - csl;
+  const char*    p   = m_buf + l - csl;
   for(; *p && p >= m_buf; p--) {
     if(!strncmp(p, pattern.m_buf, csl))
       return (long long)(p - m_buf);
@@ -364,12 +364,12 @@ long long string::fli(const string &pattern) const {
   return -1;
 }
 
-bool string::endswith(const string &pattern) const {
+bool string::endswith(const string& pattern) const {
   long long p = fli(pattern);
   return p > 0 && p == m_ln - pattern.m_ln;
 }
 
-static char str_match(const char *pattern, const char *candidate, int p,
+static char str_match(const char* pattern, const char* candidate, int p,
   int c) {
   if(pattern[p] == '\0') {
     return candidate[c] == '\0';
@@ -386,7 +386,7 @@ static char str_match(const char *pattern, const char *candidate, int p,
   }
 }
 
-bool string::match(const string &pattern) const {
+bool string::match(const string& pattern) const {
   if(!*this || !pattern)
     return 0;
   return str_match(pattern.cstr(), cstr(), 0, 0);
@@ -401,7 +401,7 @@ string string::substr(unsigned i, unsigned j) const {
   if(!*this || i >= m_ln)
     return "";
   j         = std::min(j, (unsigned)strlen(m_buf + i));
-  char *out = new char[j + 1];
+  char* out = new char[j + 1];
   if(!out)
     throw "out of stream";
   memset(out, 0, (size_t)j + 1);
@@ -411,10 +411,10 @@ string string::substr(unsigned i, unsigned j) const {
   return sout;
 }
 
-string &string::replace(const string &pattern, const string &with) {
+string& string::replace(const string& pattern, const string& with) {
   if(!*this || !pattern || !with)
     return *this;
-  const char *str = m_buf;
+  const char* str = m_buf;
   string      out;
   while(1) {
     string    tstr = str;
@@ -430,8 +430,8 @@ string &string::replace(const string &pattern, const string &with) {
   return *this;
 }
 
-string &string::toUpper() {
-  for(auto &c : *this) {
+string& string::toUpper() {
+  for(auto& c : *this) {
     if(c >= 'a' && c <= 'z') {
       c -= 32;
     }
@@ -439,10 +439,10 @@ string &string::toUpper() {
   return *this;
 }
 
-long long string::ffi(const char *str, const char *pattern) {
+long long string::ffi(const char* str, const char* pattern) {
   if(!str || !pattern)
     return -1;
-  const char *p   = str;
+  const char* p   = str;
   unsigned    csl = (unsigned)strlen(pattern);
   for(; *p; p++) {
     if(!strncmp(p, pattern, csl))
@@ -451,12 +451,12 @@ long long string::ffi(const char *str, const char *pattern) {
   return -1;
 }
 
-string string::substr(const char *str, unsigned i, unsigned j) {
+string string::substr(const char* str, unsigned i, unsigned j) {
   const unsigned m_ln = str ? (unsigned)strlen(str) : 0;
   if(!str || i >= m_ln)
     return "";
   j         = std::min(j, (unsigned)strlen(str + i));
-  char *out = new char[j + 1];
+  char* out = new char[j + 1];
   if(!out)
     throw "out of stream";
   memset(out, 0, (size_t)j + 1);
@@ -482,12 +482,12 @@ string string::rand(unsigned len) {
   return str;
 }
 
-string string::vfmt(const char *fmt, va_list args) {
+string string::vfmt(const char* fmt, va_list args) {
   va_list copy;
   va_copy(copy, args);
   int size = vsnprintf(nullptr, 0, fmt, copy) + 1;
   va_end(copy);
-  char *str = new char[size];
+  char* str = new char[size];
   if(!str)
     throw "out of stream";
   memset(str, 0, size);
@@ -497,7 +497,7 @@ string string::vfmt(const char *fmt, va_list args) {
   return out;
 }
 
-string string::fmt(const char *fmt, ...) {
+string string::fmt(const char* fmt, ...) {
   va_list args;
   va_start(args, fmt);
   string out = vfmt(fmt, args);
@@ -505,11 +505,11 @@ string string::fmt(const char *fmt, ...) {
   return out;
 }
 
-unsigned string::hash(const string &str) {
+unsigned string::hash(const string& str) {
   return str.hash();
 }
 
-bool string::match(const char *str, const char *pattern) {
+bool string::match(const char* str, const char* pattern) {
   if(!str || !pattern)
     return 0;
   return str_match(pattern, str, 0, 0);
@@ -533,23 +533,23 @@ internal::str_iterator string::operator[](long long i) {
   return internal::str_iterator(*this, (unsigned)i);
 }
 
-bool string::operator==(const string &rhs) const {
+bool string::operator==(const string& rhs) const {
   return !strcmp(m_buf, rhs.m_buf);
 }
 
-bool string::operator!=(const string &rhs) const {
+bool string::operator!=(const string& rhs) const {
   if(!m_buf || !rhs)
     return false;
   return !!strcmp(m_buf, rhs.m_buf);
 }
 
-bool string::operator<(const string &rhs) const {
+bool string::operator<(const string& rhs) const {
   if(!m_buf || !rhs)
     return false;
   return strcmp(m_buf, rhs.m_buf) < 0;
 }
 
-string string::operator+(const string &rhs) const {
+string string::operator+(const string& rhs) const {
   if(!rhs)
     return *this;
   string out;
@@ -562,12 +562,12 @@ string::operator bool() const {
   return m_buf;
 }
 
-std::ostream &operator<<(std::ostream &out, const scl::string &str) {
+std::ostream& operator<<(std::ostream& out, const scl::string& str) {
   out << str.cstr();
   return out;
 }
 
-std::ifstream &operator>>(std::ifstream &in, string &str) {
+std::ifstream& operator>>(std::ifstream& in, string& str) {
   long long cur = in.tellg();
   auto      e   = in.seekg(0, std::ios::end).tellg();
   long long l   = (long long)e - cur;
@@ -576,55 +576,55 @@ std::ifstream &operator>>(std::ifstream &in, string &str) {
   in.seekg(cur);
   str.reserve((unsigned)l);
   str.m_ln = (unsigned)l;
-  in.read((char *)str.cstr(), l);
+  in.read((char*)str.cstr(), l);
   return in;
 }
 
-scl::string operator+(const scl::string &str, const char *str2) {
+scl::string operator+(const scl::string& str, const char* str2) {
   return str + scl::string(str2);
 }
 
 namespace internal {
 
-str_iterator::str_iterator(string &s, unsigned i) : m_s(&s), m_i(i) {
+str_iterator::str_iterator(string& s, unsigned i) : m_s(&s), m_i(i) {
 }
 
-bool str_iterator::operator==(const str_iterator &rhs) const {
+bool str_iterator::operator==(const str_iterator& rhs) const {
   return m_s == rhs.m_s && m_i == rhs.m_i;
 }
 
-str_iterator &str_iterator::operator++() {
+str_iterator& str_iterator::operator++() {
   m_i++;
   return *this;
 }
 
-str_iterator::operator const char &() const {
+str_iterator::operator const char&() const {
   if(!m_s || m_i > m_s->size())
     throw std::out_of_range("");
   return m_s->m_buf[m_i];
 }
 
-const char &str_iterator::operator*() const {
+const char& str_iterator::operator*() const {
   if(!m_s || m_i > m_s->size())
     throw std::out_of_range("");
   return m_s->m_buf[m_i];
 }
 
-str_iterator::operator char &() {
-  if(!m_s || m_i > m_s->size())
-    throw std::out_of_range("");
-  m_s->make_unique();
-  return m_s->m_buf[m_i];
-}
-
-char &str_iterator::operator*() {
+str_iterator::operator char&() {
   if(!m_s || m_i > m_s->size())
     throw std::out_of_range("");
   m_s->make_unique();
   return m_s->m_buf[m_i];
 }
 
-str_iterator &str_iterator::operator=(char c) {
+char& str_iterator::operator*() {
+  if(!m_s || m_i > m_s->size())
+    throw std::out_of_range("");
+  m_s->make_unique();
+  return m_s->m_buf[m_i];
+}
+
+str_iterator& str_iterator::operator=(char c) {
   if(!m_s || m_i > m_s->size())
     throw std::out_of_range("");
   m_s->make_unique();
@@ -725,7 +725,7 @@ bool waitUntil(std::function<bool()> cond, double timeout, double sleepms) {
   return !timedout;
 }
 
-stream::stream(stream &&rhs) {
+stream::stream(stream&& rhs) {
   m_stream       = rhs.m_stream;
   m_data         = rhs.m_data;
   m_fp           = rhs.m_fp;
@@ -741,7 +741,7 @@ stream::stream(stream &&rhs) {
   rhs.m_modified = 0;
 }
 
-stream &stream::operator=(stream &&rhs) {
+stream& stream::operator=(stream&& rhs) {
   m_stream       = rhs.m_stream;
   m_data         = rhs.m_data;
   m_fp           = rhs.m_fp;
@@ -776,17 +776,13 @@ stream::~stream() {
   close_internal();
 }
 
-long long stream::bounds(const char *p, size_t n) const {
-  n = std::min(n, m_size);
+long long stream::bounds(const char* p, size_t n) const {
   if(p >= m_data + m_size)
     return 0;
-  size_t s = (m_size - n), o = (m_data - p);
-  if(n < s + o)
-    return 0;
-  return n - s - o;
+  return std::min(n, m_size - (p - m_data));
 }
 
-long long stream::read_internal(void *buf, size_t n) {
+long long stream::read_internal(void* buf, size_t n) {
   if(m_stream) {
     if(n == (size_t)-1) {
       auto o = tell();
@@ -810,11 +806,12 @@ long long stream::read_internal(void *buf, size_t n) {
   return r;
 }
 
-bool stream::write_internal(const void *buf, size_t n, size_t align) {
+bool stream::write_internal(const void* buf, size_t n, size_t align) {
   if(!buf)
     return false;
   if(m_stream) {
-    bool r = !n || fwrite(buf, n, 1, m_stream);
+    size_t wr = fwrite(buf, 1, n, m_stream);
+    bool   r  = !n || wr;
     // Suggested by gnu.org, cause r+/w+ modes are weird
     fflush(m_stream);
     return r;
@@ -849,64 +846,47 @@ void stream::reset_modified() {
   m_modified = false;
 }
 
-bool stream::open(const scl::path &path, OpenMode mode) {
-  using scl::OpenMode;
+bool stream::openMode(const scl::path& path, const scl::string& mode) {
   if(m_stream)
     return false;
-  if(m_ronly)
-    mode = (OpenMode)((int)mode & ~(int)OpenMode::WRITE);
-  scl::string strmode;
-  switch(mode) {
-  case OpenMode::READ:
-    strmode = "r";
-    break;
-  case OpenMode::WRITE:
-    strmode = "a";
-    break;
-  case OpenMode::RW:
-    strmode = "a+";
-    break;
-  case OpenMode::RWt:
-    strmode = "w+";
-    break;
-  case OpenMode::Rb:
-    strmode = "rb";
-    break;
-  case OpenMode::RWb:
-    strmode = "ab+";
-    break;
-  case OpenMode::RWtb:
-    strmode = "rwb";
-    break;
-  case OpenMode::Wb:
-    strmode = "ab";
-    break;
-  case OpenMode::Wt:
-    strmode = "w";
-    break;
-  case OpenMode::Wtb:
-    strmode = "wb";
-    break;
-  default:
-    return false;
-  }
-
+  m_ronly = mode == "r" || mode == "rb" || m_ronly;
+  m_wonly = mode == "w" || mode == "wb" || mode == "a" || m_wonly;
 #ifdef _MSC_VER
 #  pragma warning(disable : 4996)
 #endif
-  m_stream = fopen(path.cstr(), strmode.cstr());
-  if(m_stream)
-    seek(StreamPos::start, 0);
+  m_stream = fopen(path.cstr(), mode.cstr());
   if(m_data && m_stream)
     flush();
   return m_stream;
 }
 
-bool stream::open(const scl::path &path, bool trunc, bool binary) {
-  OpenMode mode = OpenMode::READ;
-  mode =
-    (OpenMode)((int)mode | (int)(trunc ? OpenMode::trunc : OpenMode::WRITE));
-  return open(path, mode);
+bool stream::open(const scl::path& path, OpenMode mode, bool binary) {
+  // w+ creates the file, and truncates, and allows fseek to read and write.
+  // r+ doesnt truncate the file, and allows fseek to read and write.
+  scl::string smode;
+  switch(mode) {
+  case OpenMode::READ:
+    smode = "r";
+    break;
+  case OpenMode::WRITE:
+    smode = "w";
+    break;
+  case OpenMode::RW:
+    smode = "r+";
+    break;
+  case OpenMode::RWTRUNC:
+    smode = "w+";
+    break;
+  case OpenMode::APPEND:
+    smode = "a";
+    break;
+  case OpenMode::RAPPEND:
+    smode = "a+";
+    break;
+  }
+  if(binary)
+    smode = smode.substr(0, 1) + "b" + smode.substr(1);
+  return openMode(path, smode);
 }
 
 void stream::flush() {
@@ -924,7 +904,6 @@ void stream::flush() {
 long long stream::seek(StreamPos pos, long long off) {
   if(m_stream) {
     fseek(m_stream, (long)off, (int)pos);
-    fflush(m_stream);
     return ftell(m_stream);
   }
   if(pos == StreamPos::start)
@@ -936,7 +915,9 @@ long long stream::seek(StreamPos pos, long long off) {
   return m_fp - m_data;
 }
 
-long long stream::read(void *buf, size_t n) {
+long long stream::read(void* buf, size_t n) {
+  if(m_wonly)
+    return 0;
   return read_internal(buf, n);
 }
 
@@ -950,7 +931,7 @@ bool stream::reserve(size_t n, bool force) {
     size_t    nsz  = m_size + n;
     long long foff = m_fp - m_data;
 
-    char     *buf  = new char[nsz];
+    char*     buf  = new char[nsz];
     if(!buf)
       return false;
     if(m_data) {
@@ -965,21 +946,21 @@ bool stream::reserve(size_t n, bool force) {
   return true;
 }
 
-bool stream::write(const void *buf, size_t n, size_t align, bool flush) {
+bool stream::write(const void* buf, size_t n, size_t align, bool flush) {
   if(m_ronly)
     return false;
   // Just ignore flush?
   return write_internal(buf, n, align);
 }
 
-bool stream::write(const scl::string &str, size_t align, bool flush) {
+bool stream::write(const scl::string& str, size_t align, bool flush) {
   return write(str.cstr(), str.len(), align, flush);
 }
 
-bool stream::write(stream &src, size_t max) {
+bool stream::write(stream& src, size_t max) {
   char   buf[SCL_STREAM_BUF];
   size_t total = 0;
-  bool   r     = false;
+  bool   r     = true;
   do {
     if(total >= max)
       break;
@@ -1001,12 +982,12 @@ void stream::close() {
   close_internal();
 }
 
-const void *stream::data() {
+const void* stream::data() {
   return m_data;
 }
 
-void *stream::release() {
-  void *ptr = nullptr;
+void* stream::release() {
+  void* ptr = nullptr;
   if(m_data) {
     ptr = m_data;
     // Reset members
@@ -1015,18 +996,18 @@ void *stream::release() {
   return ptr;
 }
 
-stream &stream::operator<<(const scl::string &str) {
+stream& stream::operator<<(const scl::string& str) {
   write(str);
   return *this;
 }
 
-stream &stream::operator>>(scl::string &str) {
+stream& stream::operator>>(scl::string& str) {
   auto      off = tell();
   long long end = seek(StreamPos::end, 0);
   seek(StreamPos::start, off);
   if(end >= UINT_MAX)
     return *this;
-  char *buf = new char[SCL_STREAM_BUF];
+  char* buf = new char[SCL_STREAM_BUF];
   str.reserve((unsigned)end);
   for(;;) {
     auto readBytes = read(buf, SCL_STREAM_BUF - 1);
