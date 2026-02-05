@@ -4,6 +4,7 @@
 #ifndef JOBS_H
 #define JOBS_H
 
+#include <climits>
 #include <vector>
 #include <thread>
 #include <queue>
@@ -42,12 +43,22 @@ class waitable {
  protected:
  public:
   waitable();
+  waitable(waitable &&rhs);
+  waitable &operator=(waitable &&rhs);
 
   /**
    * @brief Completes the waitable.
    *
    */
-  void complete();
+  void      complete();
+
+  /**
+   * @brief Returns the completion status of the waitable.
+   *
+   * @return true if the waitable is completed.
+   * @return false if otherwise.
+   */
+  bool      status() const;
 
   /**
    * @brief Waits for this waitable to be marked completed.
@@ -55,7 +66,7 @@ class waitable {
    * @param timeout  Max number of seconds to wait.
    * @return   True: Wait did not time out, False: Wait did time out.
    */
-  bool wait(double timeout = -1);
+  bool      wait(double timeout = -1);
 };
 
 class JobWorker;

@@ -50,9 +50,9 @@ path::path(const char *rhs) : string(rhs) {
 
 path &path::fixendsplit() {
   unsigned p = len() - 1;
-  for(char c; p != (unsigned)-1 && p >= 0 && (c = (*this)[p]) &&
-              (c == '/' || c == '\\');
-      p--) {
+  for(char c;
+    p != (unsigned)-1 && p >= 0 && (c = (*this)[p]) && (c == '/' || c == '\\');
+    p--) {
   }
   if(p != len() - 1)
     *this = substr(0, p + 1);
@@ -300,13 +300,13 @@ bool path::mkdir(const path &path) {
     dir = dir / i;
     if(!dir.exists()) {
 #if defined(__unix__) || defined(__APPLE__)
-      struct stat s = {0};
-      if(stat(path.cstr(), &s) == -1) {
+      /*struct stat s = {0};
+      if(stat(dir.cstr(), &s) == -1) {
         return false;
-      }
-      ::mkdir(path.cstr(), 0755);
+      }*/
+      ::mkdir(dir.cstr(), 0755);
 #elif defined(_WIN32)
-      if(!CreateDirectoryA(path.cstr(), NULL))
+      if(!CreateDirectoryA(dir.cstr(), NULL))
         return false;
 #endif
     }
@@ -340,7 +340,7 @@ bool path::movefile(const path &from, const path &to) {
 
 bool path::mkdir(std::vector<path> paths) {
   for(auto &i : paths) {
-    if(!mkdir(i))
+    if(!::mkdir(i.cstr(), 0777))
       return false;
   }
   return true;
@@ -350,7 +350,7 @@ bool path::chdir(const path &path) {
 #if defined(_WIN32)
   return SetCurrentDirectory(path.cstr());
 #elif defined(__unix__) || defined(__APPLE__)
-  return !chdir(path.cstr());
+  return !::chdir(path.cstr());
 #endif
 }
 

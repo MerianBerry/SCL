@@ -22,8 +22,21 @@ waitable::waitable() {
   m_done = false;
 }
 
+waitable::waitable(waitable &&rhs) {
+  m_done = rhs.m_done.load();
+}
+
+waitable &waitable::operator=(waitable &&rhs) {
+  m_done = rhs.m_done.load();
+  return *this;
+}
+
 void waitable::complete() {
   m_done = true;
+}
+
+bool waitable::status() const {
+  return m_done.load();
 }
 
 bool waitable::wait(double timeout) {

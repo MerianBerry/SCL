@@ -195,10 +195,9 @@ class XmlAllocator {
   XmlPage<4096> txt;
 };
 
-template <class N, class P>
-class XmlNode {
- protected:
-  /* clang-format off */
+namespace internal {
+
+/* clang-format off */
   static char constexpr xctypes[] = {
     /* 1 */
     16,0,0,0,0,0,0,0, /* 0-7*/
@@ -250,15 +249,24 @@ class XmlNode {
     0,0,0,0,0,0,0,0, /* 112-119 */
     0,0,0,0,0,0,0,0, /* 120-127 */
   };
-  /* clang-format on */
+/* clang-format on */
+} // namespace internal
 
-  char *m_tag;
-  char *m_data;
-  N    *m_next;
+template <class N, class P>
+class XmlNode {
+ protected:
+  XmlAllocator *m_allo;
+  char         *m_tag;
+  char         *m_data;
+  N            *m_next;
 
-  bool  skip(XmlPredicate pred, char *s, char **ep) {
+  void          set_allocator(XmlAllocator *allo) {
+    m_allo = allo;
+  }
+
+  bool skip(XmlPredicate pred, char *s, char **ep) {
     char *p = s;
-    while(xctypes[*p] & pred)
+    while(internal::xctypes[*p] & pred)
       p++;
     return (*ep) = p, s != p;
   }
@@ -354,10 +362,26 @@ class XmlNode {
   }
 
  public:
+  XmlNode()                = default;
+  XmlNode(const XmlNode &) = delete;
+
+  XmlNode(const scl::string &tag, const scl::string &data = scl::string()) {
+    set_tag(tag);
+    set_data(data);
+  }
+
+  void *operator new(size_t n, XmlAllocator &alloc) {
+    XmlNode *ptr = (XmlNode *)alloc.nodes.alloc(sizeof(N));
+    ptr->m_allo  = &alloc;
+    return ptr;
+  }
+
+  void operator delete(void *ptr) = delete;
+
   /**
    * @return  Pointer to the next node.
    */
-  N *next() const {
+  N   *next() const {
     return m_next;
   }
 
@@ -373,11 +397,22 @@ class XmlNode {
   /**
    * @brief Set the tag of the node.
    *
-   * @param doc  Reference to the document that ownes this node.
    * @param tag  New tag.
    */
-  void set_tag(XmlAllocator &doc, const scl::string &tag) {
-    m_tag = doc.txt.alloc((int)tag.len() + 1);
+  void set_tag(const scl::string &tag) {
+    m_tag = m_allo->txt.alloc((int)tag.len() + 1);
+    memcpy(m_tag, tag.cstr(), tag.len());
+  }
+
+  /**
+   * @brief Set the tag of the node.
+   *
+   * @param allo  Reference to the document that ownes this node.
+   * @param tag  New tag.
+   */
+  [[deprecated("Use set_tag without the document argument")]] void set_tag(
+    XmlAllocator &allo, const scl::string &tag) {
+    m_tag = m_allo->txt.alloc((int)tag.len() + 1);
     memcpy(m_tag, tag.cstr(), tag.len());
   }
 
@@ -414,9 +449,25 @@ class XmlNode {
    * @param doc  Reference to the document that ownes this node.
    * @param data  New data.
    */
-  void set_data(XmlAllocator &doc, const string &data) {
+  void set_data(const string &data) {
     if(data) {
-      m_data = doc.txt.alloc((int)data.len() + 1);
+      m_data = m_allo->txt.alloc((int)data.len() + 1);
+      memcpy(m_data, data.cstr(), data.len());
+    } else {
+      m_data = NULL;
+    }
+  }
+
+  /**
+   * @brief Set the data of the node.
+   *
+   * @param allo  Reference to the document that ownes this node.
+   * @param data  New data.
+   */
+  [[deprecated("Use set_data without the document argument")]] void set_data(
+    XmlAllocator &allo, const string &data) {
+    if(data) {
+      m_data = m_allo->txt.alloc((int)data.len() + 1);
       memcpy(m_data, data.cstr(), data.len());
     } else {
       m_data = NULL;
@@ -457,6 +508,11 @@ class XmlAttr : public XmlNode<XmlAttr, XmlElem> {
     if(m_next)
       stream.write(" ", 1, s);
     return OK;
+  }
+
+ public:
+  XmlAttr(const scl::string &tag, const scl::string &data)
+      : XmlNode(tag, data) {
   }
 };
 
@@ -555,6 +611,10 @@ class XmlElem : public XmlNode<XmlElem, XmlElem> {
  public:
   XmlElem() {
     zero();
+  }
+
+  XmlElem(const scl::string &tag, const scl::string &data = nullptr)
+      : XmlNode(tag, data) {
   }
 
   /**
@@ -787,6 +847,10 @@ class XmlDocument : public XmlElem, public XmlAllocator {
   string source;
 
  public:
+  XmlDocument() {
+    m_allo = this;
+  }
+
   ~XmlDocument() {
     nodes.free();
     txt.free();
@@ -847,9 +911,7 @@ class XmlDocument : public XmlElem, public XmlAllocator {
    *
    */
   XmlAttr *new_attr(const string &tag, const string &data) {
-    XmlAttr *a = nodes.alloc<XmlAttr>();
-    a->set_tag(*this, tag);
-    a->set_data(*this, data);
+    XmlAttr *a = new(*this) XmlAttr(tag, data);
     return a;
   }
 
@@ -858,9 +920,7 @@ class XmlDocument : public XmlElem, public XmlAllocator {
    *
    */
   XmlElem *new_elem(const string &tag, string data = string()) {
-    XmlElem *e = nodes.alloc<XmlElem>();
-    e->set_tag(*this, tag);
-    e->set_data(*this, data);
+    XmlElem *e = new(*this) XmlElem(tag, data);
     return e;
   }
 };

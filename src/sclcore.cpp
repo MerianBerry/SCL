@@ -562,6 +562,11 @@ string::operator bool() const {
   return m_buf;
 }
 
+std::ostream &operator<<(std::ostream &out, const scl::string &str) {
+  out << str.cstr();
+  return out;
+}
+
 std::ifstream &operator>>(std::ifstream &in, string &str) {
   long long cur = in.tellg();
   auto      e   = in.seekg(0, std::ios::end).tellg();
@@ -715,7 +720,7 @@ bool waitUntil(std::function<bool()> cond, double timeout, double sleepms) {
   while(!cond() && !timedout) {
     scl::waitms(sleepms);
     ce       = scl::clock();
-    timedout = ((ce - cs) * 1000 < timeout && !infinite);
+    timedout = ((ce - cs) > timeout && !infinite);
   }
   return !timedout;
 }
@@ -726,7 +731,6 @@ stream::stream(stream &&rhs) {
   m_fp           = rhs.m_fp;
   m_size         = rhs.m_size;
   m_ronly        = rhs.m_ronly;
-  m_wonly        = rhs.m_wonly;
   m_modified     = rhs.m_modified;
 
   rhs.m_stream   = 0;
@@ -734,7 +738,6 @@ stream::stream(stream &&rhs) {
   rhs.m_fp       = 0;
   rhs.m_size     = 0;
   rhs.m_ronly    = 0;
-  rhs.m_wonly    = 0;
   rhs.m_modified = 0;
 }
 
@@ -744,7 +747,6 @@ stream &stream::operator=(stream &&rhs) {
   m_fp           = rhs.m_fp;
   m_size         = rhs.m_size;
   m_ronly        = rhs.m_ronly;
-  m_wonly        = rhs.m_wonly;
   m_modified     = rhs.m_modified;
 
   rhs.m_stream   = 0;
@@ -752,20 +754,26 @@ stream &stream::operator=(stream &&rhs) {
   rhs.m_fp       = 0;
   rhs.m_size     = 0;
   rhs.m_ronly    = 0;
-  rhs.m_wonly    = 0;
   rhs.m_modified = 0;
   return *this;
 }
 
-stream::~stream() {
+void stream::close_internal() {
   flush();
-  if(m_stream) {
+  if(m_stream)
     fclose(m_stream);
-    m_stream = nullptr;
-  }
-  if(m_data) {
+  if(m_data)
     delete[] m_data;
-  }
+  m_stream   = 0;
+  m_data     = 0;
+  m_fp       = 0;
+  m_size     = 0;
+  m_ronly    = 0;
+  m_modified = 0;
+}
+
+stream::~stream() {
+  close_internal();
 }
 
 long long stream::bounds(const char *p, size_t n) const {
@@ -841,15 +849,52 @@ void stream::reset_modified() {
   m_modified = false;
 }
 
-bool stream::openMode(const scl::path &path, const scl::string &mode) {
+bool stream::open(const scl::path &path, OpenMode mode) {
+  using scl::OpenMode;
   if(m_stream)
     return false;
-  m_ronly = mode == "r" || mode == "rb" || m_ronly;
-  m_wonly = mode == "w" || mode == "wb" || m_wonly;
+  if(m_ronly)
+    mode = (OpenMode)((int)mode & ~(int)OpenMode::WRITE);
+  scl::string strmode;
+  switch(mode) {
+  case OpenMode::READ:
+    strmode = "r";
+    break;
+  case OpenMode::WRITE:
+    strmode = "a";
+    break;
+  case OpenMode::RW:
+    strmode = "a+";
+    break;
+  case OpenMode::RWt:
+    strmode = "w+";
+    break;
+  case OpenMode::Rb:
+    strmode = "rb";
+    break;
+  case OpenMode::RWb:
+    strmode = "ab+";
+    break;
+  case OpenMode::RWtb:
+    strmode = "rwb";
+    break;
+  case OpenMode::Wb:
+    strmode = "ab";
+    break;
+  case OpenMode::Wt:
+    strmode = "w";
+    break;
+  case OpenMode::Wtb:
+    strmode = "wb";
+    break;
+  default:
+    return false;
+  }
+
 #ifdef _MSC_VER
 #  pragma warning(disable : 4996)
 #endif
-  m_stream = fopen(path.cstr(), mode.cstr());
+  m_stream = fopen(path.cstr(), strmode.cstr());
   if(m_stream)
     seek(StreamPos::start, 0);
   if(m_data && m_stream)
@@ -858,11 +903,10 @@ bool stream::openMode(const scl::path &path, const scl::string &mode) {
 }
 
 bool stream::open(const scl::path &path, bool trunc, bool binary) {
-  // w+ creates the file, and truncates, and allows fseek to read and write.
-  // r+ doesnt truncate the file, and allows fseek to read and write.
-  const char *mode = (trunc || !path.exists()) ? (binary ? "wb+" : "w+")
-                                               : (binary ? "rb+" : "r+");
-  return openMode(path, mode);
+  OpenMode mode = OpenMode::READ;
+  mode =
+    (OpenMode)((int)mode | (int)(trunc ? OpenMode::trunc : OpenMode::WRITE));
+  return open(path, mode);
 }
 
 void stream::flush() {
@@ -893,8 +937,6 @@ long long stream::seek(StreamPos pos, long long off) {
 }
 
 long long stream::read(void *buf, size_t n) {
-  if(m_wonly)
-    return 0;
   return read_internal(buf, n);
 }
 
@@ -956,15 +998,7 @@ bool stream::write(stream &src, size_t max) {
 }
 
 void stream::close() {
-  flush();
-  if(m_stream) {
-    fclose(m_stream);
-    m_stream = nullptr;
-  }
-  if(m_data)
-    delete[] m_data;
-  // Reset members
-  scl::stream();
+  close_internal();
 }
 
 const void *stream::data() {
@@ -976,7 +1010,7 @@ void *stream::release() {
   if(m_data) {
     ptr = m_data;
     // Reset members
-    scl::stream();
+    close_internal();
   }
   return ptr;
 }

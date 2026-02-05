@@ -387,27 +387,29 @@ class string : public internal::RefObj {
   friend std::ifstream &operator>>(std::ifstream &in, scl::string &str);
 };
 
-scl::string operator+(const scl::string &str, const char *str2);
+std::ostream &operator<<(std::ostream &out, const scl::string &str);
+
+scl::string   operator+(const scl::string &str, const char *str2);
 
 /**
  * @brief Resets the output of scl::clock(), making current time epoch.
  *
  */
-void        resetclock();
+void          resetclock();
 
 /**
  * @note You can use scl::resetclock() to control this function's epoch.
  *
  * @return   Seconds since epoch.
  */
-double      clock();
+double        clock();
 
 /**
  * @brief Makes this thread sleep for a given amount of milliseconds.
  *
  * @param sleemms  Number of milliseconds to sleep for.
  */
-void        waitms(double ms);
+void          waitms(double ms);
 
 /**
  * @brief  Waits until the given lamda function returns true.
@@ -418,8 +420,8 @@ void        waitms(double ms);
  * checks. By default 0.001ms.
  * @return  true: Wait did not time out, false: Wait did time out.
  */
-bool        waitUntil(std::function<bool()> cond, double timeout = -1,
-         double sleepms = 0.001);
+bool          waitUntil(std::function<bool()> cond, double timeout = -1,
+           double sleepms = 0.001);
 
 enum class StreamPos {
   start   = SEEK_SET,
@@ -427,19 +429,47 @@ enum class StreamPos {
   current = SEEK_CUR,
 };
 
+enum class OpenMode {
+  READ  = 1,
+  WRITE = 2,
+  // ITERNAL USE ONLY, DO NOT USE
+  trunc = 4,
+  // ITERNAL USE ONLY, DO NOT USE
+  binary = 8,
+
+  // Read/Write  NOTE: Creates file if it doesnt exist
+  RW = READ | WRITE,
+  // Read/Write truncate
+  RWt = READ | WRITE | trunc,
+  // Read binary
+  Rb = READ | binary,
+  // Read/Write binary  NOTE: Creates file if it doesnt exist
+  RWb = RW | binary,
+  // Read/Write truncate and binary
+  RWtb = RWt | binary,
+
+  // Write binary
+  Wb = WRITE | binary,
+  // Write truncate
+  Wt = WRITE | trunc,
+  // Write truncate and binary
+  Wtb = WRITE | trunc | binary,
+};
+
 class stream {
  protected:
-  FILE     *m_stream = nullptr;
-  char     *m_data   = nullptr;
-  char     *m_fp     = nullptr;
-  size_t    m_size   = 0;
-  bool      m_ronly = false, m_wonly = false;
+  FILE     *m_stream   = nullptr;
+  char     *m_data     = nullptr;
+  char     *m_fp       = nullptr;
+  size_t    m_size     = 0;
+  bool      m_ronly    = false;
   bool      m_modified = false;
 
   long long bounds(const char *p, size_t n) const;
 
   long long read_internal(void *buf, size_t n);
   bool      write_internal(const void *buf, size_t n, size_t align);
+  void      close_internal();
 
  public:
   stream()                  = default;
@@ -479,7 +509,7 @@ class stream {
    * @param  mode  Open mode. See C fopen modes.
    * @return  true if the operation was successful.
    */
-  bool      openMode(const scl::path &path, const scl::string &mode);
+  bool      open(const scl::path &path, OpenMode mode);
 
   /**
    * @brief  Opens this stream to a path.

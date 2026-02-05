@@ -305,8 +305,10 @@ bool reduce_stream::end() {
 }
 
 long long reduce_stream::read(void *buf, size_t n) {
-  if(!m_ready || m_mode != Decompress)
-    return 0;
+  if(!m_ready || m_mode != Decompress) {
+    // Non-decompress read mode returns compressed data
+    return read_internal(buf, n);
+  }
   if(m_outSize > m_outCapacity || m_outConsumed > m_outCapacity)
     return 0;
   if(m_outConsumed < m_outSize) {

@@ -11,7 +11,6 @@ Checks: >
   bugprone-misplaced-operator-in-strlen-in-alloc,
   bugprone-misplaced-pointer-arithmetic-in-alloc,
   bugprone-misplaced-widening-cast,
-  bugprone-not-null-terminated-result,
   bugprone-posix-return,
   bugprone-redundant-branch-condition,
   bugprone-string-literal-with-embedded-nul,
