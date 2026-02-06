@@ -20,11 +20,11 @@ int main(int argc, char** argv) {
   pack.open("test.spk");
 #endif
 
-  scl::string l     = "..";
-  scl::string r     = l;
-  auto        files = scl::path::glob("../vesuvius/**");
+  scl::string l      = "..";
+  scl::string r      = l;
+  auto        files  = scl::path::glob("../Cyclone-Engine/**");
 
-  printf("%zu files\n", files.size());
+  size_t      nfiles = files.size();
 
 #if 1
   auto indices = pack.openFiles(files);
@@ -40,17 +40,28 @@ int main(int argc, char** argv) {
     i->submit().open(scl::OpenMode::READ, true);
   }
 
-  pack.write();
 
+  // Some CLI printing
+  printf(
+    "Completion 0.00%%\nWrote file 1\nTotal original size: 0mB\nTotal "
+    "compressed size: "
+    "0mB\n");
   size_t ogtotal = 0;
   size_t packed  = 0;
-  for(const auto& i : pack.index()) {
-    ogtotal += i->original();
-    packed += i->compressed();
-  }
-
-  fprintf(stderr, "Original size: %0.2lfmB\nCompressed size: %0.2lfmB\n",
-    (ogtotal / 1024.0 / 1024.0), (packed / 1000.0 / 1000.0));
+  // Write all submitted files
+  pack.write([&](size_t id, scl::pack::PackIndex* idx) {
+    ogtotal += idx->original();
+    packed += idx->compressed();
+    printf("\x1b[4A");
+    printf(
+      "\x1b[2KCompletion %0.2lf%%\n\x1b[2KWrote file (%zu) %s\n\x1b[2KTotal "
+      "original size: "
+      "%0.2lfmB\n\x1b[2KTotal "
+      "compressed size: "
+      "%0.2lfmB\n",
+      (id + 1) / (double)nfiles * 100.0, id + 1, idx->filepath().cstr(),
+      (ogtotal / 1024.0 / 1024.0), (packed / 1000.0 / 1000.0));
+  });
   pack.close();
 #endif
 

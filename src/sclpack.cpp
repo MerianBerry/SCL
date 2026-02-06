@@ -289,7 +289,7 @@ bool Packager::submit(const scl::path& path) {
 }
 
 Packager::mPackRes Packager::writeMemberPack(scl::stream& archive,
-  size_t& elemid, int memberid) {
+  size_t& elemid, int memberid, std::function<void(size_t, PackIndex*)>& cb) {
   scl::path outpath;
   if(!memberid)
     outpath = scl::string::fmt("%s%s", m_family.cstr(), m_ext.cstr());
@@ -334,6 +334,10 @@ Packager::mPackRes Packager::writeMemberPack(scl::stream& archive,
     idx->m_size     = reduce.tell();
     idx->m_original = idx->m_wt.stream().tell();
     idx->m_wt.stream().close();
+    delete &idx->m_wt.stream();
+    idx->m_active = false;
+    if(cb)
+      cb(elemid, idx);
     reduce.seek(StreamPos::start, 0);
     // itab entry size estimation
     // 2 path length, 4*3 for offset, size, and original size
@@ -379,7 +383,7 @@ Packager::mPackRes Packager::writeMemberPack(scl::stream& archive,
   return res;
 }
 
-bool Packager::write(bool unload) {
+bool Packager::write(std::function<void(size_t, PackIndex*)> cb) {
   const char maversion = 1;
   const char miversion = 0;
 
@@ -396,8 +400,10 @@ bool Packager::write(bool unload) {
   scl::stream archive;
   size_t      elem = 0;
   int         mid  = 0;
-  while(writeMemberPack(archive, elem, mid) == WOVERFLOW)
+
+  while(writeMemberPack(archive, elem, mid, cb) == WOVERFLOW)
     mid++;
+  m_submitted.resize(0);
   unlock();
   return true;
 }

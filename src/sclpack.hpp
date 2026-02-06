@@ -181,7 +181,8 @@ class Packager : protected std::mutex {
   };
 
   bool     readIndex(scl::stream& archive);
-  mPackRes writeMemberPack(scl::stream& archive, size_t& elemid, int memberid);
+  mPackRes writeMemberPack(scl::stream& archive, size_t& elemid, int memberid,
+    std::function<void(size_t, PackIndex*)>& cb);
 
  public:
   Packager();
@@ -206,11 +207,13 @@ class Packager : protected std::mutex {
    * @brief Writes all submitted files to the pack.
    * Invalidates all inactive pack files at the time of the call.
    *
-   * @param  unload  If true, unloads (deactivates) all entries.
+   * @param  cb Callback called with (elementid, pack_index), elementid being
+   * its submission id, and pack_index being the index related to it. Called
+   * after a file has been succesfully compressed, but not fully written.
    * @return
    * @return
    */
-  bool                    write(bool unload = false);
+  bool write(std::function<void(size_t, PackIndex*)> cb = {});
 
   const scl::dictionary<PackIndex>& index();
 
