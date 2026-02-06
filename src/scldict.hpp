@@ -19,7 +19,7 @@ struct hnode {
   hnode*   m_next;
   K        m_key;
   T        m_data;
-  unsigned m_hash;
+  uint32_t m_hash;
 };
 template <class T, class K, bool NC = true>
 class htab_iterator;
@@ -35,11 +35,11 @@ class dictionary : internal::RefObj {
   using htab_iterator       = internal::htab_iterator<T, K, true>;
   using const_htab_iterator = internal::htab_iterator<T, K, false>;
 
-  uchar           m_hsz;
-  unsigned        m_hnum;
-  hnode**         m_ht;
+  hnode**         m_ht      = nullptr;
+  uint32_t        m_hnum    = 0;
+  uint8_t         m_hsz     = 0;
 
-  static unsigned ghash(const K& key) {
+  static uint32_t ghash(const K& key) {
     return Hfunc::hash(key);
   }
 
@@ -49,21 +49,21 @@ class dictionary : internal::RefObj {
     return !strained && !big && m_hsz >= SCL_DICT_MIN;
   }
 
-  uchar optimal() const {
+  uint8_t optimal() const {
     return std::max(log2i(m_hnum) + 2, SCL_DICT_MIN);
   }
 
-  unsigned nodei(unsigned hash) const {
+  uint32_t nodei(uint32_t hash) const {
     return hash % (1 << m_hsz);
   }
 
-  hnode* gnodebase(unsigned hash) const {
+  hnode* gnodebase(uint32_t hash) const {
     if(!m_ht || !hash)
       return nullptr;
     return m_ht[nodei(hash)];
   }
 
-  hnode* gnodefull(unsigned hash) const {
+  hnode* gnodefull(uint32_t hash) const {
     hnode* n = gnodebase(hash);
     while(n && n->m_hash != hash && n->m_next)
       n = n->m_next;
@@ -73,7 +73,7 @@ class dictionary : internal::RefObj {
   }
 
   hnode* first() const {
-    for(unsigned i = 0; i < 1u << m_hsz && m_ht; i++) {
+    for(uint32_t i = 0; i < 1u << m_hsz && m_ht; i++) {
       if(m_ht[i]) {
         return m_ht[i];
       }
@@ -88,7 +88,7 @@ class dictionary : internal::RefObj {
     if(node->m_next)
       return node->m_next;
     // Continue on from the next node in the htab array
-    for(unsigned i = nodei(node->m_hash) + 1; i < 1u << m_hsz; i++)
+    for(uint32_t i = nodei(node->m_hash) + 1; i < 1u << m_hsz; i++)
       if(m_ht[i])
         return m_ht[i];
     // No next node could be found
@@ -126,8 +126,8 @@ class dictionary : internal::RefObj {
       n->m_next = node;
   }
 
-  void rehash(hnode** oh, unsigned ohsz) {
-    for(unsigned i = 0; i < ((unsigned)1 << ohsz); i++) {
+  void rehash(hnode** oh, uint32_t ohsz) {
+    for(uint32_t i = 0; i < ((uint32_t)1 << ohsz); i++) {
       hnode* n = oh[i];
       for(; n;) {
         hnode* m_next = n->m_next;
@@ -139,17 +139,17 @@ class dictionary : internal::RefObj {
   }
 
   void optimize() {
-    hnode**       oh   = m_ht;
-    unsigned char ohsz = m_hsz;
-    m_hsz              = optimal();
-    unsigned s         = (1 << m_hsz);
-    m_ht               = new hnode*[s];
+    hnode** oh   = m_ht;
+    uint8_t ohsz = m_hsz;
+    m_hsz        = optimal();
+    uint32_t s   = (1 << m_hsz);
+    m_ht         = new hnode*[s];
     if(!m_ht)
       throw "out of memory";
     memset(m_ht, 0, sizeof(hnode*) * s);
     m_hnum = 0;
     if(oh)
-      rehash(oh, ohsz), free((void*)oh);
+      rehash(oh, ohsz), delete[] oh;
   }
 
   void _clear() {
@@ -169,11 +169,7 @@ class dictionary : internal::RefObj {
   }
 
  public:
-  dictionary() {
-    m_hsz  = 0;
-    m_hnum = 0;
-    m_ht   = nullptr;
-  }
+  dictionary() = default;
 
   dictionary(const dictionary& rhs)
       : RefObj(rhs), m_ht(rhs.m_ht), m_hnum(rhs.m_hnum), m_hsz(rhs.m_hsz) {
@@ -272,7 +268,7 @@ class dictionary : internal::RefObj {
    * @param key  Key of the element to remove.
    */
   void remove(const K& key) {
-    unsigned hash = ghash(key);
+    uint32_t hash = ghash(key);
     hnode *  prev = nullptr, *n = gnodebase(hash);
     while(n && n->m_next && n->m_hash != hash) {
       prev = n;
@@ -300,6 +296,14 @@ class dictionary : internal::RefObj {
       return htab_iterator(*this, 0);
   }
 
+  const_htab_iterator begin() const {
+    auto* n = first();
+    if(n)
+      return const_htab_iterator(*this, n->m_hash, n->m_key);
+    else
+      return const_htab_iterator(*this, 0);
+  }
+
   const_htab_iterator cbegin() const {
     auto* n = first();
     if(n)
@@ -310,6 +314,10 @@ class dictionary : internal::RefObj {
 
   htab_iterator end() {
     return htab_iterator(*this, 0);
+  }
+
+  const_htab_iterator end() const {
+    return const_htab_iterator(*this, 0);
   }
 
   const_htab_iterator cend() const {
@@ -324,7 +332,7 @@ class dictionary : internal::RefObj {
    * to dictionary::end() if no such element exists.
    */
   htab_iterator get(const K& key) {
-    unsigned hash = ghash(key);
+    uint32_t hash = ghash(key);
     hnode*   n    = gnodefull(hash);
     if(n)
       return htab_iterator(*this, n->m_hash, key);
@@ -339,7 +347,7 @@ class dictionary : internal::RefObj {
    * to dictionary::end() if no such element exists.
    */
   const_htab_iterator get(const K& key) const {
-    unsigned hash = ghash(key);
+    uint32_t hash = ghash(key);
     hnode*   n    = gnodefull(hash);
     if(n)
       return const_htab_iterator(*this, n->m_hash, key);
@@ -394,16 +402,16 @@ template <class T, class K, bool NC>
 class htab_iterator {
   dictionary<T, K>* m_dict = nullptr;
   K                 m_ikey;
-  unsigned          m_hash = 0;
+  uint32_t          m_hash = 0;
 
  public:
   htab_iterator() = default;
 
-  htab_iterator(const dictionary<T, K>& dict, unsigned hash)
+  htab_iterator(const dictionary<T, K>& dict, uint32_t hash)
       : m_dict((dictionary<T, K>*)&dict), m_hash(hash) {
   }
 
-  htab_iterator(const dictionary<T, K>& dict, unsigned hash, const K& key)
+  htab_iterator(const dictionary<T, K>& dict, uint32_t hash, const K& key)
       : m_dict((dictionary<T, K>*)&dict), m_hash(hash), m_ikey(key) {
   }
 

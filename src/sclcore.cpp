@@ -184,6 +184,18 @@ bool RefObj::operator==(const RefObj& rhs) const {
 }
 } // namespace internal
 
+bool string::isview() const {
+  return m_buf && !m_sz;
+}
+
+void string::make_unique() {
+  if(!isview() || !*this)
+    return;
+  char* buf = new char[m_ln + 1];
+  memcpy(buf, m_buf, (size_t)m_ln + 1);
+  m_sz = m_ln;
+}
+
 string::string() {
 }
 
@@ -209,50 +221,47 @@ string::string(const wchar_t* wstr) {
 }
 #endif
 
-string::string(const string& rhs)
-    : RefObj(rhs), m_buf(rhs.m_buf), m_ln(rhs.m_ln), m_sz(rhs.m_sz) {
+string::string(const string& rhs) {
+  if(rhs) {
+    if(rhs.isview()) {
+      m_buf = rhs.m_buf;
+      m_ln  = rhs.m_ln;
+      m_sz  = rhs.m_sz;
+    } else {
+      m_sz  = rhs.size();
+      m_buf = new char[m_sz + 1];
+      memcpy(m_buf, rhs.m_buf, (size_t)m_sz + 1);
+      m_ln = rhs.m_ln;
+    }
+  }
 }
 
 string::~string() {
-  if(deref() && *this) {
+  if(!isview() && *this) {
     delete[] m_buf;
   }
 }
 
 string& string::operator=(const string& rhs) {
-  if(this->internal::RefObj::operator==(rhs))
-    return *this;
   clear();
-  ref(rhs);
-  m_buf = rhs.m_buf;
-  m_ln  = rhs.m_ln;
-  m_sz  = rhs.m_sz;
+  if(rhs) {
+    if(rhs.isview()) {
+      m_buf = rhs.m_buf;
+      m_ln  = rhs.m_ln;
+      m_sz  = rhs.m_sz;
+    } else {
+      m_sz  = rhs.size();
+      m_buf = new char[m_sz + 1];
+      memcpy(m_buf, rhs.m_buf, (size_t)m_sz + 1);
+      m_ln = rhs.m_ln;
+    }
+  }
   return *this;
 }
 
-void string::mutate(bool free) {
-  m_ln = m_buf ? m_ln : 0;
-  m_sz = m_buf ? m_sz : 0;
-  if(m_ln) {
-    char* nbuf = new char[m_sz + 1];
-    memset(nbuf, 0, (size_t)m_sz + 1);
-    if(m_buf) {
-      memcpy(nbuf, m_buf, m_sz);
-      if(free)
-        delete[] m_buf;
-    }
-    m_buf = nbuf;
-  } else {
-    m_buf = nullptr;
-    m_ln  = 0;
-    m_sz  = 0;
-  }
-}
-
 void string::clear() {
-  if(!make_unique(false) && *this) {
+  if(!isview() && *this)
     delete[] m_buf;
-  }
   m_buf = nullptr;
   m_ln  = 0;
   m_sz  = 0;
@@ -268,10 +277,9 @@ string& string::claim(const char* ptr) {
 
 string& string::view(const char* ptr) {
   // Become untracked, as we are only viewing
-  deref();
+  clear();
   m_buf = (char*)ptr;
   m_ln  = ptr ? (unsigned)strlen(ptr) : 0;
-  m_sz  = m_ln;
   return *this;
 }
 
@@ -338,7 +346,10 @@ unsigned string::len() const {
 }
 
 unsigned string::size() const {
-  return m_sz;
+  if(!isview())
+    return m_sz;
+  else
+    return m_ln;
 }
 
 long long string::ffi(const string& pattern) const {
@@ -346,7 +357,7 @@ long long string::ffi(const string& pattern) const {
     return -1;
   const char* p   = m_buf;
   unsigned    csl = (unsigned)pattern.len();
-  for(; *p; p++) {
+  for(; p < m_buf + m_sz && *p; p++) {
     if(!strncmp(p, pattern.cstr(), csl))
       return (long long)(p - m_buf);
   }
@@ -359,7 +370,7 @@ long long string::fli(const string& pattern) const {
   const unsigned l   = m_ln;
   unsigned       csl = pattern.m_ln;
   const char*    p   = m_buf + l - csl;
-  for(; *p && p >= m_buf; p--) {
+  for(; p >= m_buf && *p; p--) {
     if(!strncmp(p, pattern.m_buf, csl))
       return (long long)(p - m_buf);
   }
@@ -410,11 +421,11 @@ string string::substr(unsigned i, unsigned j) const {
   memcpy(out, m_buf + i, j);
   string sout;
   sout.claim(out);
-  return sout;
+  return std::move(sout);
 }
 
 string& string::replace(const string& pattern, const string& with) {
-  if(!*this || !pattern || !with)
+  if(!*this || !pattern)
     return *this;
   const char* str = m_buf;
   string      out;
@@ -429,6 +440,26 @@ string& string::replace(const string& pattern, const string& with) {
     str += p + pattern.m_ln;
   }
   *this = out;
+  return *this;
+}
+
+scl::string& string::replace(const scl::string& with, int i, int j) {
+  if(!*this || i >= m_ln)
+    return *this;
+  if(j < 0)
+    j = 0x7fffffff;
+  auto l = with.len();
+  j      = std::min(j, (int)m_ln - i);
+  int d  = size() - i - j;
+  if(i + l + d > size())
+    reserve(i + l + d);
+  else if(isview())
+    make_unique();
+  if(d)
+    memcpy(m_buf + i + l, m_buf + i, d);
+  memcpy(m_buf + i, with.cstr(), l);
+  m_buf[i + l + d] = 0;
+  m_ln             = i + l + d;
   return *this;
 }
 
@@ -561,7 +592,7 @@ string string::operator+(const string& rhs) const {
 }
 
 string::operator bool() const {
-  return m_buf;
+  return m_buf && (m_ln || m_sz);
 }
 
 std::ostream& operator<<(std::ostream& out, const scl::string& str) {
@@ -808,6 +839,8 @@ long long stream::read_internal(void* buf, size_t n) {
   return r;
 }
 
+#define alignup(x, align) ((((x) + ((align) - 1)) / (align)) * align)
+
 bool stream::write_internal(const void* buf, size_t n, size_t align) {
   if(!buf)
     return false;
@@ -818,13 +851,13 @@ bool stream::write_internal(const void* buf, size_t n, size_t align) {
     fflush(m_stream);
     return r;
   }
-  long long res = ((tell() + n + (align - 1)) / align) * align - m_size;
-  if(res > 0) {
+  if(n > (m_size - (m_fp - m_data))) {
+    size_t res = alignup(m_size + n, align) - m_size;
     if(!reserve(res))
       return false;
   }
   memcpy(m_fp, buf, n);
-  m_fp += n;
+  m_fp       = std::min(m_fp + n, m_data + m_size);
   m_modified = true;
   return true;
 }
@@ -842,6 +875,12 @@ long long stream::tell() const {
     return ftell(m_stream);
   }
   return m_fp - m_data;
+}
+
+size_t stream::size() const {
+  if(m_stream)
+    return 0;
+  return m_size;
 }
 
 void stream::reset_modified() {

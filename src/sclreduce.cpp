@@ -58,7 +58,7 @@ size_t reduce_stream::compress_flush() {
   if(LZ4F_isError(outSize)) {
     return -1;
   }
-  if(!write_internal(m_outbuf, outSize, 1))
+  if(!write_internal(m_outbuf, outSize, SCL_STREAM_BUF))
     return -1;
   return outSize;
 }
@@ -77,7 +77,7 @@ size_t reduce_stream::compress_chunk(const void* buf, size_t bytes,
   if(LZ4F_isError(outSize)) {
     return 0;
   }
-  if(!write_internal(m_outbuf, outSize, 1))
+  if(!write_internal(m_outbuf, outSize, SCL_STREAM_BUF))
     return -1;
 
   if(flush)
@@ -93,7 +93,7 @@ bool reduce_stream::compress_begin() {
   if(LZ4F_isError(headerSize)) {
     return false;
   }
-  if(!write_internal(m_outbuf, headerSize, 1)) {
+  if(!write_internal(m_outbuf, headerSize, SCL_STREAM_BUF)) {
     return false;
   }
   return true;
@@ -105,7 +105,7 @@ bool reduce_stream::compress_end() {
   if(LZ4F_isError(outSize)) {
     return false;
   }
-  write_internal(m_outbuf, outSize, 1);
+  write_internal(m_outbuf, outSize, SCL_STREAM_BUF);
   return true;
 }
 

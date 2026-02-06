@@ -69,16 +69,38 @@ class PackIndex {
   const scl::string& filepath() const;
 
   /**
+   * @brief Returns the compressed size of this file, if it has been compressed.
+   * Returns 0 if it hasnt been compressed.
+   * Note: Files are compressed either when they are loaded from a pack, or are
+   * written.
+   */
+  uint32_t           compressed() const {
+    return m_size;
+  }
+
+  /**
+   * @brief Returns the original size of this file, if it is known.
+   * Returns 0 if the original size isnt known.
+   * Note: Original size is known either when they are loaded from a pack, or
+   * are written.
+   *
+   * @return
+   */
+  uint32_t original() const {
+    return m_original;
+  }
+
+  /**
    * @brief Returns this file's waitable.
    *  Note: The waitable's stream is NULL if
    * this file is inactive.
    *
    * @return waitable reference
    */
-  PackWaitable&      waitable();
+  PackWaitable& waitable();
 
 
-  PackIndex&         submit();
+  PackIndex&    submit();
 
   /**
    * @brief Convenience function to open this file's stream.
@@ -90,9 +112,9 @@ class PackIndex {
    * @return true if opened succesfully
    * @return false if otherwise
    */
-  bool               open(OpenMode mode, bool binary = false);
+  bool          open(OpenMode mode, bool binary = false);
 
-  scl::stream*       operator->() {
+  scl::stream*  operator->() {
     return m_wt.m_stream;
   }
 

@@ -128,10 +128,10 @@ path path::parentpath() const {
 }
 
 path path::filename() const {
-  auto c = split();
-  if(c.size() > 0)
-    return c.back();
-  return "";
+  auto p = std::max(fli("/"), fli("\\"));
+  if(p == -1)
+    return *this;
+  return substr(p + 1);
 }
 
 string path::extension() const {
@@ -254,12 +254,10 @@ path& path::replaceFilename(const path& nFile) {
 }
 
 path& path::replaceExtension(const path& nExt) {
-  auto c = split();
-  if(c.size() > 0) {
-    auto& file = c.back();
-    file.replace(file.extension(), nExt);
-    *this = join(c);
-  }
+  auto p = fli(".");
+  if(p == -1)
+    return *this;
+  replace(nExt, p);
   return *this;
 }
 
@@ -359,7 +357,25 @@ bool path::chdir(const path& path) {
 #endif
 }
 
-static int glob_(const path& dir, const path& mask, std::vector<path>& globs,
+template <typename T>
+static void align_reserve(std::vector<T>& vec, int add, int align = 128) {
+  if(vec.size() + add > vec.capacity()) {
+    add = (add / (align + 1) + 1) * align;
+    vec.reserve(vec.capacity() + add);
+  }
+}
+
+static void join_(char* buf, const scl::string& one, const scl::string& two) {
+  const auto l1 = one.len();
+  auto       l2 = two.len();
+  l2            = std::min(l2, l1 + l2 + 2 - PATH_MAX);
+  memcpy(buf, one.cstr(), l1);
+  buf[l1] = '/';
+  memcpy(buf + l1 + 1, two.cstr(), l2);
+  buf[l1 + l2 + 1] = 0;
+}
+
+static int glob_(const path dir, const path& mask, std::vector<path>& globs,
   scl::GlobMode mode = scl::GlobMode::FILES) {
 #ifdef _WIN32
   const path       spec  = dir / (mask.iswild() ? "*" : mask);
@@ -372,6 +388,7 @@ static int glob_(const path& dir, const path& mask, std::vector<path>& globs,
     path fn = ffd.cFileName;
 #elif defined(_DIRENT_H) || defined(_SYS_DIRENT_H)
   /* clang-format off */
+  char buf[PATH_MAX];
   DIR           *handle = opendir (dir.cstr());
   struct dirent *dp;
   while (handle) {
@@ -381,14 +398,17 @@ static int glob_(const path& dir, const path& mask, std::vector<path>& globs,
 #endif
     if (fn == "." || fn == "..")
       continue;
-    path path = dir / (mask.iswild() ? fn : mask);
+    join_(buf, dir, (mask.iswild() ? fn : mask));
+    path path;
+    path.view(buf);
     bool validt = true;
     if (mode == scl::GlobMode::FILES && !path.isfile())
       validt = false;
     else if (mode == scl::GlobMode::DIRS && !path.isdirectory())
       validt = false;
     if (validt && (!mask.iswild() || string::match (fn.cstr(), mask.cstr()))) {
-      globs.push_back (path);
+      align_reserve(globs, 1, 256);
+      globs.push_back (path.copy());
     }
 #ifdef _WIN32
   } while (FindNextFile (hFind, &ffd) != 0);
@@ -405,8 +425,7 @@ static int glob_(const path& dir, const path& mask, std::vector<path>& globs,
   return 0;
 }
 
-static int glob_recurse(const string& mask, std::vector<path>& dirs,
-  std::vector<path>& finds, bool misdir = true) {
+static int glob_recurse(int root, const string& mask, std::vector<path>& dirs) {
   // For each in dirs, add to finds.
   /* LOOP
     For each in dirs, search for every directory (ndirs).
@@ -421,26 +440,41 @@ static int glob_recurse(const string& mask, std::vector<path>& dirs,
     For each in ndirs, add to finds.
     Set dirs to ndirs. Repeat until dirs is empty.
   */
-  for(auto& i : dirs)
-    finds.push_back(i);
+  std::vector<path> searches = dirs;
+  dirs.clear();
+  for(size_t i = 0; i < searches.size(); i++) {
+    glob_(searches[i], "*", searches, GlobMode::DIRS);
+    if(searches[i].filename().match(mask)) {
+      align_reserve(dirs, 1);
+      dirs.push_back(std::move(searches[i]));
+    }
+  }
+#if 0
   while(dirs.size() > 0) {
     std::vector<path> ndirs;
-    for(auto& i : dirs)
-      glob_(i, "*", ndirs, GlobMode::DIRS);
+    for(size_t i = 0; i < dirs.size(); i++) {
+      glob_(dirs[i], "*", dirs, GlobMode::DIRS);
+    }
     if(misdir) {
       dirs.clear();
       for(auto& i : ndirs) {
-        if(i.match(mask))
+        if(i.match(mask)) {
+          align_reserve(finds, 1);
           finds.push_back(i);
-        else
+        } else {
+          align_reserve(dirs, 1);
           dirs.push_back(i);
+        }
       }
     } else {
-      for(auto& i : ndirs)
+      for(auto& i : ndirs) {
+        align_reserve(finds, 1);
         finds.push_back(i);
+      }
     }
-    dirs = ndirs;
+    dirs = std::move(ndirs);
   }
+#endif
   return 0;
 }
 
@@ -480,26 +514,29 @@ std::vector<path> path::glob(const string& pattern, GlobMode mode) {
   // the results (ndirs).
   std::vector<path> dirs = {globs[0]}, finds;
   // For every dir glob
+  int               rootl = 0;
   for(long long i = 1; i < globs.size(); i++) {
-    std::vector<path> ndirs;
+    rootl += globs[i - 1].len();
     if(globs[i] == "**") {
       scl::string mask = "*";
+      // If not the last glob exp, use the next exp as the mask
       if(i < globs.size() - 1)
         mask = globs[i + 1];
-      glob_recurse(mask, dirs, ndirs, i < globs.size() - 2);
-      dirs = ndirs;
+      glob_recurse(rootl, mask, dirs);
+      i++;
     } else if(i != globs.size() - 1) {
-      // Find new search dirs
-      for(long long j = 0; j < dirs.size(); j++)
-        glob_(dirs[j], globs[i], ndirs, GlobMode::DIRS);
-      dirs = ndirs;
+// Find new search dirs
+#if 1
+      for(size_t j = 0; j < dirs.size(); j++)
+        glob_(dirs[j], globs[i], dirs, GlobMode::DIRS);
+#endif
     }
   }
   path fn = globs.back();
   // Find requested items
   for(auto& dir : dirs)
     glob_(dir, fn, finds, mode);
-  return finds;
+  return std::move(finds);
 }
 
 path path::join(std::vector<path> components, bool ignoreback) {
@@ -531,7 +568,7 @@ std::vector<path> path::splitPaths(const scl::string& paths) {
     out.push_back(paths.substr(ps - s, p));
     ps += p + 1;
   }
-  return out;
+  return std::move(out);
 }
 
 path& path::join(const path& rhs, bool relative) {
@@ -557,7 +594,7 @@ path& path::join(const path& rhs, bool relative) {
 
 path path::operator/(const path& rhs) const {
   path out = *this;
-  return out.join(rhs);
+  return std::move(out.join(rhs));
 }
 
 } // namespace scl

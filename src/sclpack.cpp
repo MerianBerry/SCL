@@ -321,6 +321,11 @@ Packager::mPackRes Packager::writeMemberPack(scl::stream& archive,
       continue;
     // Compress file entry
     reduce.begin(reduce_stream::Compress);
+    idx->m_wt.stream().seek(StreamPos::end, 0);
+    // Estimate compressed size, and reserve the space
+    size_t ask = idx->m_wt.stream().tell() / 3 * 2;
+    if(reduce.size() < ask)
+      reduce.reserve(ask - reduce.size());
     idx->m_wt.stream().seek(StreamPos::start, 0);
     reduce.write(idx->m_wt.stream());
     reduce.end();
@@ -328,6 +333,7 @@ Packager::mPackRes Packager::writeMemberPack(scl::stream& archive,
     idx->m_off      = off;
     idx->m_size     = reduce.tell();
     idx->m_original = idx->m_wt.stream().tell();
+    idx->m_wt.stream().close();
     reduce.seek(StreamPos::start, 0);
     // itab entry size estimation
     // 2 path length, 4*3 for offset, size, and original size
@@ -335,7 +341,6 @@ Packager::mPackRes Packager::writeMemberPack(scl::stream& archive,
     // check for pack overflow before writing
     if(off + idx->m_size + itabsize + newitab >= SPK_MAX_PACK_SIZE) {
       // Overflow
-      reduce.close();
       if(written)
         // Overflow so a new member can be made.
         res = WOVERFLOW;
@@ -349,23 +354,24 @@ Packager::mPackRes Packager::writeMemberPack(scl::stream& archive,
       break;
     }
     // Write compressed content
-    archive.write(reduce);
+    archive.write(reduce, idx->m_size);
     uint16_t filelen = idx->m_file->len();
     // Write itab entry;
-    itab.write(&filelen, 2);
+    itab.write(&filelen, 2, SCL_STREAM_BUF);
     itab.write(*idx->m_file);
     itab.write(&idx->m_off, 4);
     itab.write(&idx->m_size, 4);
     itab.write(&idx->m_original, 4);
-    reduce.close();
+    reduce.seek(StreamPos::start, 0);
     // Update info
     off += idx->m_size;
     itabsize += newitab;
     written = true;
   }
+  reduce.close();
   // Write itab at the end of the archive
   itab.seek(StreamPos::start, 0);
-  archive.write(itab);
+  archive.write(itab, itabsize);
   // Write itab offset in the archive header
   archive.seek(StreamPos::start, SPK_H_IOFF);
   archive.write(&off, 4);
@@ -421,7 +427,14 @@ void Packager::close() {
        5, 1)) {
     fprintf(stderr, "Packager::close timed out due to unfinished jobs\n");
   };
+  for(auto& i : m_index) {
+    if(i->m_active) {
+      i->m_wt->close();
+      delete &i->m_wt.stream();
+    }
+  }
   m_family = path();
+  m_ext    = string();
   m_index.clear();
   m_submitted.clear();
   m_waiting = 0;

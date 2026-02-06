@@ -20,7 +20,7 @@
 
 
 #ifndef SCL_STREAM_BUF
-#  define SCL_STREAM_BUF 8192
+#  define SCL_STREAM_BUF 16384
 #endif
 
 /**
@@ -106,15 +106,18 @@ class RefObj {
 class str_iterator;
 } // namespace internal
 
-class string : public internal::RefObj {
+class string {
  private:
   friend class internal::str_iterator;
 
+  // If m_buf is a view, m_sz will be 0, while m_buf will be non-zero.
+  // In this case, m_ln will also represent m_sz.
   char*    m_buf = nullptr;
-  unsigned m_ln  = 0;
-  unsigned m_sz  = 0;
+  uint32_t m_ln  = 0;
+  uint32_t m_sz  = 0;
 
-  void     mutate(bool free) override;
+  bool     isview() const;
+  void     make_unique();
 
  public:
   string();
@@ -124,7 +127,7 @@ class string : public internal::RefObj {
   string(const wchar_t*);
 #endif
   string(const scl::string&);
-  ~string() override;
+  ~string();
 
   /**
    * @brief Clears this strings memory.
@@ -265,6 +268,17 @@ class string : public internal::RefObj {
   scl::string&     replace(const scl::string& pattern, const scl::string& with);
 
   /**
+   * @brief Replace the substring starting at i, and j bytes long with the
+   * paramater `with`.
+   *
+   * @param  with  string to place.
+   * @param  i  start index.
+   * @param  j  length. Default -1 (until end of string).
+   * @return Reference to this object.
+   */
+  scl::string&     replace(const scl::string& with, int i, int j = -1);
+
+  /**
    * @brief Replaces all lowercase ascii characters with their uppercase
    * counterparts.
    */
@@ -380,7 +394,7 @@ class string : public internal::RefObj {
     return *this;
   }
 
-                        operator bool() const;
+  operator bool() const;
 
   scl::string&          operator=(const scl::string&);
 
@@ -485,6 +499,12 @@ class stream {
    * @return  Offset in bytes of the rw pointer.
    */
   long long    tell() const;
+
+  /**
+   * @brief Returns the current capacity of the stream.
+   * Only works in data mode, returns 0 in file mode.
+   */
+  size_t       size() const;
 
   /**
    * @brief  Resets the modified status of this stream to false.
@@ -630,11 +650,11 @@ class str_iterator {
   str_iterator& operator++();
 
   /* Read */
-                operator const char&() const;
-  const char&   operator*() const;
+  operator const char&() const;
+  const char& operator*() const;
 
   /* Write */
-                operator char&();
+  operator char&();
   char&         operator*();
   str_iterator& operator=(char c);
 };
