@@ -19,7 +19,7 @@
 #define SPK_MAX_MEMBERS 32
 
 #ifndef SPK_MAX_PACK_SIZE
-#  define SPK_MAX_PACK_SIZE 0xffff
+#  define SPK_MAX_PACK_SIZE 0x3fffffff
 #endif
 
 using scl::xml::XmlAttr;
@@ -49,11 +49,12 @@ PackFetchJob::PackFetchJob(Packager* pack, scl::reduce_stream* archive,
   m_sid     = sid;
 }
 
-PackIndex::PackIndex(const scl::string& file) : m_file((scl::string&)file) {
+PackIndex::PackIndex(const scl::string* file) : m_file((scl::string*)file) {
 }
 
 PackIndex::PackIndex(PackIndex&& rhs) : m_file(rhs.m_file) {
   m_wt        = std::move(rhs.m_wt);
+  m_family    = rhs.m_family;
   m_off       = rhs.m_off;
   m_size      = rhs.m_size;
   m_original  = rhs.m_original;
@@ -64,6 +65,7 @@ PackIndex::PackIndex(PackIndex&& rhs) : m_file(rhs.m_file) {
 
 PackIndex& PackIndex::operator=(PackIndex&& rhs) {
   m_wt        = std::move(rhs.m_wt);
+  m_family    = rhs.m_family;
   m_file      = rhs.m_file;
   m_off       = rhs.m_off;
   m_size      = rhs.m_size;
@@ -71,6 +73,28 @@ PackIndex& PackIndex::operator=(PackIndex&& rhs) {
   m_active    = rhs.m_active;
   m_submitted = rhs.m_submitted;
   m_pack      = rhs.m_pack;
+  return *this;
+}
+
+const scl::string& PackIndex::filepath() const {
+  return *m_file;
+}
+
+PackWaitable& PackIndex::waitable() {
+  return m_wt;
+}
+
+PackIndex& PackIndex::submit() {
+  if(!m_family)
+    return *this;
+  m_family->lock();
+  m_family->m_submitted.push_back(this);
+  m_family->unlock();
+  return *this;
+}
+
+bool PackIndex::open(OpenMode mode, bool binary) {
+  return m_wt->open(*m_file, mode, binary);
 }
 
 bool PackIndex::isactive() const {
@@ -139,6 +163,7 @@ Packager::~Packager() {
 
 bool Packager::readIndex(scl::stream& archive) {
   scl::string content;
+#if 0
   archive >> content;
   xml::XmlDocument doc;
   xml::XmlResult   ret = doc.load_string<xml::speed_optimize>(content);
@@ -170,7 +195,7 @@ bool Packager::readIndex(scl::stream& archive) {
       m_index[name->data()] = std::move(indx);
     }
   }
-
+#endif
   return true;
 }
 
@@ -209,23 +234,25 @@ bool Packager::open(const scl::path& path) {
   return true;
 }
 
-PackWaitable& Packager::openFile(const path& path) {
+PackIndex* Packager::openFile(const path& path) {
   // Syncronous, cause it gotta be. (its cheap-ish).
   lock();
   auto idx = m_index[path];
   if(idx == m_index.end()) {
     // File does not exist in index, so make a new active one.
-    PackIndex nidx(idx.key());
+    idx = std::move(PackIndex());
+    PackIndex nidx(&idx.key());
     nidx.m_wt = PackWaitable(new scl::stream());
     nidx.m_wt.complete();
+    nidx.m_family = this;
     nidx.m_active = true;
     idx           = std::move(nidx);
     unlock();
-    return idx->m_wt;
+    return &idx.value();
   } else if(idx->m_active) {
     // Active file. Do nothing.
     unlock();
-    return idx->m_wt;
+    return &idx.value();
   } else {
     // File is indexed, but not active.
     auto* stream  = new scl::stream();
@@ -236,17 +263,29 @@ PackWaitable& Packager::openFile(const path& path) {
       new PackFetchJob(this, &m_archive, stream, idx.value(), path, 0));
 #endif
     unlock();
-    return idx->m_wt;
+    return &idx.value();
   }
 }
 
-std::vector<PackWaitable*> Packager::openFiles(
+std::vector<PackIndex*> Packager::openFiles(
   const std::vector<scl::path>& files) {
-  std::vector<PackWaitable*> waitables;
+  std::vector<PackIndex*> indices;
   for(auto& i : files) {
-    waitables.push_back(&openFile(i));
+    indices.push_back(openFile(i));
   }
-  return waitables;
+  return indices;
+}
+
+bool Packager::submit(const scl::path& path) {
+  lock();
+  auto idx = m_index[path];
+  if(idx != m_index.end()) {
+    m_submitted.push_back(&idx.value());
+    unlock();
+    return true;
+  }
+  unlock();
+  return false;
 }
 
 Packager::mPackRes Packager::writeMemberPack(scl::stream& archive,
@@ -257,10 +296,10 @@ Packager::mPackRes Packager::writeMemberPack(scl::stream& archive,
   else
     outpath =
       scl::string::fmt("%s%i%s", m_family.cstr(), memberid - 1, m_ext.cstr());
-  fprintf(stderr, "output member pack: %s\n", outpath.cstr());
 
-  archive.open(outpath, OpenMode::WRITE);
+  archive.open(outpath, OpenMode::RWTRUNC, true);
 
+  // Setup and write pack header
   char header[SPK_HEADER_SIZE];
   memset(header, 0, sizeof(header));
   memcpy(header, SPK_MAGIC, 4);
@@ -270,26 +309,68 @@ Packager::mPackRes Packager::writeMemberPack(scl::stream& archive,
   archive.write(header, SPK_HEADER_SIZE);
 
   size_t             itabsize = 0;
-  size_t             off      = SPK_HEADER_SIZE;
+  scl::stream        itab;
+  size_t             off = SPK_HEADER_SIZE;
   scl::reduce_stream reduce;
+  mPackRes           res     = OK;
+  bool               written = false;
   for(; elemid < m_submitted.size(); elemid++) {
     auto* idx = m_submitted[elemid];
+    // Skip if inactive
+    if(!idx->m_active)
+      continue;
+    // Compress file entry
     reduce.begin(reduce_stream::Compress);
     idx->m_wt.stream().seek(StreamPos::start, 0);
     reduce.write(idx->m_wt.stream());
     reduce.end();
+    // Update index
     idx->m_off      = off;
     idx->m_size     = reduce.tell();
     idx->m_original = idx->m_wt.stream().tell();
     reduce.seek(StreamPos::start, 0);
-    // TODO: check for pack overflow before writing
-    //       estimate itab size after this element
-    //       check for overflow due to new itab element
+    // itab entry size estimation
+    // 2 path length, 4*3 for offset, size, and original size
+    uint16_t newitab = 14 + idx->m_file->len();
+    // check for pack overflow before writing
+    if(off + idx->m_size + itabsize + newitab >= SPK_MAX_PACK_SIZE) {
+      // Overflow
+      reduce.close();
+      if(written)
+        // Overflow so a new member can be made.
+        res = WOVERFLOW;
+      else {
+        // first file to be written causes overflow
+        // there is no recourse for this, so error.
+        fprintf(stderr, "file %s is too big to be written\n",
+          idx->m_file->cstr());
+        res = ERROR;
+      }
+      break;
+    }
+    // Write compressed content
     archive.write(reduce);
+    uint16_t filelen = idx->m_file->len();
+    // Write itab entry;
+    itab.write(&filelen, 2);
+    itab.write(*idx->m_file);
+    itab.write(&idx->m_off, 4);
+    itab.write(&idx->m_size, 4);
+    itab.write(&idx->m_original, 4);
     reduce.close();
-    off = archive.tell();
+    // Update info
+    off += idx->m_size;
+    itabsize += newitab;
+    written = true;
   }
-  return OK;
+  // Write itab at the end of the archive
+  itab.seek(StreamPos::start, 0);
+  archive.write(itab);
+  // Write itab offset in the archive header
+  archive.seek(StreamPos::start, SPK_H_IOFF);
+  archive.write(&off, 4);
+  archive.close();
+  return res;
 }
 
 bool Packager::write(bool unload) {
@@ -306,99 +387,24 @@ bool Packager::write(bool unload) {
     return false;
 
   lock();
-  scl::reduce_stream archive;
-  size_t             elem = 0;
-  int                mid  = 0;
-  writeMemberPack(archive, elem, mid);
-  /*if(!m_ioff) {
-    // New archive
-    char header[SPK_HEADER_SIZE];
-    memset(header, 0, sizeof(header));
-    memcpy(header, SPK_MAGIC, 4);
-    memcpy(header + SPK_H_MAJOR, &maversion, 1);
-    memcpy(header + SPK_H_MINOR, &miversion, 1);
-    m_archive.seek(StreamPos::start, 0);
-    m_archive.write_uncompressed(header, sizeof(header));
-    m_ioff = SPK_HEADER_SIZE;
-  }
-
-  size_t aoff = m_ioff;
-  m_archive.seek(StreamPos::start, aoff);
-
-  xml::XmlDocument doc;
-  doc.set_tag("SPK");
-
-  for(const auto &i : m_index) {
-    if(!i->m_active) {
-      // Inactive file, update doc only
-    }
-    auto ia = m_activ[i.key()];
-    if(ia != m_activ.end()) {
-      if(ia->is_modified())
-        continue;
-      else
-        m_activ.remove(i.key());
-    }
-    xml::XmlElem *e = new(doc) XmlElem("file");
-    e->add_attr(new(doc) XmlAttr("name", i.key()));
-    e->add_attr(new(doc) XmlAttr("off", scl::string::fmt("%lli", i->m_off)));
-    e->add_attr(new(doc) XmlAttr("size", scl::string::fmt("%lli", i->m_size)));
-    e->add_attr(
-      new(doc) XmlAttr("original", scl::string::fmt("%lli", i->m_original)));
-
-    doc.add_child(e);
-  }
-
-  for(const auto& i : m_activ) {
-    size_t srcSize = i->seek(StreamPos::end, 0);
-    if(!srcSize)
-      continue;
-    i->seek(StreamPos::start, 0);
-    m_archive.begin(reduce_stream::Compress);
-    if(!m_archive.write(i.value(), srcSize)) {
-      // TODO use an updated logging method
-      fprintf(stderr, "Failed to compress file\n");
-      m_archive.end();
-      m_archive.seek(StreamPos::start, aoff);
-      continue;
-    }
-    m_archive.end();
-    size_t        outSize = m_archive.tell() - aoff;
-
-    xml::XmlElem *e       = new(doc) XmlElem("file");
-    e->add_attr(new(doc) XmlAttr("name", i.key()));
-    e->add_attr(new(doc) XmlAttr("off", scl::string::fmt("%lli", aoff)));
-    e->add_attr(new(doc) XmlAttr("size", scl::string::fmt("%lli", outSize)));
-    e->add_attr(
-      new(doc) XmlAttr("original", scl::string::fmt("%lli", srcSize)));
-    doc.add_child(e);
-
-
-    // Add the written file to the index
-    PackIndex indx;
-    indx.m_file      = i.key();
-    indx.m_off       = aoff;
-    indx.m_size      = outSize;
-    indx.m_original  = srcSize;
-    m_index[i.key()] = indx;
-
-    aoff += outSize;
-  }
-
-  m_ioff = aoff;
-  m_archive.seek(StreamPos::start, SPK_H_IOFF);
-  m_archive.write_uncompressed(&aoff, sizeof(aoff));
-
-  m_archive.seek(StreamPos::start, aoff);
-  scl::stream stream = std::move(m_archive);
-  doc.print(stream, false);
-  m_archive = std::move(stream);*/
+  scl::stream archive;
+  size_t      elem = 0;
+  int         mid  = 0;
+  while(writeMemberPack(archive, elem, mid) == WOVERFLOW)
+    mid++;
   unlock();
   return true;
 }
 
 const scl::dictionary<PackIndex>& Packager::index() {
   return m_index;
+}
+
+PackIndex* Packager::operator[](const scl::string& path) {
+  auto idx = m_index[path];
+  if(idx == m_index.end())
+    return nullptr;
+  return &idx.value();
 }
 
 void Packager::close() {

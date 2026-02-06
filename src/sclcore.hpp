@@ -18,7 +18,7 @@
 #  undef min
 #endif
 
-#define SCL_MAX_REFS 4096
+
 #ifndef SCL_STREAM_BUF
 #  define SCL_STREAM_BUF 8192
 #endif

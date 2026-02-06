@@ -22,6 +22,8 @@
 #  include <math.h>
 #endif
 
+#define SCL_MAX_REFS 4096
+
 static int  seed_ = 1;
 
 static void srand_(int seed) {

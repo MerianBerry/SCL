@@ -50,15 +50,23 @@ class PackIndex {
 
  private:
   PackWaitable m_wt;
-  scl::string& m_file;
+  Packager*    m_family;
+  scl::string* m_file;
   uint32_t     m_off = 0, m_size = 0, m_original = 0;
   bool         m_active = 0, m_submitted = 0;
   uint8_t      m_pack = 0;
 
  public:
-  PackIndex(const scl::string& file);
+  PackIndex(const scl::string* file = nullptr);
   PackIndex(PackIndex&& rhs);
-  PackIndex&    operator=(PackIndex&& rhs);
+  PackIndex&         operator=(PackIndex&& rhs);
+
+  /**
+   * @brief Returns the filepath associated with this index
+   *
+   * @return filepath in the pack
+   */
+  const scl::string& filepath() const;
 
   /**
    * @brief Returns this file's waitable.
@@ -67,9 +75,24 @@ class PackIndex {
    *
    * @return waitable reference
    */
-  PackWaitable& waitable();
+  PackWaitable&      waitable();
 
-  scl::stream*  operator->() {
+
+  PackIndex&         submit();
+
+  /**
+   * @brief Convenience function to open this file's stream.
+   * Calls scl::stream::open with this index's filepath.
+   * For more function info, see scl::stream::open.
+   *
+   * @param  mode  open mode
+   * @param  binary  open in binary mode
+   * @return true if opened succesfully
+   * @return false if otherwise
+   */
+  bool               open(OpenMode mode, bool binary = false);
+
+  scl::stream*       operator->() {
     return m_wt.m_stream;
   }
 
@@ -82,7 +105,7 @@ class PackIndex {
   bool isactive() const;
 
   /**
-   * @brief If this file is active, and hasnt been modified, it will be
+   * @brief If this file is active, and isnt submitted, it will be
    * deactivated (deloaded).
    *
    */
@@ -116,6 +139,7 @@ class PackFetchJob : public jobs::job<PackWaitable> {
  */
 class Packager : protected std::mutex {
   friend class PackFetchJob;
+  friend class PackIndex;
 
  private:
   scl::path                  m_family;
@@ -141,20 +165,20 @@ class Packager : protected std::mutex {
   Packager();
   ~Packager();
 
-  bool                       open(const scl::path& path);
-  PackWaitable&              openFile(const scl::path& path);
-  std::vector<PackWaitable*> openFiles(const std::vector<scl::path>& files);
+  bool                    open(const scl::path& path);
+  PackIndex*              openFile(const scl::path& path);
+  std::vector<PackIndex*> openFiles(const std::vector<scl::path>& files);
   /**
    * @brief Submits a file to be written to the pack when write() is called.
-   *  Note: Files will only be submitted if they have been opened, and are
-   * active. (see openFile/openFiles).
+   *  Note: Files will only be written if they are active by the time write() is
+   called.
 
    * This function will block simultanious calls.
    *
    * @param  path
    * @return <b>true</b> if file was successfully submitted.
    */
-  bool                       submit(const scl::path& path);
+  bool                    submit(const scl::path& path);
 
   /**
    * @brief Writes all submitted files to the pack.
@@ -164,9 +188,11 @@ class Packager : protected std::mutex {
    * @return
    * @return
    */
-  bool                       write(bool unload = false);
+  bool                    write(bool unload = false);
 
   const scl::dictionary<PackIndex>& index();
+
+  PackIndex*                        operator[](const scl::string& path);
 
   void                              close();
 };
