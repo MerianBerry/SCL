@@ -18,11 +18,15 @@ namespace pack {
 class PackIndex;
 class Packager;
 class PackFetchJob;
+class PackWriteJob;
 
 class PackWaitable : public jobs::waitable {
+  friend class Packager;
   friend class PackIndex;
   friend class PackFetchJob;
+  friend class PackWriteJob;
 
+  int          m_tid    = -1;
   scl::stream* m_stream = nullptr;
 
  public:
@@ -47,6 +51,7 @@ class PackWaitable : public jobs::waitable {
 class PackIndex {
   friend class Packager;
   friend class PackFetchJob;
+  friend class PackWriteJob;
 
  private:
   PackWaitable m_wt;
@@ -154,6 +159,20 @@ class PackFetchJob : public jobs::job<PackWaitable> {
   void          doJob(PackWaitable* wt, const jobs::JobWorker& worker) override;
 };
 
+class PackWriteJob : public jobs::job<PackWaitable> {
+  friend class Packager;
+  PackIndex&          m_idx;
+  scl::reduce_stream& m_out;
+  int                 m_tid;
+
+ public:
+  PackWriteJob(PackIndex& idx, scl::reduce_stream& out, int tid);
+
+  PackWaitable* getWaitable() const override;
+
+  void          doJob(PackWaitable* wt, const jobs::JobWorker& worker) override;
+};
+
 /**
  * @brief Class representing a family of asset packages.
  *  Allows you to read, write, etc.
@@ -164,12 +183,17 @@ class Packager : protected std::mutex {
   friend class PackIndex;
 
  private:
-  scl::path                  m_family;
-  scl::path                  m_ext;
-  scl::dictionary<PackIndex> m_index;
-  std::vector<PackIndex*>    m_submitted;
-  std::atomic_uint32_t       m_waiting;
-  bool                       m_open = false;
+  jobs::JobServer                  m_serv;
+  scl::path                        m_family;
+  scl::path                        m_ext;
+  scl::dictionary<PackIndex>       m_index;
+  std::vector<PackIndex*>          m_submitted;
+  std::vector<scl::reduce_stream*> m_reduce;
+  // Queue of in-progress compressions
+  std::queue<PackIndex*>           m_writing;
+  std::atomic_uint32_t             m_waiting;
+  int                              m_workers;
+  bool                             m_open = false;
 
   enum mPackRes {
     // Continue
@@ -185,7 +209,7 @@ class Packager : protected std::mutex {
     std::function<void(size_t, PackIndex*)>& cb);
 
  public:
-  Packager();
+  Packager(int nworkers = INT_MAX);
   ~Packager();
 
   bool                    open(const scl::path& path);

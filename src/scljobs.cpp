@@ -35,6 +35,10 @@ void waitable::complete() {
   m_done = true;
 }
 
+void waitable::reset() {
+  m_done = false;
+}
+
 bool waitable::status() const {
   return m_done.load();
 }

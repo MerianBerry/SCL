@@ -14,7 +14,6 @@
 int main(int argc, char** argv) {
   scl::init();
 
-
 #if 1
   scl::pack::Packager pack;
   pack.open("test.spk");
@@ -42,6 +41,7 @@ int main(int argc, char** argv) {
 
 
   // Some CLI printing
+  printf("\x1b[s");
   printf(
     "Completion 0.00%%\nWrote file 1\nTotal original size: 0mB\nTotal "
     "compressed size: "

@@ -153,7 +153,36 @@ void PackFetchJob::doJob(PackWaitable* wt, const jobs::JobWorker& worker) {
   worker.serv().unsetLockBits(bits);
 }
 
-Packager::Packager() {
+PackWriteJob::PackWriteJob(PackIndex& idx, scl::reduce_stream& out, int tid)
+    : m_idx(idx), m_out(out), m_tid(tid) {
+}
+
+PackWaitable* PackWriteJob::getWaitable() const {
+  m_idx.waitable().wait();
+  m_idx.waitable().m_tid = m_tid;
+  return &m_idx.waitable();
+}
+
+void PackWriteJob::doJob(PackWaitable* wt, const jobs::JobWorker& worker) {
+  m_out.begin(reduce_stream::Compress);
+  m_idx->seek(StreamPos::end, 0);
+  // Estimate compressed size, and reserve the space
+  size_t ask = m_idx->tell() / 3 * 2;
+  if(m_out.size() < ask)
+    m_out.reserve(ask - m_out.size());
+  m_idx->seek(StreamPos::start, 0);
+  m_out.write(m_idx.m_wt.stream());
+  m_out.end();
+  // Update index
+  m_idx.m_size     = m_out.tell();
+  m_idx.m_original = m_idx->tell();
+  m_idx.m_wt.stream().close();
+  delete &m_idx.m_wt.stream();
+  m_idx.m_active = false;
+}
+
+Packager::Packager(int nworkers) : m_serv(nworkers) {
+  m_workers = m_serv.workerCount();
   m_waiting = 0;
 }
 
@@ -204,6 +233,8 @@ bool Packager::open(const scl::path& path) {
   m_ext    = path.extension();
   m_family = path;
   m_family.replaceExtension("");
+  m_serv.slow();
+  m_serv.start();
 #if 0
   scl::stream pack;
   m_family = path;
@@ -308,14 +339,20 @@ Packager::mPackRes Packager::writeMemberPack(scl::stream& archive,
   header[SPK_H_MID]   = memberid;
   archive.write(header, SPK_HEADER_SIZE);
 
-  size_t             itabsize = 0;
-  scl::stream        itab;
-  size_t             off = SPK_HEADER_SIZE;
-  scl::reduce_stream reduce;
-  mPackRes           res     = OK;
-  bool               written = false;
+  size_t      itabsize = 0;
+  scl::stream itab;
+  size_t      off     = SPK_HEADER_SIZE;
+  mPackRes    res     = OK;
+  bool        written = false;
   for(; elemid < m_submitted.size(); elemid++) {
-    auto* idx = m_submitted[elemid];
+    // Grab the front of the async queue
+    auto* aidx = m_writing.front();
+    // Wait for it
+    aidx->waitable().wait();
+    // Set syncronous index info
+    aidx->m_off = off;
+    auto* idx   = m_submitted[elemid];
+#if 0
     // Skip if inactive
     if(!idx->m_active)
       continue;
@@ -336,8 +373,10 @@ Packager::mPackRes Packager::writeMemberPack(scl::stream& archive,
     idx->m_wt.stream().close();
     delete &idx->m_wt.stream();
     idx->m_active = false;
+#endif
     if(cb)
       cb(elemid, idx);
+    scl::reduce_stream& reduce = *m_reduce[aidx->m_wt.m_tid];
     reduce.seek(StreamPos::start, 0);
     // itab entry size estimation
     // 2 path length, 4*3 for offset, size, and original size
@@ -367,12 +406,12 @@ Packager::mPackRes Packager::writeMemberPack(scl::stream& archive,
     itab.write(&idx->m_size, 4);
     itab.write(&idx->m_original, 4);
     reduce.seek(StreamPos::start, 0);
+    m_writing.pop();
     // Update info
     off += idx->m_size;
     itabsize += newitab;
     written = true;
   }
-  reduce.close();
   // Write itab at the end of the archive
   itab.seek(StreamPos::start, 0);
   archive.write(itab, itabsize);
@@ -400,7 +439,20 @@ bool Packager::write(std::function<void(size_t, PackIndex*)> cb) {
   scl::stream archive;
   size_t      elem = 0;
   int         mid  = 0;
-
+  // Prepare reduce streams
+  m_reduce.reserve(m_workers);
+  for(int i = 0; i < m_workers; i++)
+    m_reduce.push_back(new scl::reduce_stream());
+  // Queue up the first few files i=threadid, j=elemid
+  for(int i = 0, j = 0; i < m_workers && j < m_submitted.size(); j++) {
+    // Skip if inactive
+    if(!m_submitted[j]->m_active)
+      continue;
+    m_serv.submitJob(new PackWriteJob(*m_submitted[j], *m_reduce[i], i));
+    m_writing.push(m_submitted[j]);
+    // Inc thread id
+    i++;
+  }
   while(writeMemberPack(archive, elem, mid, cb) == WOVERFLOW)
     mid++;
   m_submitted.resize(0);
@@ -433,6 +485,7 @@ void Packager::close() {
        5, 1)) {
     fprintf(stderr, "Packager::close timed out due to unfinished jobs\n");
   };
+  m_serv.stop();
   for(auto& i : m_index) {
     if(i->m_active) {
       i->m_wt->close();
@@ -449,13 +502,13 @@ void Packager::close() {
 }
 
 bool packInit() {
-  g_serv.slow();
-  g_serv.start();
+  // g_serv.slow();
+  // g_serv.start();
   return true;
 }
 
 void packTerminate() {
-  g_serv.stop();
+  // g_serv.stop();
 }
 } // namespace pack
 } // namespace scl

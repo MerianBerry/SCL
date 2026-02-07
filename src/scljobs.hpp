@@ -53,6 +53,11 @@ class waitable {
   void      complete();
 
   /**
+   * @brief Resets the completion state.
+   */
+  void      reset();
+
+  /**
    * @brief Returns the completion status of the waitable.
    *
    * @return true if the waitable is completed.
