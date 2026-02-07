@@ -161,14 +161,15 @@ class PackFetchJob : public jobs::job<PackWaitable> {
 
 class PackWriteJob : public jobs::job<PackWaitable> {
   friend class Packager;
-  PackIndex&          m_idx;
-  scl::reduce_stream& m_out;
-  int                 m_tid;
+  PackIndex& m_idx;
+  Packager&  m_pack;
 
  public:
-  PackWriteJob(PackIndex& idx, scl::reduce_stream& out, int tid);
+  PackWriteJob(PackIndex& idx, Packager& pack);
 
   PackWaitable* getWaitable() const override;
+
+  // bool          checkJob(const jobs::JobWorker& worker) const override;
 
   void          doJob(PackWaitable* wt, const jobs::JobWorker& worker) override;
 };
@@ -180,6 +181,7 @@ class PackWriteJob : public jobs::job<PackWaitable> {
  */
 class Packager : protected std::mutex {
   friend class PackFetchJob;
+  friend class PackWriteJob;
   friend class PackIndex;
 
  private:
@@ -188,6 +190,9 @@ class Packager : protected std::mutex {
   scl::path                        m_ext;
   scl::dictionary<PackIndex>       m_index;
   std::vector<PackIndex*>          m_submitted;
+  // Reduce queue mutex
+  std::mutex                       m_remux;
+  std::queue<scl::reduce_stream*>  m_reduces;
   std::vector<scl::reduce_stream*> m_reduce;
   // Queue of in-progress compressions
   std::queue<PackIndex*>           m_writing;

@@ -5,6 +5,7 @@
 #include "sclpack.hpp"
 #include "sclxml.hpp"
 #include <memory>
+#include <cassert>
 
 #define SPK_MAJOR       2
 #define SPK_MINOR       0
@@ -19,7 +20,7 @@
 #define SPK_MAX_MEMBERS 32
 
 #ifndef SPK_MAX_PACK_SIZE
-#  define SPK_MAX_PACK_SIZE 0x3fffffff
+#  define SPK_MAX_PACK_SIZE 0xffffffff
 #endif
 
 using scl::xml::XmlAttr;
@@ -153,31 +154,67 @@ void PackFetchJob::doJob(PackWaitable* wt, const jobs::JobWorker& worker) {
   worker.serv().unsetLockBits(bits);
 }
 
-PackWriteJob::PackWriteJob(PackIndex& idx, scl::reduce_stream& out, int tid)
-    : m_idx(idx), m_out(out), m_tid(tid) {
+PackWriteJob::PackWriteJob(PackIndex& idx, Packager& pack)
+    : m_idx(idx), m_pack(pack) {
 }
 
 PackWaitable* PackWriteJob::getWaitable() const {
   m_idx.waitable().wait();
-  m_idx.waitable().m_tid = m_tid;
+  m_idx.waitable().reset();
   return &m_idx.waitable();
 }
 
+#if 0
+bool PackWriteJob::checkJob(const jobs::JobWorker& worker) const {
+  // Only let the worker take the job if its reduce stream is free
+  bool take = !m_pack.m_serv.hasLockBits(1ull << worker.id());
+  if(take)
+    m_pack.m_serv.setLockBits(1ull << worker.id());
+  return take;
+}
+#endif
+
 void PackWriteJob::doJob(PackWaitable* wt, const jobs::JobWorker& worker) {
-  m_out.begin(reduce_stream::Compress);
+  // Lock the reduce stream
+  scl::reduce_stream* reduce;
+  waitUntil([this, &reduce]() {
+    m_pack.m_remux.lock();
+    bool take = m_pack.m_reduces.size();
+    if(take) {
+      reduce = m_pack.m_reduces.front();
+      m_pack.m_reduces.pop();
+    }
+    m_pack.m_remux.unlock();
+    return take;
+  });
+
+  wt->m_tid = worker.id();
+  if(!wt->m_stream) {
+    wt->m_stream = new scl::stream();
+    wt->m_stream->open(m_idx.filepath(), OpenMode::READ, true);
+  }
+  reduce->seek(StreamPos::start, 0);
   m_idx->seek(StreamPos::end, 0);
   // Estimate compressed size, and reserve the space
-  size_t ask = m_idx->tell() / 3 * 2;
-  if(m_out.size() < ask)
-    m_out.reserve(ask - m_out.size());
+  size_t ask = m_idx->tell();
+  // Crude overallocation fix
+  if(reduce->size() > ask * 32)
+    reduce->close();
+  if(reduce->size() < ask)
+    reduce->reserve(ask);
   m_idx->seek(StreamPos::start, 0);
-  m_out.write(m_idx.m_wt.stream());
-  m_out.end();
+  reduce->begin(reduce_stream::Compress);
+  reduce->write(*wt->m_stream, ask);
+  reduce->end();
   // Update index
-  m_idx.m_size     = m_out.tell();
-  m_idx.m_original = m_idx->tell();
-  m_idx.m_wt.stream().close();
-  delete &m_idx.m_wt.stream();
+  m_idx.m_size     = reduce->tell();
+  m_idx.m_original = ask;
+  wt->m_stream->close();
+  delete wt->m_stream;
+  wt->m_stream = reduce;
+  if(!wt->m_stream) {
+    throw "wtf";
+  }
   m_idx.m_active = false;
 }
 
@@ -273,7 +310,7 @@ PackIndex* Packager::openFile(const path& path) {
     // File does not exist in index, so make a new active one.
     idx = std::move(PackIndex());
     PackIndex nidx(&idx.key());
-    nidx.m_wt = PackWaitable(new scl::stream());
+    nidx.m_wt = PackWaitable(nullptr);
     nidx.m_wt.complete();
     nidx.m_family = this;
     nidx.m_active = true;
@@ -286,8 +323,7 @@ PackIndex* Packager::openFile(const path& path) {
     return &idx.value();
   } else {
     // File is indexed, but not active.
-    auto* stream  = new scl::stream();
-    idx->m_wt     = PackWaitable(stream);
+    idx->m_wt     = PackWaitable(nullptr);
     idx->m_active = true;
 #if 0
     auto &wt      = g_serv.submitJob(
@@ -326,7 +362,7 @@ Packager::mPackRes Packager::writeMemberPack(scl::stream& archive,
     outpath = scl::string::fmt("%s%s", m_family.cstr(), m_ext.cstr());
   else
     outpath =
-      scl::string::fmt("%s%i%s", m_family.cstr(), memberid - 1, m_ext.cstr());
+      scl::string::fmt("%s_%i%s", m_family.cstr(), memberid, m_ext.cstr());
 
   archive.open(outpath, OpenMode::RWTRUNC, true);
 
@@ -348,42 +384,26 @@ Packager::mPackRes Packager::writeMemberPack(scl::stream& archive,
     // Grab the front of the async queue
     auto* aidx = m_writing.front();
     // Wait for it
-    aidx->waitable().wait();
+    if(!aidx->waitable().wait(15)) {
+      fprintf(stderr, "Time out\n");
+    }
     // Set syncronous index info
     aidx->m_off = off;
-    auto* idx   = m_submitted[elemid];
-#if 0
-    // Skip if inactive
-    if(!idx->m_active)
-      continue;
-    // Compress file entry
-    reduce.begin(reduce_stream::Compress);
-    idx->m_wt.stream().seek(StreamPos::end, 0);
-    // Estimate compressed size, and reserve the space
-    size_t ask = idx->m_wt.stream().tell() / 3 * 2;
-    if(reduce.size() < ask)
-      reduce.reserve(ask - reduce.size());
-    idx->m_wt.stream().seek(StreamPos::start, 0);
-    reduce.write(idx->m_wt.stream());
-    reduce.end();
-    // Update index
-    idx->m_off      = off;
-    idx->m_size     = reduce.tell();
-    idx->m_original = idx->m_wt.stream().tell();
-    idx->m_wt.stream().close();
-    delete &idx->m_wt.stream();
-    idx->m_active = false;
-#endif
-    if(cb)
-      cb(elemid, idx);
-    scl::reduce_stream& reduce = *m_reduce[aidx->m_wt.m_tid];
-    reduce.seek(StreamPos::start, 0);
+    // Grab the reduce stream from the waitable
+    scl::reduce_stream* reduce = (scl::reduce_stream*)aidx->m_wt.m_stream;
+    reduce->seek(StreamPos::start, 0);
     // itab entry size estimation
     // 2 path length, 4*3 for offset, size, and original size
-    uint16_t newitab = 14 + idx->m_file->len();
+    uint16_t newitab = 14 + aidx->m_file->len();
     // check for pack overflow before writing
-    if(off + idx->m_size + itabsize + newitab >= SPK_MAX_PACK_SIZE) {
-      // Overflow
+    if(off + aidx->m_size + itabsize + newitab >= SPK_MAX_PACK_SIZE) {
+// Overflow
+#if 0
+      fprintf(stderr,
+        "Overflow!\n%s\nCursize: %zu\nEstsize: %zu\npacked: %u\n\n\n\n\n\n\n",
+        aidx->m_file->cstr(), off, off + aidx->m_size + itabsize + newitab,
+        aidx->m_size);
+#endif
       if(written)
         // Overflow so a new member can be made.
         res = WOVERFLOW;
@@ -391,24 +411,34 @@ Packager::mPackRes Packager::writeMemberPack(scl::stream& archive,
         // first file to be written causes overflow
         // there is no recourse for this, so error.
         fprintf(stderr, "file %s is too big to be written\n",
-          idx->m_file->cstr());
+          aidx->m_file->cstr());
         res = ERROR;
       }
       break;
     }
+    if(cb)
+      cb(elemid, aidx);
+    aidx->m_wt.m_stream = nullptr;
     // Write compressed content
-    archive.write(reduce, idx->m_size);
-    uint16_t filelen = idx->m_file->len();
+    archive.write(reduce->data(), aidx->m_size, 1, false);
+    m_remux.lock();
+    m_reduces.push(reduce);
+    m_remux.unlock();
+    uint16_t filelen = aidx->m_file->len();
     // Write itab entry;
     itab.write(&filelen, 2, SCL_STREAM_BUF);
-    itab.write(*idx->m_file);
-    itab.write(&idx->m_off, 4);
-    itab.write(&idx->m_size, 4);
-    itab.write(&idx->m_original, 4);
-    reduce.seek(StreamPos::start, 0);
+    itab.write(*aidx->m_file);
+    itab.write(&aidx->m_off, 4);
+    itab.write(&aidx->m_size, 4);
+    itab.write(&aidx->m_original, 4);
     m_writing.pop();
+    if(elemid + m_workers < m_submitted.size()) {
+      m_serv.submitJob(
+        new PackWriteJob(*m_submitted[elemid + m_workers], *this));
+      m_writing.push(m_submitted[elemid + m_workers]);
+    }
     // Update info
-    off += idx->m_size;
+    off += aidx->m_size;
     itabsize += newitab;
     written = true;
   }
@@ -439,16 +469,15 @@ bool Packager::write(std::function<void(size_t, PackIndex*)> cb) {
   scl::stream archive;
   size_t      elem = 0;
   int         mid  = 0;
+  m_serv.waitidle();
+  m_serv.slow(false);
   // Prepare reduce streams
-  m_reduce.reserve(m_workers);
   for(int i = 0; i < m_workers; i++)
-    m_reduce.push_back(new scl::reduce_stream());
+    m_reduces.push(new scl::reduce_stream());
   // Queue up the first few files i=threadid, j=elemid
   for(int i = 0, j = 0; i < m_workers && j < m_submitted.size(); j++) {
     // Skip if inactive
-    if(!m_submitted[j]->m_active)
-      continue;
-    m_serv.submitJob(new PackWriteJob(*m_submitted[j], *m_reduce[i], i));
+    m_serv.submitJob(new PackWriteJob(*m_submitted[j], *this));
     m_writing.push(m_submitted[j]);
     // Inc thread id
     i++;

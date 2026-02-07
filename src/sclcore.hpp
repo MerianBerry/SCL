@@ -20,7 +20,7 @@
 
 
 #ifndef SCL_STREAM_BUF
-#  define SCL_STREAM_BUF 16384
+#  define SCL_STREAM_BUF 0x8000
 #endif
 
 /**
@@ -394,7 +394,7 @@ class string {
     return *this;
   }
 
-  operator bool() const;
+                        operator bool() const;
 
   scl::string&          operator=(const scl::string&);
 
@@ -650,11 +650,11 @@ class str_iterator {
   str_iterator& operator++();
 
   /* Read */
-  operator const char&() const;
-  const char& operator*() const;
+                operator const char&() const;
+  const char&   operator*() const;
 
   /* Write */
-  operator char&();
+                operator char&();
   char&         operator*();
   str_iterator& operator=(char c);
 };

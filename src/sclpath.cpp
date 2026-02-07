@@ -9,6 +9,9 @@
 #  ifndef WIN32_LEAN_AND_MEAN
 #    define WIN32_LEAN_AND_MEAN
 #  endif
+#  ifndef NOMINMAX
+#    define NOMINMAX
+#  endif
 #  include <windows.h>
 #  include <io.h>
 #  include <direct.h>
@@ -377,6 +380,7 @@ static void join_(char* buf, const scl::string& one, const scl::string& two) {
 
 static int glob_(const path dir, const path& mask, std::vector<path>& globs,
   scl::GlobMode mode = scl::GlobMode::FILES) {
+  char buf[PATH_MAX];
 #ifdef _WIN32
   const path       spec  = dir / (mask.iswild() ? "*" : mask);
   HANDLE           hFind = NULL;
@@ -388,7 +392,6 @@ static int glob_(const path dir, const path& mask, std::vector<path>& globs,
     path fn = ffd.cFileName;
 #elif defined(_DIRENT_H) || defined(_SYS_DIRENT_H)
   /* clang-format off */
-  char buf[PATH_MAX];
   DIR           *handle = opendir (dir.cstr());
   struct dirent *dp;
   while (handle) {

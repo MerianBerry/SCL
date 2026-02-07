@@ -6,11 +6,11 @@
 #include "lz4/lz4frame.h"
 
 static const LZ4F_preferences_t kPrefs = {
-  {LZ4F_max64KB, LZ4F_blockLinked, LZ4F_contentChecksumEnabled, LZ4F_frame,
+  {LZ4F_max1MB, LZ4F_blockLinked, LZ4F_contentChecksumEnabled, LZ4F_frame,
     0 /* unknown content size */, 0 /* no dictID */, LZ4F_noBlockChecksum},
-  2,         /* compression level; 0 == default */
+  0,         /* compression level; 0 == default */
   0,         /* autoflush */
-  0,         /* favor decompression speed */
+  1,         /* favor decompression speed */
   {0, 0, 0}, /* reserved, must be set to 0 */
 };
 

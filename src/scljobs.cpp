@@ -22,11 +22,11 @@ waitable::waitable() {
   m_done = false;
 }
 
-waitable::waitable(waitable &&rhs) {
+waitable::waitable(waitable&& rhs) {
   m_done = rhs.m_done.load();
 }
 
-waitable &waitable::operator=(waitable &&rhs) {
+waitable& waitable::operator=(waitable&& rhs) {
   m_done = rhs.m_done.load();
   return *this;
 }
@@ -54,15 +54,15 @@ bool waitable::wait(double timeout) {
                      timeout);
 }
 
-funcJob::funcJob(std::function<void(const JobWorker &worker)> func)
+funcJob::funcJob(std::function<void(const JobWorker& worker)> func)
     : m_func(func) {
 }
 
-waitable *funcJob::getWaitable() const {
+waitable* funcJob::getWaitable() const {
   return new waitable;
 }
 
-void funcJob::doJob(waitable *waitable, const JobWorker &worker) {
+void funcJob::doJob(waitable* waitable, const JobWorker& worker) {
   m_func(worker);
 }
 
@@ -70,7 +70,7 @@ void JobWorker::quit() {
   m_working = false;
 }
 
-JobWorker::JobWorker(JobServer *serv, int id) {
+JobWorker::JobWorker(JobServer* serv, int id) {
   m_serv    = serv;
   m_id      = id;
   m_working = false;
@@ -81,11 +81,11 @@ int JobWorker::id() const {
   return m_id;
 }
 
-JobServer &JobWorker::serv() const {
+JobServer& JobWorker::serv() const {
   return *m_serv;
 }
 
-void JobWorker::sync(const std::function<void()> &func) const {
+void JobWorker::sync(const std::function<void()>& func) const {
   m_serv->sync(func);
 }
 
@@ -97,9 +97,9 @@ bool JobWorker::busy() const {
   return m_busy;
 }
 
-void JobWorker::work(JobWorker *inst) {
+void JobWorker::work(JobWorker* inst) {
   inst->m_working = true;
-  JobServer *serv = inst->m_serv;
+  JobServer* serv = inst->m_serv;
   do {
     JobServer::t_wjob wjob;
     waitUntil(
@@ -110,8 +110,8 @@ void JobWorker::work(JobWorker *inst) {
       -1, SCL_JOBS_SLEEP(serv->m_slow));
     if(!inst->working())
       break;
-    job<waitable> *job = wjob.first;
-    waitable      *wt  = wjob.second;
+    job<waitable>* job = wjob.first;
+    waitable*      wt  = wjob.second;
 
     inst->m_busy       = true;
     if(job) {
@@ -125,7 +125,7 @@ void JobWorker::work(JobWorker *inst) {
   } while(inst->working());
 }
 
-bool JobServer::takeJob(t_wjob &wjob, const JobWorker &worker) {
+bool JobServer::takeJob(t_wjob& wjob, const JobWorker& worker) {
   if(!m_working)
     return false;
   lock();
@@ -195,7 +195,7 @@ void JobServer::start() {
     m_working = true;
     lock();
     for(int i = 0; i < m_nworkers; i++) {
-      JobWorker  *worker = new JobWorker(this, i);
+      JobWorker*  worker = new JobWorker(this, i);
       std::thread t(JobWorker::work, worker);
       t.swap(m_workers[i].first);
       m_workers[i].second = worker;
@@ -218,7 +218,7 @@ bool JobServer::waitidle(double timeout) {
     [&]() {
       lock();
       bool cond = m_jobs.empty();
-      for(auto &i : m_workers) {
+      for(auto& i : m_workers) {
         if(i.second->busy()) {
           cond = false;
           continue;
@@ -234,7 +234,7 @@ void JobServer::stop() {
   if(m_working) {
     // tell all workers to quit, then join worker
     m_working = false;
-    for(auto &i : m_workers) {
+    for(auto& i : m_workers) {
       i.second->quit();
       if(i.first.joinable())
         i.first.join();
@@ -271,7 +271,7 @@ void JobServer::clearjobs() {
   unlock();
 }
 
-void JobServer::sync(const std::function<void()> &func) {
+void JobServer::sync(const std::function<void()>& func) {
   if(!m_working)
     return;
   lock();
@@ -279,8 +279,8 @@ void JobServer::sync(const std::function<void()> &func) {
   unlock();
 }
 
-waitable *JobServer::submitJob(
-  std::function<void(const JobWorker &worker)> func, bool autodelwt) {
+waitable* JobServer::submitJob(
+  std::function<void(const JobWorker& worker)> func, bool autodelwt) {
   return &submitJob(new funcJob(func), autodelwt);
 }
 
@@ -294,7 +294,7 @@ void JobServer::Multithread(std::function<void(int id, int workers)> func,
   std::vector<std::thread> w;
   for(int i = 0; i < n; i++)
     w.push_back(std::thread(func, i, n));
-  for(auto &i : w) {
+  for(auto& i : w) {
     if(i.joinable())
       i.join();
   }
