@@ -136,6 +136,17 @@ Enumerations</h2></td></tr>
 , <b>current</b> = SEEK_CUR
  }</td></tr>
 <tr class="separator:ab04f31d146131b724a312ab1987f6149"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6303dd8e0e7b0b9336d405cccae8bfc3"><td class="memItemLeft" align="right" valign="top"><a id="a6303dd8e0e7b0b9336d405cccae8bfc3" name="a6303dd8e0e7b0b9336d405cccae8bfc3"></a>enum class &#160;</td><td class="memItemRight" valign="bottom"><b>OpenMode</b> { <br />
+&#160;&#160;<b>READ</b> = 0
+, <b>WRITE</b> = 1
+, <b>RW</b> = 2
+, <b>RWTRUNC</b> = 3
+, <br />
+&#160;&#160;<b>APPEND</b> = 4
+, <b>RAPPEND</b> = 5
+<br />
+ }</td></tr>
+<tr class="separator:a6303dd8e0e7b0b9336d405cccae8bfc3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9b162bdf6bc365c4a3481170ccf5b358"><td class="memItemLeft" align="right" valign="top"><a id="a9b162bdf6bc365c4a3481170ccf5b358" name="a9b162bdf6bc365c4a3481170ccf5b358"></a>enum class &#160;</td><td class="memItemRight" valign="bottom"><b>GlobMode</b> { <b>FILES</b> = 1
 , <b>DIRS</b> = 2
 , <b>ANY</b> = 3
@@ -147,6 +158,9 @@ Functions</h2></td></tr>
 <tr class="memitem:aabdb5543aa15a210e1c3f61d5a5a25a7"><td class="memItemLeft" align="right" valign="top"><a id="aabdb5543aa15a210e1c3f61d5a5a25a7" name="aabdb5543aa15a210e1c3f61d5a5a25a7"></a>
 unsigned char&#160;</td><td class="memItemRight" valign="bottom"><b>log2i</b> (unsigned x)</td></tr>
 <tr class="separator:aabdb5543aa15a210e1c3f61d5a5a25a7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa1fc5813f8af24ed652d9ceb9bdba25e"><td class="memItemLeft" align="right" valign="top"><a id="aa1fc5813f8af24ed652d9ceb9bdba25e" name="aa1fc5813f8af24ed652d9ceb9bdba25e"></a>
+std::ostream &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator&lt;&lt;</b> (std::ostream &amp;out, const <a class="el" href="../../d3/db9/classscl_1_1string.html">scl::string</a> &amp;str)</td></tr>
+<tr class="separator:aa1fc5813f8af24ed652d9ceb9bdba25e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7d6932d4e602b2e64cf3e95215939ef8"><td class="memItemLeft" align="right" valign="top"><a id="a7d6932d4e602b2e64cf3e95215939ef8" name="a7d6932d4e602b2e64cf3e95215939ef8"></a>
 std::ifstream &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator&gt;&gt;</b> (std::ifstream &amp;in, <a class="el" href="../../d3/db9/classscl_1_1string.html">string</a> &amp;str)</td></tr>
 <tr class="separator:a7d6932d4e602b2e64cf3e95215939ef8"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -165,10 +179,10 @@ std::ifstream &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operat
 <tr class="memdesc:a727b3a281546dc5e6f2ae29c11793f5f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Waits until the given lamda function returns true.  <br /></td></tr>
 <tr class="separator:a727b3a281546dc5e6f2ae29c11793f5f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8a3d8636963d99ff5601e65f6af720f5"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/dbf/namespacescl.html#a8a3d8636963d99ff5601e65f6af720f5">init</a> ()</td></tr>
-<tr class="memdesc:a8a3d8636963d99ff5601e65f6af720f5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes SCL global resources. Libraries currently requiring this is scl::pack.  <br /></td></tr>
+<tr class="memdesc:a8a3d8636963d99ff5601e65f6af720f5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes SCL global resources.  <br /></td></tr>
 <tr class="separator:a8a3d8636963d99ff5601e65f6af720f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8b68b2f2927a4da038dc43b305fe2993"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/dbf/namespacescl.html#a8b68b2f2927a4da038dc43b305fe2993">terminate</a> ()</td></tr>
-<tr class="memdesc:a8b68b2f2927a4da038dc43b305fe2993"><td class="mdescLeft">&#160;</td><td class="mdescRight">Releases SCL global resources. Libraries currently requiring this is scl::pack.  <br /></td></tr>
+<tr class="memdesc:a8b68b2f2927a4da038dc43b305fe2993"><td class="mdescLeft">&#160;</td><td class="mdescRight">Releases SCL global resources. Currently does nothing. But remains for compatibility.  <br /></td></tr>
 <tr class="separator:a8b68b2f2927a4da038dc43b305fe2993"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
@@ -208,7 +222,7 @@ std::ifstream &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operat
       </table>
 </div><div class="memdoc">
 
-<p>Initializes SCL global resources. Libraries currently requiring this is scl::pack. </p>
+<p>Initializes SCL global resources. </p>
 <dl class="section return"><dt>Returns</dt><dd>Returns true on success, false on otherwise. </dd></dl>
 
 </div>
@@ -247,7 +261,7 @@ std::ifstream &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operat
       </table>
 </div><div class="memdoc">
 
-<p>Releases SCL global resources. Libraries currently requiring this is scl::pack. </p>
+<p>Releases SCL global resources. Currently does nothing. But remains for compatibility. </p>
 
 </div>
 </div>

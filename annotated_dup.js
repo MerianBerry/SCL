@@ -4,7 +4,6 @@ var annotated_dup =
       [ "internal", "d7/d6b/namespacescl_1_1internal.html", [
         [ "hnode", "d3/da7/structscl_1_1internal_1_1hnode.html", null ],
         [ "htab_iterator", "d6/da9/classscl_1_1internal_1_1htab__iterator.html", "d6/da9/classscl_1_1internal_1_1htab__iterator" ],
-        [ "RefObj", "d5/dd5/classscl_1_1internal_1_1RefObj.html", "d5/dd5/classscl_1_1internal_1_1RefObj" ],
         [ "str_iterator", "d6/d8f/classscl_1_1internal_1_1str__iterator.html", null ]
       ] ],
       [ "jobs", null, [
@@ -15,10 +14,11 @@ var annotated_dup =
         [ "waitable", "d2/dc2/classscl_1_1jobs_1_1waitable.html", "d2/dc2/classscl_1_1jobs_1_1waitable" ]
       ] ],
       [ "pack", null, [
-        [ "Packager", "de/d13/classscl_1_1pack_1_1Packager.html", null ],
+        [ "Packager", "de/d13/classscl_1_1pack_1_1Packager.html", "de/d13/classscl_1_1pack_1_1Packager" ],
         [ "PackFetchJob", "d9/d15/classscl_1_1pack_1_1PackFetchJob.html", "d9/d15/classscl_1_1pack_1_1PackFetchJob" ],
-        [ "PackIndex", "d5/d19/structscl_1_1pack_1_1PackIndex.html", null ],
-        [ "PackWaitable", "d1/da7/classscl_1_1pack_1_1PackWaitable.html", null ]
+        [ "PackIndex", "d0/d70/classscl_1_1pack_1_1PackIndex.html", "d0/d70/classscl_1_1pack_1_1PackIndex" ],
+        [ "PackWaitable", "d1/da7/classscl_1_1pack_1_1PackWaitable.html", null ],
+        [ "PackWriteJob", "d6/d3b/classscl_1_1pack_1_1PackWriteJob.html", "d6/d3b/classscl_1_1pack_1_1PackWriteJob" ]
       ] ],
       [ "xml", null, [
         [ "XmlAllocator", "d8/dff/classscl_1_1xml_1_1XmlAllocator.html", null ],

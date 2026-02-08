@@ -1,11 +1,10 @@
 <map id="scl::xml::XmlDocument" name="scl::xml::XmlDocument">
-<area shape="rect" id="node1" title=" " alt="" coords="524,205,699,231"/>
-<area shape="rect" id="node2" href="$d9/d02/classscl_1_1xml_1_1XmlElem.html" title=" " alt="" coords="270,73,410,99"/>
-<area shape="rect" id="node3" href="$d9/d5e/classscl_1_1xml_1_1XmlNode.html" title=" " alt="" coords="528,67,695,107"/>
-<area shape="rect" id="node4" href="$d9/de8/classscl_1_1xml_1_1XmlAttr.html" title=" " alt="" coords="15,112,146,137"/>
-<area shape="rect" id="node5" href="$d9/d5e/classscl_1_1xml_1_1XmlNode.html" title=" " alt="" coords="261,129,419,169"/>
-<area shape="rect" id="node6" href="$d8/dff/classscl_1_1xml_1_1XmlAllocator.html" title=" " alt="" coords="257,205,423,231"/>
-<area shape="rect" id="node7" href="$d5/d47/classscl_1_1xml_1_1XmlPage.html" title=" " alt="" coords="6,198,155,238"/>
-<area shape="rect" id="node8" href="$d3/db9/classscl_1_1string.html" title=" " alt="" coords="297,259,383,284"/>
-<area shape="rect" id="node9" href="$d5/dd5/classscl_1_1internal_1_1RefObj.html" title=" " alt="" coords="5,263,156,288"/>
+<area shape="rect" id="node1" title=" " alt="" coords="264,530,439,555"/>
+<area shape="rect" id="node2" href="$d9/d02/classscl_1_1xml_1_1XmlElem.html" title=" " alt="" coords="87,425,227,451"/>
+<area shape="rect" id="node3" href="$d9/d5e/classscl_1_1xml_1_1XmlNode.html" title=" " alt="" coords="5,523,172,563"/>
+<area shape="rect" id="node4" href="$d8/dff/classscl_1_1xml_1_1XmlAllocator.html" title=" " alt="" coords="90,123,255,148"/>
+<area shape="rect" id="node7" href="$d9/d5e/classscl_1_1xml_1_1XmlNode.html" title=" " alt="" coords="93,211,252,251"/>
+<area shape="rect" id="node5" href="$d5/d47/classscl_1_1xml_1_1XmlPage.html" title=" " alt="" coords="98,5,247,45"/>
+<area shape="rect" id="node6" href="$d9/de8/classscl_1_1xml_1_1XmlAttr.html" title=" " alt="" coords="118,313,249,339"/>
+<area shape="rect" id="node8" href="$d3/db9/classscl_1_1string.html" title=" " alt="" coords="389,425,474,451"/>
 </map>

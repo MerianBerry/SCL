@@ -1,6 +1,4 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$d8/dff/classscl_1_1xml_1_1XmlAllocator.html" title=" " alt="" coords="220,5,385,31"/>
-<area shape="rect" id="node2" href="$d3/d57/classscl_1_1xml_1_1XmlDocument.html" title=" " alt="" coords="433,31,608,56"/>
-<area shape="rect" id="node3" href="$d9/d5e/classscl_1_1xml_1_1XmlNode.html" title=" " alt="" coords="5,47,172,87"/>
-<area shape="rect" id="node4" href="$d9/d02/classscl_1_1xml_1_1XmlElem.html" title=" " alt="" coords="233,55,373,80"/>
+<area shape="rect" id="node1" href="$d3/db9/classscl_1_1string.html" title=" " alt="" coords="5,5,91,31"/>
+<area shape="rect" id="node2" href="$d4/dc8/classscl_1_1path.html" title=" " alt="" coords="139,5,216,31"/>
 </map>

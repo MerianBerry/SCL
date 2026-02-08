@@ -115,9 +115,22 @@ Inheritance diagram for scl::jobs::waitable:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
+<tr class="memitem:a9877d6e6dfb30d9ccc6ff1340dbb0013"><td class="memItemLeft" align="right" valign="top"><a id="a9877d6e6dfb30d9ccc6ff1340dbb0013" name="a9877d6e6dfb30d9ccc6ff1340dbb0013"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>waitable</b> (<a class="el" href="../../d2/dc2/classscl_1_1jobs_1_1waitable.html">waitable</a> &amp;&amp;rhs)</td></tr>
+<tr class="separator:a9877d6e6dfb30d9ccc6ff1340dbb0013"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a02922fffeb6f55d69a35f71ca5097dd6"><td class="memItemLeft" align="right" valign="top"><a id="a02922fffeb6f55d69a35f71ca5097dd6" name="a02922fffeb6f55d69a35f71ca5097dd6"></a>
+<a class="el" href="../../d2/dc2/classscl_1_1jobs_1_1waitable.html">waitable</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (<a class="el" href="../../d2/dc2/classscl_1_1jobs_1_1waitable.html">waitable</a> &amp;&amp;rhs)</td></tr>
+<tr class="separator:a02922fffeb6f55d69a35f71ca5097dd6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a656b1818097811280b9b59da840b0eff"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/dc2/classscl_1_1jobs_1_1waitable.html#a656b1818097811280b9b59da840b0eff">complete</a> ()</td></tr>
 <tr class="memdesc:a656b1818097811280b9b59da840b0eff"><td class="mdescLeft">&#160;</td><td class="mdescRight">Completes the waitable.  <br /></td></tr>
 <tr class="separator:a656b1818097811280b9b59da840b0eff"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a213e9d1a3dd2c892338ac2de522463ac"><td class="memItemLeft" align="right" valign="top"><a id="a213e9d1a3dd2c892338ac2de522463ac" name="a213e9d1a3dd2c892338ac2de522463ac"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>reset</b> ()</td></tr>
+<tr class="memdesc:a213e9d1a3dd2c892338ac2de522463ac"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resets the completion state. <br /></td></tr>
+<tr class="separator:a213e9d1a3dd2c892338ac2de522463ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aad98d054852d130b1dcc88077acbf3e6"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/dc2/classscl_1_1jobs_1_1waitable.html#aad98d054852d130b1dcc88077acbf3e6">status</a> () const</td></tr>
+<tr class="memdesc:aad98d054852d130b1dcc88077acbf3e6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the completion status of the waitable.  <br /></td></tr>
+<tr class="separator:aad98d054852d130b1dcc88077acbf3e6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4a6174552db2a65a802fb08e8d811e09"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/dc2/classscl_1_1jobs_1_1waitable.html#a4a6174552db2a65a802fb08e8d811e09">wait</a> (double timeout=-1)</td></tr>
 <tr class="memdesc:a4a6174552db2a65a802fb08e8d811e09"><td class="mdescLeft">&#160;</td><td class="mdescRight">Waits for this waitable to be marked completed.  <br /></td></tr>
 <tr class="separator:a4a6174552db2a65a802fb08e8d811e09"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -148,6 +161,28 @@ template&lt;class Wt &gt; </td></tr>
 </div><div class="memdoc">
 
 <p>Completes the waitable. </p>
+
+</div>
+</div>
+<a id="aad98d054852d130b1dcc88077acbf3e6" name="aad98d054852d130b1dcc88077acbf3e6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aad98d054852d130b1dcc88077acbf3e6">&#9670;&#160;</a></span>status()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool scl::jobs::waitable::status </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Returns the completion status of the waitable. </p>
+<dl class="section return"><dt>Returns</dt><dd>true if the waitable is completed. </dd>
+<dd>
+false if otherwise. </dd></dl>
 
 </div>
 </div>

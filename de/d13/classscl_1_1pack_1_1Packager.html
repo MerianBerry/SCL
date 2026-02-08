@@ -98,12 +98,17 @@ $(document).ready(function(){initNavTree('de/d13/classscl_1_1pack_1_1Packager.ht
   <div class="headertitle"><div class="title">scl::pack::Packager Class Reference</div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>Class representing a family of asset packages. Allows you to read, write, etc.  
+ <a href="../../de/d13/classscl_1_1pack_1_1Packager.html#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="../../de/d56/sclpack_8hpp_source.html">sclpack.hpp</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for scl::pack::Packager:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../dd/db6/classscl_1_1pack_1_1Packager__inherit__graph.png" border="0" usemap="#ascl_1_1pack_1_1Packager_inherit__map" alt="Inheritance graph"/></div>
 <map name="ascl_1_1pack_1_1Packager_inherit__map" id="ascl_1_1pack_1_1Packager_inherit__map">
-<area shape="rect" title=" " alt="" coords="5,79,151,104"/>
+<area shape="rect" title="Class representing a family of asset packages. Allows you to read, write, etc." alt="" coords="5,79,151,104"/>
 <area shape="rect" title=" " alt="" coords="32,5,124,31"/>
 </map>
 <center><span class="legend">[<a target="top" href="../../graph_legend.html">legend</a>]</span></center></div>
@@ -112,38 +117,237 @@ Collaboration diagram for scl::pack::Packager:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d8/d56/classscl_1_1pack_1_1Packager__coll__graph.png" border="0" usemap="#ascl_1_1pack_1_1Packager_coll__map" alt="Collaboration graph"/></div>
 <map name="ascl_1_1pack_1_1Packager_coll__map" id="ascl_1_1pack_1_1Packager_coll__map">
-<area shape="rect" title=" " alt="" coords="5,79,151,104"/>
+<area shape="rect" title="Class representing a family of asset packages. Allows you to read, write, etc." alt="" coords="5,79,151,104"/>
 <area shape="rect" title=" " alt="" coords="32,5,124,31"/>
 </map>
 <center><span class="legend">[<a target="top" href="../../graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:ae7e196bf12950275fb37f14feecf10f5"><td class="memItemLeft" align="right" valign="top"><a id="ae7e196bf12950275fb37f14feecf10f5" name="ae7e196bf12950275fb37f14feecf10f5"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>open</b> (const <a class="el" href="../../d4/dc8/classscl_1_1path.html">scl::path</a> &amp;<a class="el" href="../../d4/dc8/classscl_1_1path.html">path</a>)</td></tr>
+<tr class="memitem:a80c7d8a01f6bb8ed1f08e88d97551d19"><td class="memItemLeft" align="right" valign="top"><a id="a80c7d8a01f6bb8ed1f08e88d97551d19" name="a80c7d8a01f6bb8ed1f08e88d97551d19"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Packager</b> (int nworkers=INT_MAX)</td></tr>
+<tr class="separator:a80c7d8a01f6bb8ed1f08e88d97551d19"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae7e196bf12950275fb37f14feecf10f5"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/d13/classscl_1_1pack_1_1Packager.html#ae7e196bf12950275fb37f14feecf10f5">open</a> (const <a class="el" href="../../d4/dc8/classscl_1_1path.html">scl::path</a> &amp;<a class="el" href="../../d4/dc8/classscl_1_1path.html">path</a>)</td></tr>
+<tr class="memdesc:ae7e196bf12950275fb37f14feecf10f5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Opens the pack family from the given name.  <br /></td></tr>
 <tr class="separator:ae7e196bf12950275fb37f14feecf10f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae8c1ece9a2057fb425116528b3900e13"><td class="memItemLeft" align="right" valign="top"><a id="ae8c1ece9a2057fb425116528b3900e13" name="ae8c1ece9a2057fb425116528b3900e13"></a>
-<a class="el" href="../../d1/da7/classscl_1_1pack_1_1PackWaitable.html">PackWaitable</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>openFile</b> (const <a class="el" href="../../d4/dc8/classscl_1_1path.html">scl::path</a> &amp;<a class="el" href="../../d4/dc8/classscl_1_1path.html">path</a>)</td></tr>
-<tr class="separator:ae8c1ece9a2057fb425116528b3900e13"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a79a77bcd03aace7b3e0cd76adf09b079"><td class="memItemLeft" align="right" valign="top"><a id="a79a77bcd03aace7b3e0cd76adf09b079" name="a79a77bcd03aace7b3e0cd76adf09b079"></a>
-std::vector&lt; <a class="el" href="../../d1/da7/classscl_1_1pack_1_1PackWaitable.html">PackWaitable</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>openFiles</b> (const std::vector&lt; <a class="el" href="../../d4/dc8/classscl_1_1path.html">scl::path</a> &gt; &amp;files)</td></tr>
-<tr class="separator:a79a77bcd03aace7b3e0cd76adf09b079"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a257fdf6c4365f047a56db139ea09c201"><td class="memItemLeft" align="right" valign="top"><a id="a257fdf6c4365f047a56db139ea09c201" name="a257fdf6c4365f047a56db139ea09c201"></a>
-const <a class="el" href="../../d2/d78/classscl_1_1dictionary.html">scl::dictionary</a>&lt; <a class="el" href="../../d5/d19/structscl_1_1pack_1_1PackIndex.html">PackIndex</a> &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>index</b> ()</td></tr>
+<tr class="memitem:a08bcb1cd6f5a9bc122bbfe892abb2372"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d0/d70/classscl_1_1pack_1_1PackIndex.html">PackIndex</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/d13/classscl_1_1pack_1_1Packager.html#a08bcb1cd6f5a9bc122bbfe892abb2372">openFile</a> (const <a class="el" href="../../d4/dc8/classscl_1_1path.html">scl::path</a> &amp;<a class="el" href="../../d4/dc8/classscl_1_1path.html">path</a>)</td></tr>
+<tr class="memdesc:a08bcb1cd6f5a9bc122bbfe892abb2372"><td class="mdescLeft">&#160;</td><td class="mdescRight">Requests the given filepath to be indexed (if not already), or decompressed (if already in pack).  <br /></td></tr>
+<tr class="separator:a08bcb1cd6f5a9bc122bbfe892abb2372"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3d47412fc900e9639273ebbe58a1d8f1"><td class="memItemLeft" align="right" valign="top">std::vector&lt; <a class="el" href="../../d0/d70/classscl_1_1pack_1_1PackIndex.html">PackIndex</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/d13/classscl_1_1pack_1_1Packager.html#a3d47412fc900e9639273ebbe58a1d8f1">openFiles</a> (const std::vector&lt; <a class="el" href="../../d4/dc8/classscl_1_1path.html">scl::path</a> &gt; &amp;files)</td></tr>
+<tr class="memdesc:a3d47412fc900e9639273ebbe58a1d8f1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Vectored version of openFile. For info, see <a class="el" href="../../de/d13/classscl_1_1pack_1_1Packager.html#a08bcb1cd6f5a9bc122bbfe892abb2372" title="Requests the given filepath to be indexed (if not already), or decompressed (if already in pack).">openFile()</a>.  <br /></td></tr>
+<tr class="separator:a3d47412fc900e9639273ebbe58a1d8f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a25725e07c90901692aa7443089ae625b"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/d13/classscl_1_1pack_1_1Packager.html#a25725e07c90901692aa7443089ae625b">submit</a> (const <a class="el" href="../../d4/dc8/classscl_1_1path.html">scl::path</a> &amp;<a class="el" href="../../d4/dc8/classscl_1_1path.html">path</a>)</td></tr>
+<tr class="memdesc:a25725e07c90901692aa7443089ae625b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Submits a file to be written to the pack when <a class="el" href="../../de/d13/classscl_1_1pack_1_1Packager.html#a978e4de90114e13c43357d91a4a933de" title="Writes all submitted files to the pack. Invalidates all inactive pack files at the time of the call.">write()</a> is called. Note: Files will only be written if they are active by the time <a class="el" href="../../de/d13/classscl_1_1pack_1_1Packager.html#a978e4de90114e13c43357d91a4a933de" title="Writes all submitted files to the pack. Invalidates all inactive pack files at the time of the call.">write()</a> is called.  <br /></td></tr>
+<tr class="separator:a25725e07c90901692aa7443089ae625b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a978e4de90114e13c43357d91a4a933de"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/d13/classscl_1_1pack_1_1Packager.html#a978e4de90114e13c43357d91a4a933de">write</a> (std::function&lt; void(size_t, <a class="el" href="../../d0/d70/classscl_1_1pack_1_1PackIndex.html">PackIndex</a> *)&gt; cb={})</td></tr>
+<tr class="memdesc:a978e4de90114e13c43357d91a4a933de"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes all submitted files to the pack. Invalidates all inactive pack files at the time of the call.  <br /></td></tr>
+<tr class="separator:a978e4de90114e13c43357d91a4a933de"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a257fdf6c4365f047a56db139ea09c201"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="../../d2/d78/classscl_1_1dictionary.html">scl::dictionary</a>&lt; <a class="el" href="../../d0/d70/classscl_1_1pack_1_1PackIndex.html">PackIndex</a> &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/d13/classscl_1_1pack_1_1Packager.html#a257fdf6c4365f047a56db139ea09c201">index</a> ()</td></tr>
+<tr class="memdesc:a257fdf6c4365f047a56db139ea09c201"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the dictionary containing every index known in this pack family.  <br /></td></tr>
 <tr class="separator:a257fdf6c4365f047a56db139ea09c201"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3edf2b68791941a69bf8260d6aa3c51b"><td class="memItemLeft" align="right" valign="top"><a id="a3edf2b68791941a69bf8260d6aa3c51b" name="a3edf2b68791941a69bf8260d6aa3c51b"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>close</b> ()</td></tr>
+<tr class="memitem:af3a0720f93f3cb91742b4f753744de75"><td class="memItemLeft" align="right" valign="top"><a id="af3a0720f93f3cb91742b4f753744de75" name="af3a0720f93f3cb91742b4f753744de75"></a>
+<a class="el" href="../../d0/d70/classscl_1_1pack_1_1PackIndex.html">PackIndex</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>operator[]</b> (const <a class="el" href="../../d3/db9/classscl_1_1string.html">scl::string</a> &amp;<a class="el" href="../../d4/dc8/classscl_1_1path.html">path</a>)</td></tr>
+<tr class="separator:af3a0720f93f3cb91742b4f753744de75"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3edf2b68791941a69bf8260d6aa3c51b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/d13/classscl_1_1pack_1_1Packager.html#a3edf2b68791941a69bf8260d6aa3c51b">close</a> ()</td></tr>
+<tr class="memdesc:a3edf2b68791941a69bf8260d6aa3c51b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Closes this pack.  <br /></td></tr>
 <tr class="separator:a3edf2b68791941a69bf8260d6aa3c51b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a539da96d2b0971af273f4718028a680f"><td class="memItemLeft" align="right" valign="top"><a id="a539da96d2b0971af273f4718028a680f" name="a539da96d2b0971af273f4718028a680f"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>write</b> ()</td></tr>
-<tr class="separator:a539da96d2b0971af273f4718028a680f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="friends" name="friends"></a>
 Friends</h2></td></tr>
 <tr class="memitem:ae3726f50cab57a1631760f8b0ee707e4"><td class="memItemLeft" align="right" valign="top"><a id="ae3726f50cab57a1631760f8b0ee707e4" name="ae3726f50cab57a1631760f8b0ee707e4"></a>
 class&#160;</td><td class="memItemRight" valign="bottom"><b>PackFetchJob</b></td></tr>
 <tr class="separator:ae3726f50cab57a1631760f8b0ee707e4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acb3d0859a299f3c8b5c5109c377fb27a"><td class="memItemLeft" align="right" valign="top"><a id="acb3d0859a299f3c8b5c5109c377fb27a" name="acb3d0859a299f3c8b5c5109c377fb27a"></a>
+class&#160;</td><td class="memItemRight" valign="bottom"><b>PackWriteJob</b></td></tr>
+<tr class="separator:acb3d0859a299f3c8b5c5109c377fb27a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aed373437e3bfdbdea8f791f28fed50c2"><td class="memItemLeft" align="right" valign="top"><a id="aed373437e3bfdbdea8f791f28fed50c2" name="aed373437e3bfdbdea8f791f28fed50c2"></a>
+class&#160;</td><td class="memItemRight" valign="bottom"><b>PackIndex</b></td></tr>
+<tr class="separator:aed373437e3bfdbdea8f791f28fed50c2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Class representing a family of asset packages. Allows you to read, write, etc. </p>
+</div><h2 class="groupheader">Member Function Documentation</h2>
+<a id="a3edf2b68791941a69bf8260d6aa3c51b" name="a3edf2b68791941a69bf8260d6aa3c51b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3edf2b68791941a69bf8260d6aa3c51b">&#9670;&#160;</a></span>close()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void scl::pack::Packager::close </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Closes this pack. </p>
+
+</div>
+</div>
+<a id="a257fdf6c4365f047a56db139ea09c201" name="a257fdf6c4365f047a56db139ea09c201"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a257fdf6c4365f047a56db139ea09c201">&#9670;&#160;</a></span>index()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="../../d2/d78/classscl_1_1dictionary.html">scl::dictionary</a>&lt; <a class="el" href="../../d0/d70/classscl_1_1pack_1_1PackIndex.html">PackIndex</a> &gt; &amp; scl::pack::Packager::index </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Returns the dictionary containing every index known in this pack family. </p>
+<dl class="section return"><dt>Returns</dt><dd></dd></dl>
+
+</div>
+</div>
+<a id="ae7e196bf12950275fb37f14feecf10f5" name="ae7e196bf12950275fb37f14feecf10f5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae7e196bf12950275fb37f14feecf10f5">&#9670;&#160;</a></span>open()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool scl::pack::Packager::open </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="../../d4/dc8/classscl_1_1path.html">scl::path</a> &amp;&#160;</td>
+          <td class="paramname"><em>path</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Opens the pack family from the given name. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">path</td><td>pack family path </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true if success </dd>
+<dd>
+false if otherwise </dd></dl>
+
+</div>
+</div>
+<a id="a08bcb1cd6f5a9bc122bbfe892abb2372" name="a08bcb1cd6f5a9bc122bbfe892abb2372"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a08bcb1cd6f5a9bc122bbfe892abb2372">&#9670;&#160;</a></span>openFile()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d0/d70/classscl_1_1pack_1_1PackIndex.html">PackIndex</a> * scl::pack::Packager::openFile </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="../../d4/dc8/classscl_1_1path.html">scl::path</a> &amp;&#160;</td>
+          <td class="paramname"><em>path</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Requests the given filepath to be indexed (if not already), or decompressed (if already in pack). </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">path</td><td>filepath to be opened </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Pointer to the pack index of the given path. </dd></dl>
+
+</div>
+</div>
+<a id="a3d47412fc900e9639273ebbe58a1d8f1" name="a3d47412fc900e9639273ebbe58a1d8f1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3d47412fc900e9639273ebbe58a1d8f1">&#9670;&#160;</a></span>openFiles()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt; <a class="el" href="../../d0/d70/classscl_1_1pack_1_1PackIndex.html">PackIndex</a> * &gt; scl::pack::Packager::openFiles </td>
+          <td>(</td>
+          <td class="paramtype">const std::vector&lt; <a class="el" href="../../d4/dc8/classscl_1_1path.html">scl::path</a> &gt; &amp;&#160;</td>
+          <td class="paramname"><em>files</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Vectored version of openFile. For info, see <a class="el" href="../../de/d13/classscl_1_1pack_1_1Packager.html#a08bcb1cd6f5a9bc122bbfe892abb2372" title="Requests the given filepath to be indexed (if not already), or decompressed (if already in pack).">openFile()</a>. </p>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="../../de/d13/classscl_1_1pack_1_1Packager.html#a08bcb1cd6f5a9bc122bbfe892abb2372" title="Requests the given filepath to be indexed (if not already), or decompressed (if already in pack).">openFile</a></dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">files</td><td>vector of files to open. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Vector of pack indices for the given files. </dd></dl>
+
+</div>
+</div>
+<a id="a25725e07c90901692aa7443089ae625b" name="a25725e07c90901692aa7443089ae625b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a25725e07c90901692aa7443089ae625b">&#9670;&#160;</a></span>submit()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool scl::pack::Packager::submit </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="../../d4/dc8/classscl_1_1path.html">scl::path</a> &amp;&#160;</td>
+          <td class="paramname"><em>path</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Submits a file to be written to the pack when <a class="el" href="../../de/d13/classscl_1_1pack_1_1Packager.html#a978e4de90114e13c43357d91a4a933de" title="Writes all submitted files to the pack. Invalidates all inactive pack files at the time of the call.">write()</a> is called. Note: Files will only be written if they are active by the time <a class="el" href="../../de/d13/classscl_1_1pack_1_1Packager.html#a978e4de90114e13c43357d91a4a933de" title="Writes all submitted files to the pack. Invalidates all inactive pack files at the time of the call.">write()</a> is called. </p>
+<p>This function will block simultanious calls.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">path</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><b>true</b> if file was successfully submitted. </dd></dl>
+
+</div>
+</div>
+<a id="a978e4de90114e13c43357d91a4a933de" name="a978e4de90114e13c43357d91a4a933de"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a978e4de90114e13c43357d91a4a933de">&#9670;&#160;</a></span>write()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool scl::pack::Packager::write </td>
+          <td>(</td>
+          <td class="paramtype">std::function&lt; void(size_t, <a class="el" href="../../d0/d70/classscl_1_1pack_1_1PackIndex.html">PackIndex</a> *)&gt;&#160;</td>
+          <td class="paramname"><em>cb</em> = <code>{}</code></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Writes all submitted files to the pack. Invalidates all inactive pack files at the time of the call. </p>
+<dl class="section warning"><dt>Warning</dt><dd>This function will call <a class="el" href="../../de/d13/classscl_1_1pack_1_1Packager.html#a3edf2b68791941a69bf8260d6aa3c51b" title="Closes this pack.">close()</a>, and invalidate all info related to this packager.</dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">cb</td><td>Callback called with (elementid, pack_index), elementid being its submission id, and pack_index being the index related to it. Called after a file has been succesfully compressed, but not fully written. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true on success </dd>
+<dd>
+false if otherwise. </dd></dl>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following files:<ul>
 <li>src/<a class="el" href="../../de/d56/sclpack_8hpp_source.html">sclpack.hpp</a></li>
 <li>src/sclpack.cpp</li>

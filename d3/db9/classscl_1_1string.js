@@ -17,6 +17,7 @@ var classscl_1_1string =
     [ "operator<", "d3/db9/classscl_1_1string.html#a294d478b25fb340bf45e4df3ff4b46b1", null ],
     [ "operator[]", "d3/db9/classscl_1_1string.html#a4d046c9b371e1f01ec84ad5d1b0948e2", null ],
     [ "replace", "d3/db9/classscl_1_1string.html#a3fae850ea093ce28a79d7070d8f00024", null ],
+    [ "replace", "d3/db9/classscl_1_1string.html#ae02db823602b6e9701b3daa6c1a1fbfe", null ],
     [ "reserve", "d3/db9/classscl_1_1string.html#a37e753c49fbad08769f5c15cb291f3b7", null ],
     [ "size", "d3/db9/classscl_1_1string.html#a804b2246595fc3748fe1c054629f3e56", null ],
     [ "substr", "d3/db9/classscl_1_1string.html#a7635bce00dc8840a74ae4ce6da1b3afd", null ],

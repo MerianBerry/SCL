@@ -1,10 +1,12 @@
 var hierarchy =
 [
+    [ "scl::dictionary< T, K, Hfunc >", "d2/d78/classscl_1_1dictionary.html", null ],
     [ "scl::internal::hnode< T, K >", "d3/da7/structscl_1_1internal_1_1hnode.html", null ],
     [ "scl::internal::htab_iterator< T, K, NC >", "d6/da9/classscl_1_1internal_1_1htab__iterator.html", null ],
     [ "scl::jobs::job< WtT >", "d1/d74/classscl_1_1jobs_1_1job.html", null ],
     [ "scl::jobs::job< PackWaitable >", "d1/d74/classscl_1_1jobs_1_1job.html", [
-      [ "scl::pack::PackFetchJob", "d9/d15/classscl_1_1pack_1_1PackFetchJob.html", null ]
+      [ "scl::pack::PackFetchJob", "d9/d15/classscl_1_1pack_1_1PackFetchJob.html", null ],
+      [ "scl::pack::PackWriteJob", "d6/d3b/classscl_1_1pack_1_1PackWriteJob.html", null ]
     ] ],
     [ "scl::jobs::job< waitable >", "d1/d74/classscl_1_1jobs_1_1job.html", [
       [ "scl::jobs::funcJob", "d6/d64/classscl_1_1jobs_1_1funcJob.html", null ]
@@ -14,16 +16,13 @@ var hierarchy =
       [ "scl::jobs::JobServer", "df/db5/classscl_1_1jobs_1_1JobServer.html", null ],
       [ "scl::pack::Packager", "de/d13/classscl_1_1pack_1_1Packager.html", null ]
     ] ],
-    [ "scl::pack::PackIndex", "d5/d19/structscl_1_1pack_1_1PackIndex.html", null ],
-    [ "scl::internal::RefObj", "d5/dd5/classscl_1_1internal_1_1RefObj.html", [
-      [ "scl::dictionary< T, K, Hfunc >", "d2/d78/classscl_1_1dictionary.html", null ],
-      [ "scl::string", "d3/db9/classscl_1_1string.html", [
-        [ "scl::path", "d4/dc8/classscl_1_1path.html", null ]
-      ] ]
-    ] ],
+    [ "scl::pack::PackIndex", "d0/d70/classscl_1_1pack_1_1PackIndex.html", null ],
     [ "scl::internal::str_iterator", "d6/d8f/classscl_1_1internal_1_1str__iterator.html", null ],
     [ "scl::stream", "dc/d00/classscl_1_1stream.html", [
       [ "scl::reduce_stream", "d1/d31/classscl_1_1reduce__stream.html", null ]
+    ] ],
+    [ "scl::string", "d3/db9/classscl_1_1string.html", [
+      [ "scl::path", "d4/dc8/classscl_1_1path.html", null ]
     ] ],
     [ "scl::jobs::waitable", "d2/dc2/classscl_1_1jobs_1_1waitable.html", [
       [ "scl::pack::PackWaitable", "d1/da7/classscl_1_1pack_1_1PackWaitable.html", null ]

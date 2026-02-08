@@ -9,10 +9,11 @@ var searchData=
   ['clear_6',['clear',['../d3/db9/classscl_1_1string.html#ada5a22718e2e17da9821c2e8d33a3f4d',1,'scl::string::clear()'],['../d2/d78/classscl_1_1dictionary.html#ae5312cf207260f933febe0c3242da4b3',1,'scl::dictionary::clear()']]],
   ['clearjobs_7',['clearjobs',['../df/db5/classscl_1_1jobs_1_1JobServer.html#a353b846d41742a91c1f33c1df405a0e8',1,'scl::jobs::JobServer']]],
   ['clock_8',['clock',['../d3/dbf/namespacescl.html#a0bccf89fa43b8dbe5251bb6032810327',1,'scl']]],
-  ['close_9',['close',['../dc/d00/classscl_1_1stream.html#ad1ec88c1ef8ca37c2b03c3dee90db262',1,'scl::stream::close()'],['../d1/d31/classscl_1_1reduce__stream.html#a1dce368f72450391730840be4c8ad43b',1,'scl::reduce_stream::close()']]],
+  ['close_9',['close',['../de/d13/classscl_1_1pack_1_1Packager.html#a3edf2b68791941a69bf8260d6aa3c51b',1,'scl::pack::Packager::close()'],['../d1/d31/classscl_1_1reduce__stream.html#a1dce368f72450391730840be4c8ad43b',1,'scl::reduce_stream::close()'],['../dc/d00/classscl_1_1stream.html#ad1ec88c1ef8ca37c2b03c3dee90db262',1,'scl::stream::close()']]],
   ['complete_10',['complete',['../d2/dc2/classscl_1_1jobs_1_1waitable.html#a656b1818097811280b9b59da840b0eff',1,'scl::jobs::waitable']]],
-  ['copy_11',['copy',['../d3/db9/classscl_1_1string.html#aae31a9a48ff062f1da4004ff63006a2f',1,'scl::string']]],
-  ['copyfile_12',['copyfile',['../d4/dc8/classscl_1_1path.html#a5274a0d73a00ea3304e016d88f4feeaf',1,'scl::path']]],
-  ['cstr_13',['cstr',['../d3/db9/classscl_1_1string.html#aa38980c5fc375be7d0b369e5b5803ac8',1,'scl::string']]],
-  ['cwd_14',['cwd',['../d4/dc8/classscl_1_1path.html#a4782101333ad4245070452c58deaf3a8',1,'scl::path']]]
+  ['compressed_11',['compressed',['../d0/d70/classscl_1_1pack_1_1PackIndex.html#a999a4e857ff4261d103d6acc72b2e53a',1,'scl::pack::PackIndex']]],
+  ['copy_12',['copy',['../d3/db9/classscl_1_1string.html#aae31a9a48ff062f1da4004ff63006a2f',1,'scl::string']]],
+  ['copyfile_13',['copyfile',['../d4/dc8/classscl_1_1path.html#a5274a0d73a00ea3304e016d88f4feeaf',1,'scl::path']]],
+  ['cstr_14',['cstr',['../d3/db9/classscl_1_1string.html#aa38980c5fc375be7d0b369e5b5803ac8',1,'scl::string']]],
+  ['cwd_15',['cwd',['../d4/dc8/classscl_1_1path.html#a4782101333ad4245070452c58deaf3a8',1,'scl::path']]]
 ];

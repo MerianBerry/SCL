@@ -129,15 +129,19 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a3a554f9163723e3a44d6a27c84c0d22e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab117c51780dfc71654178ee389d50d47"><td class="memItemLeft" align="right" valign="top">long long&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d00/classscl_1_1stream.html#ab117c51780dfc71654178ee389d50d47">tell</a> () const</td></tr>
 <tr class="separator:ab117c51780dfc71654178ee389d50d47"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a264374e1e58c687b2822e2bc6460072b"><td class="memItemLeft" align="right" valign="top"><a id="a264374e1e58c687b2822e2bc6460072b" name="a264374e1e58c687b2822e2bc6460072b"></a>
+size_t&#160;</td><td class="memItemRight" valign="bottom"><b>size</b> () const</td></tr>
+<tr class="memdesc:a264374e1e58c687b2822e2bc6460072b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the current capacity of the stream. Only works in data mode, returns 0 in file mode. <br /></td></tr>
+<tr class="separator:a264374e1e58c687b2822e2bc6460072b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a245943b9347ea750d8605ff68997e2a2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d00/classscl_1_1stream.html#a245943b9347ea750d8605ff68997e2a2">reset_modified</a> ()</td></tr>
 <tr class="memdesc:a245943b9347ea750d8605ff68997e2a2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resets the modified status of this stream to false.  <br /></td></tr>
 <tr class="separator:a245943b9347ea750d8605ff68997e2a2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acab3a0e20ce772f68d3a384422fdc4f9"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d00/classscl_1_1stream.html#acab3a0e20ce772f68d3a384422fdc4f9">openMode</a> (const <a class="el" href="../../d4/dc8/classscl_1_1path.html">scl::path</a> &amp;<a class="el" href="../../d4/dc8/classscl_1_1path.html">path</a>, const <a class="el" href="../../d3/db9/classscl_1_1string.html">scl::string</a> &amp;mode)</td></tr>
 <tr class="memdesc:acab3a0e20ce772f68d3a384422fdc4f9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Opens this stream to a path, with a specific mode.  <br /></td></tr>
 <tr class="separator:acab3a0e20ce772f68d3a384422fdc4f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a846b18468d0f513e0392ae3e21810e35"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d00/classscl_1_1stream.html#a846b18468d0f513e0392ae3e21810e35">open</a> (const <a class="el" href="../../d4/dc8/classscl_1_1path.html">scl::path</a> &amp;<a class="el" href="../../d4/dc8/classscl_1_1path.html">path</a>, bool trunc=false, bool binary=false)</td></tr>
-<tr class="memdesc:a846b18468d0f513e0392ae3e21810e35"><td class="mdescLeft">&#160;</td><td class="mdescRight">Opens this stream to a path.  <br /></td></tr>
-<tr class="separator:a846b18468d0f513e0392ae3e21810e35"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae2c82e378c7769fcc15c205a47ae1821"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d00/classscl_1_1stream.html#ae2c82e378c7769fcc15c205a47ae1821">open</a> (const <a class="el" href="../../d4/dc8/classscl_1_1path.html">scl::path</a> &amp;<a class="el" href="../../d4/dc8/classscl_1_1path.html">path</a>, OpenMode mode, bool binary=false)</td></tr>
+<tr class="memdesc:ae2c82e378c7769fcc15c205a47ae1821"><td class="mdescLeft">&#160;</td><td class="mdescRight">Opens this stream to a path.  <br /></td></tr>
+<tr class="separator:ae2c82e378c7769fcc15c205a47ae1821"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a200005695c7071d48433195ff9f17064"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d00/classscl_1_1stream.html#a200005695c7071d48433195ff9f17064">flush</a> ()</td></tr>
 <tr class="memdesc:a200005695c7071d48433195ff9f17064"><td class="mdescLeft">&#160;</td><td class="mdescRight">Used to flush internal buffers. Does nothing in memory mode.  <br /></td></tr>
 <tr class="separator:a200005695c7071d48433195ff9f17064"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -150,12 +154,12 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a1c69e596b9673918b5f0249c8bd1308b"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d00/classscl_1_1stream.html#a1c69e596b9673918b5f0249c8bd1308b">reserve</a> (size_t n, bool force=false)</td></tr>
 <tr class="memdesc:a1c69e596b9673918b5f0249c8bd1308b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reserves space while in memory mode. Reserves space starting at the rw pointer, not buffer start. By default does nothing if there is enough space remaining.  <br /></td></tr>
 <tr class="separator:a1c69e596b9673918b5f0249c8bd1308b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a908d67fb14ec4dabaab97c23f5506b3b"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d00/classscl_1_1stream.html#a908d67fb14ec4dabaab97c23f5506b3b">write</a> (const void *buf, size_t n, size_t align=1, bool <a class="el" href="../../dc/d00/classscl_1_1stream.html#a200005695c7071d48433195ff9f17064">flush</a>=true)</td></tr>
-<tr class="memdesc:a908d67fb14ec4dabaab97c23f5506b3b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes a memory buffer to this stream.  <br /></td></tr>
-<tr class="separator:a908d67fb14ec4dabaab97c23f5506b3b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1a22f3b59c28c356e57270074b3082cd"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d00/classscl_1_1stream.html#a1a22f3b59c28c356e57270074b3082cd">write</a> (const <a class="el" href="../../d3/db9/classscl_1_1string.html">scl::string</a> &amp;str, size_t align=1, bool <a class="el" href="../../dc/d00/classscl_1_1stream.html#a200005695c7071d48433195ff9f17064">flush</a>=true)</td></tr>
-<tr class="memdesc:a1a22f3b59c28c356e57270074b3082cd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes an <a class="el" href="../../d3/db9/classscl_1_1string.html">scl::string</a>'s length to this stream.  <br /></td></tr>
-<tr class="separator:a1a22f3b59c28c356e57270074b3082cd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7e9cdc9312bfaf6441bae734c9e928de"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d00/classscl_1_1stream.html#a7e9cdc9312bfaf6441bae734c9e928de">write</a> (const void *buf, size_t n, size_t align=1, bool <a class="el" href="../../dc/d00/classscl_1_1stream.html#a200005695c7071d48433195ff9f17064">flush</a>=false)</td></tr>
+<tr class="memdesc:a7e9cdc9312bfaf6441bae734c9e928de"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes a memory buffer to this stream.  <br /></td></tr>
+<tr class="separator:a7e9cdc9312bfaf6441bae734c9e928de"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad9e946667d71b7665b15f99b98b141b2"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d00/classscl_1_1stream.html#ad9e946667d71b7665b15f99b98b141b2">write</a> (const <a class="el" href="../../d3/db9/classscl_1_1string.html">scl::string</a> &amp;str, size_t align=1, bool <a class="el" href="../../dc/d00/classscl_1_1stream.html#a200005695c7071d48433195ff9f17064">flush</a>=false)</td></tr>
+<tr class="memdesc:ad9e946667d71b7665b15f99b98b141b2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes an <a class="el" href="../../d3/db9/classscl_1_1string.html">scl::string</a>'s length to this stream.  <br /></td></tr>
+<tr class="separator:ad9e946667d71b7665b15f99b98b141b2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5c5640808c9e2780e2bd9215bd62986e"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d00/classscl_1_1stream.html#a5c5640808c9e2780e2bd9215bd62986e">write</a> (<a class="el" href="../../dc/d00/classscl_1_1stream.html">scl::stream</a> &amp;src, size_t max=-1)</td></tr>
 <tr class="memdesc:a5c5640808c9e2780e2bd9215bd62986e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes another <a class="el" href="../../d3/db9/classscl_1_1string.html">scl::string</a> into this stream.  <br /></td></tr>
 <tr class="separator:a5c5640808c9e2780e2bd9215bd62986e"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -185,6 +189,9 @@ long long&#160;</td><td class="memItemRight" valign="bottom"><b>read_internal</b
 <tr class="memitem:a96dd4ba280cf7afdb898346b08ba1830"><td class="memItemLeft" align="right" valign="top"><a id="a96dd4ba280cf7afdb898346b08ba1830" name="a96dd4ba280cf7afdb898346b08ba1830"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>write_internal</b> (const void *buf, size_t n, size_t align)</td></tr>
 <tr class="separator:a96dd4ba280cf7afdb898346b08ba1830"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a49194a09cb50fb24e107f6d78130b617"><td class="memItemLeft" align="right" valign="top"><a id="a49194a09cb50fb24e107f6d78130b617" name="a49194a09cb50fb24e107f6d78130b617"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>close_internal</b> ()</td></tr>
+<tr class="separator:a49194a09cb50fb24e107f6d78130b617"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-attribs" name="pro-attribs"></a>
 Protected Attributes</h2></td></tr>
@@ -324,8 +331,8 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>m_modified</b> = fals
 
 </div>
 </div>
-<a id="a846b18468d0f513e0392ae3e21810e35" name="a846b18468d0f513e0392ae3e21810e35"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a846b18468d0f513e0392ae3e21810e35">&#9670;&#160;</a></span>open()</h2>
+<a id="ae2c82e378c7769fcc15c205a47ae1821" name="ae2c82e378c7769fcc15c205a47ae1821"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae2c82e378c7769fcc15c205a47ae1821">&#9670;&#160;</a></span>open()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -339,8 +346,8 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>m_modified</b> = fals
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">bool&#160;</td>
-          <td class="paramname"><em>trunc</em> = <code>false</code>, </td>
+          <td class="paramtype">OpenMode&#160;</td>
+          <td class="paramname"><em>mode</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -360,7 +367,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>m_modified</b> = fals
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">path</td><td>Path to open. </td></tr>
-    <tr><td class="paramname">trunc</td><td>Whether or not to truncate (erase) existing file contents. </td></tr>
+    <tr><td class="paramname">mode</td><td>The mode to use when opening the file. </td></tr>
     <tr><td class="paramname">binary</td><td>Whether or not to open in binary mode (/r/n -&gt; /n while reading in non-binary mode). </td></tr>
   </table>
   </dd>
@@ -588,8 +595,8 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>m_modified</b> = fals
 
 </div>
 </div>
-<a id="a1a22f3b59c28c356e57270074b3082cd" name="a1a22f3b59c28c356e57270074b3082cd"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1a22f3b59c28c356e57270074b3082cd">&#9670;&#160;</a></span>write() <span class="overload">[1/3]</span></h2>
+<a id="ad9e946667d71b7665b15f99b98b141b2" name="ad9e946667d71b7665b15f99b98b141b2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad9e946667d71b7665b15f99b98b141b2">&#9670;&#160;</a></span>write() <span class="overload">[1/3]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -610,7 +617,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>m_modified</b> = fals
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">bool&#160;</td>
-          <td class="paramname"><em>flush</em> = <code>true</code>&#160;</td>
+          <td class="paramname"><em>flush</em> = <code>false</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -629,12 +636,12 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>m_modified</b> = fals
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>true if the operation was successful. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>true if the operation was successful, and the requested number of bytes were written. </dd></dl>
 
 </div>
 </div>
-<a id="a908d67fb14ec4dabaab97c23f5506b3b" name="a908d67fb14ec4dabaab97c23f5506b3b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a908d67fb14ec4dabaab97c23f5506b3b">&#9670;&#160;</a></span>write() <span class="overload">[2/3]</span></h2>
+<a id="a7e9cdc9312bfaf6441bae734c9e928de" name="a7e9cdc9312bfaf6441bae734c9e928de"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7e9cdc9312bfaf6441bae734c9e928de">&#9670;&#160;</a></span>write() <span class="overload">[2/3]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -664,7 +671,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>m_modified</b> = fals
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">bool&#160;</td>
-          <td class="paramname"><em>flush</em> = <code>true</code>&#160;</td>
+          <td class="paramname"><em>flush</em> = <code>false</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -689,9 +696,9 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>m_modified</b> = fals
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>true if the operation was successful. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>true if the operation was successful, and the requested number of bytes were written. </dd></dl>
 
-<p>Reimplemented in <a class="el" href="../../d1/d31/classscl_1_1reduce__stream.html#a908d67fb14ec4dabaab97c23f5506b3b">scl::reduce_stream</a>, and <a class="el" href="../../d1/d31/classscl_1_1reduce__stream.html#aa0f2968ddecf1445522fd61a5e8af02d">scl::reduce_stream</a>.</p>
+<p>Reimplemented in <a class="el" href="../../d1/d31/classscl_1_1reduce__stream.html#a7e9cdc9312bfaf6441bae734c9e928de">scl::reduce_stream</a>, and <a class="el" href="../../d1/d31/classscl_1_1reduce__stream.html#aa0f2968ddecf1445522fd61a5e8af02d">scl::reduce_stream</a>.</p>
 
 </div>
 </div>
