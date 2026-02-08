@@ -12,8 +12,6 @@
 #include <iostream>
 
 int main(int argc, char** argv) {
-  scl::init();
-
 #if 1
   scl::pack::Packager pack;
   pack.open("test.spk");
@@ -71,7 +69,5 @@ int main(int argc, char** argv) {
   });
   pack.close();
 #endif
-
-  scl::terminate();
   return 0;
 }

@@ -200,6 +200,7 @@ void PackWriteJob::doJob(PackWaitable* wt, const jobs::JobWorker& worker) {
   // Crude overallocation fix
   if(reduce->size() > ask * 32)
     reduce->close();
+  // Allocate src buffer size at minimum
   if(reduce->size() < ask)
     reduce->reserve(ask);
   m_idx->seek(StreamPos::start, 0);
@@ -506,14 +507,6 @@ void Packager::close() {
     unlock();
     return;
   }
-  // Wait for all the unfinished waitables, so they dont error
-  if(!waitUntil(
-       [this]() {
-         return m_waiting == 0;
-       },
-       5, 1)) {
-    fprintf(stderr, "Packager::close timed out due to unfinished jobs\n");
-  };
   m_serv.stop();
   for(auto& i : m_index) {
     if(i->m_active) {

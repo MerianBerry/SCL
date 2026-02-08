@@ -38,71 +38,6 @@ uchar                 log2i(unsigned x);
  *
  */
 namespace internal {
-class RefObj {
- private:
-  int  m_refi = 0;
-
-  bool findslot();
-  void incslot() const;
-  bool decslot();
-
- public:
-  RefObj();
-  RefObj(const RefObj&);
-  virtual ~RefObj() = 0;
-
- protected:
-  /**
-   * @brief Deep copy implemented by derived classes, called by RefObj.
-   * @note The `free` param can be ignored by most implementations, unless they
-   * use unmanaged memory (example: an scl::string object viewing a string
-   * buffer).
-   *
-   * @param free Whether or not this object is managed, and its resources
-   * should be freed during the copy.
-   */
-  virtual void mutate(bool free) = 0;
-
-  /**
-   * @brief Decrements the number of references for this object.
-   *
-   * @return <b>true</b> if no references remain.
-   * @return <b>false</b> if otherwise.
-   */
-  bool         deref();
-
-  /**
-   * @brief Makes this object unique.
-   * @note Calles the derived class' implmentation of
-   * RefObj::mutate() if applicable.
-   *
-   * @param copy Whether or not this object should be deep copied if it
-   * is not unique already.
-   * @return <b>true</b> if this object was not unique before.
-   * @return <b>false</b> if otherwise.
-   */
-  bool         make_unique(bool copy = true);
-
-  /**
-   * @brief Makes this object reference another. Behaves identically to the
-   * RefObj copy constructor.
-   * @note This does not handle any managed memory of the derived class, which
-   * must be handled manually before using this method.
-   */
-  void         ref(const RefObj&);
-
-  bool         operator==(const RefObj& rhs) const;
-
- public:
-  /**
-   * @brief Returns the number of references of this object.
-   *
-   * @return <b>int</b> Number of references. Returns 0 if this object has no
-   * references.
-   */
-  int refs() const;
-};
-
 class str_iterator;
 } // namespace internal
 
@@ -661,16 +596,16 @@ class str_iterator {
 } // namespace internal
 
 /**
- * @brief Initializes SCL global resources. Libraries currently requiring this
- * is scl::pack.
+ * @brief Initializes SCL global resources.
+ * Currently does nothing. But remains for compatibility.
  *
  * @return  Returns true on success, false on otherwise.
  */
 bool init();
 
 /**
- * @brief Releases SCL global resources. Libraries currently requiring this
- * is scl::pack.
+ * @brief Releases SCL global resources.
+ * Currently does nothing. But remains for compatibility.
  *
  */
 void terminate();

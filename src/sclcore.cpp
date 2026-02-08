@@ -93,96 +93,7 @@ unsigned char log2i(unsigned x) {
   return r;
 }
 
-namespace internal {
-// TODO: Rework GC system?
-// It works fine right, now but has some drawbacks (syncronous linear time slot
-// allocation), which i feel could be better
-
-static uchar       refs[SCL_MAX_REFS] = {0};
-static std::mutex* g_mmut             = nullptr;
-
-bool               RefObj::findslot() {
-  bool out = false;
-  // Shrug
-  if(!g_mmut)
-    return false;
-  g_mmut->lock();
-  for(int i = 1; i < SCL_MAX_REFS; i++) {
-    if(!internal::refs[i]) {
-      m_refi = i;
-      if(m_refi)
-        internal::refs[m_refi]++;
-      out = true;
-      break;
-    }
-  }
-  g_mmut->unlock();
-  return out;
-}
-
-void RefObj::incslot() const {
-  if(!g_mmut)
-    return;
-  g_mmut->lock();
-  if(m_refi)
-    internal::refs[m_refi]++;
-  g_mmut->unlock();
-}
-
-bool RefObj::decslot() {
-  if(!g_mmut)
-    return false;
-  g_mmut->lock();
-  bool out = false;
-  if(m_refi && !--internal::refs[m_refi]) {
-    m_refi = 0;
-    out    = true;
-  }
-  g_mmut->unlock();
-  return out;
-}
-
-RefObj::RefObj() {
-  findslot();
-}
-
-RefObj::RefObj(const RefObj& ro) {
-  m_refi = ro.m_refi;
-  incslot();
-}
-
-RefObj::~RefObj() {
-}
-
-int RefObj::refs() const {
-  return m_refi ? internal::refs[m_refi] : 0;
-}
-
-bool RefObj::deref() {
-  return decslot();
-}
-
-bool RefObj::make_unique(bool copy) {
-  // No need, already unique
-  if(refs() == 1)
-    return false;
-  bool d = deref();
-  findslot();
-  if(copy)
-    mutate(d);
-  return true;
-}
-
-void RefObj::ref(const RefObj& ro) {
-  deref();
-  m_refi = ro.m_refi;
-  incslot();
-}
-
-bool RefObj::operator==(const RefObj& rhs) const {
-  return m_refi && m_refi == rhs.m_refi;
-}
-} // namespace internal
+namespace internal {} // namespace internal
 
 bool string::isview() const {
   return m_buf && !m_sz;
@@ -1062,15 +973,9 @@ stream& stream::operator>>(scl::string& str) {
 }
 
 bool init() {
-  internal::g_mmut = new std::mutex();
-  bool pack        = pack::packInit();
-  return pack;
+  return true;
 }
 
 void terminate() {
-  pack::packTerminate();
-  delete internal::g_mmut;
-  memset(internal::refs, 0, sizeof(internal::refs));
-  internal::g_mmut = nullptr;
 }
 } // namespace scl

@@ -26,7 +26,7 @@ class htab_iterator;
 } // namespace internal
 
 template <class T, class K = string, class Hfunc = string>
-class dictionary : internal::RefObj {
+class dictionary {
   friend class internal::htab_iterator<T, K>;
   friend class internal::htab_iterator<T, K, false>;
 
@@ -95,21 +95,9 @@ class dictionary : internal::RefObj {
     return nullptr;
   }
 
-  void mutate(bool free) override {
-    dictionary fun;
-    for(hnode* n = nodenext(nullptr); n;) {
-      fun.set(n->m_key, n->m_data);
-      n = nodenext(n);
-    }
-    if(free)
-      _clear();
-    *this = fun;
-  }
-
   void put(hnode* node) {
     node->m_next = nullptr;
-    make_unique();
-    hnode* n = gnodebase(node->m_hash);
+    hnode* n     = gnodebase(node->m_hash);
     while(n && n->m_next && n->m_hash != node->m_hash)
       n = n->m_next;
     m_hnum++;
@@ -171,23 +159,32 @@ class dictionary : internal::RefObj {
  public:
   dictionary() = default;
 
-  dictionary(const dictionary& rhs)
-      : RefObj(rhs), m_ht(rhs.m_ht), m_hnum(rhs.m_hnum), m_hsz(rhs.m_hsz) {
+  template <class X                                           = T,
+    std::enable_if_t<std::is_copy_assignable<X>::value, bool> = true>
+  dictionary(const dictionary& rhs) {
+    if(rhs.m_ht) {
+      for(hnode* node = rhs.first(); node;) {
+        set(node->m_key, node->m_data);
+        node = rhs.nodenext(node);
+      }
+    }
   }
 
+  template <class X                                           = T,
+    std::enable_if_t<std::is_copy_assignable<X>::value, bool> = true>
   dictionary& operator=(const dictionary& rhs) {
-    if(this->internal::RefObj::operator==(rhs))
-      return *this;
     clear();
-    ref(rhs);
-    m_hnum = rhs.m_hnum;
-    m_hsz  = rhs.m_hsz;
-    m_ht   = rhs.m_ht;
+    if(rhs.m_ht) {
+      for(hnode* node = rhs.first(); node;) {
+        set(node->m_key, node->m_data);
+        node = rhs.nodenext(node);
+      }
+    }
     return *this;
   }
 
-  ~dictionary() override {
-    if(deref() && m_ht)
+  ~dictionary() {
+    if(m_ht)
       _clear();
   }
 
@@ -196,7 +193,6 @@ class dictionary : internal::RefObj {
    *
    */
   void clear() {
-    make_unique(false);
     _clear();
   }
 
@@ -223,8 +219,6 @@ class dictionary : internal::RefObj {
   template <class X                                           = T,
     std::enable_if_t<std::is_copy_assignable<X>::value, bool> = true>
   void set(const K& key, const T& v) {
-    // Make this unique
-    make_unique();
     if(!isoptimal())
       optimize();
     hnode* node = new hnode();
@@ -247,8 +241,6 @@ class dictionary : internal::RefObj {
                                             std::is_move_assignable<X>::value,
                            bool> = true>
   void set(const K& key, T& v) {
-    // Make this unique
-    make_unique();
     if(!isoptimal())
       optimize();
     hnode* node = new hnode();
@@ -483,7 +475,6 @@ class htab_iterator {
   htab_iterator& operator=(const T& val) {
     if(!m_dict)
       throw std::out_of_range("");
-    m_dict->make_unique();
     m_hash     = *this == m_dict->end() ? m_dict->ghash(m_ikey) : m_hash;
     auto* node = m_dict->gnodefull(m_hash);
     if(!node)
@@ -500,7 +491,6 @@ class htab_iterator {
   htab_iterator& operator=(T&& val) {
     if(!m_dict)
       throw std::out_of_range("");
-    m_dict->make_unique();
     m_hash     = *this == m_dict->end() ? m_dict->ghash(m_ikey) : m_hash;
     auto* node = m_dict->gnodefull(m_hash);
     if(!node)
