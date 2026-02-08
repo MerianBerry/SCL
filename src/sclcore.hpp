@@ -597,7 +597,6 @@ class str_iterator {
 
 /**
  * @brief Initializes SCL global resources.
- * Currently does nothing. But remains for compatibility.
  *
  * @return  Returns true on success, false on otherwise.
  */

@@ -422,6 +422,7 @@ string string::rand(unsigned len) {
   unsigned i;
   for(i = 0; i < len; i++) {
     str[i] = rchars[rand_int(0, sizeof(rchars) - 1)];
+    str.m_ln++;
   }
   return str;
 }
@@ -973,6 +974,7 @@ stream& stream::operator>>(scl::string& str) {
 }
 
 bool init() {
+  srand_(scl::clock());
   return true;
 }
 

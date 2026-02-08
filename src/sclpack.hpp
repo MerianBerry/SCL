@@ -105,6 +105,15 @@ class PackIndex {
   PackWaitable& waitable();
 
 
+  /**
+   * @brief Submit this file index for writing.
+   * @note If this file index's stream isnt opened by the user, scl will attemt
+   * to open it itself, using the given filename, while writing this file index.
+   * @note It is reccomended to let scl automatically open this index, if this
+   * index represents a local file.
+   *
+   * @return reference to this object
+   */
   PackIndex&    submit();
 
   /**
@@ -119,6 +128,24 @@ class PackIndex {
    */
   bool          open(OpenMode mode, bool binary = false);
 
+  /**
+   * @brief Returns the stream of this file index.
+   * @warning This function can return NULL if there is no stream attributed to
+   * this index, which can happen if it hasnt been opened via openFile, or
+   * openFiles.
+   *
+   * @return Pointer to this index's stream
+   */
+  scl::stream*  stream();
+
+  /**
+   * @brief Returns the stream of this file index.
+   * @warning This function can return NULL if there is no stream attributed to
+   * this index, which can happen if it hasnt been opened via openFile, or
+   * openFiles.
+   *
+   * @return Pointer to this index's stream
+   */
   scl::stream*  operator->() {
     return m_wt.m_stream;
   }
@@ -141,16 +168,11 @@ class PackIndex {
 
 // Job to decompress a file from a stream into memory
 class PackFetchJob : public jobs::job<PackWaitable> {
-  PackIndex&          m_indx;
-  scl::path           m_file;
-  Packager*           m_pack;
-  scl::reduce_stream* m_archive;
-  scl::stream*        m_out;
-  int                 m_sid;
+  PackIndex& m_idx;
+  Packager&  m_pack;
 
  public:
-  PackFetchJob(Packager* pack, scl::reduce_stream* archive, scl::stream* out,
-    PackIndex& indx, scl::path file, int sid);
+  PackFetchJob(PackIndex& idx, Packager& pack);
 
   PackWaitable* getWaitable() const override;
 
@@ -190,10 +212,10 @@ class Packager : protected std::mutex {
   scl::path                        m_ext;
   scl::dictionary<PackIndex>       m_index;
   std::vector<PackIndex*>          m_submitted;
+  std::vector<scl::reduce_stream*> m_archives;
   // Reduce queue mutex
   std::mutex                       m_remux;
   std::queue<scl::reduce_stream*>  m_reduces;
-  std::vector<scl::reduce_stream*> m_reduce;
   // Queue of in-progress compressions
   std::queue<PackIndex*>           m_writing;
   std::atomic_uint32_t             m_waiting;
@@ -209,17 +231,41 @@ class Packager : protected std::mutex {
     ERROR = 2,
   };
 
-  bool     readIndex(scl::stream& archive);
+  bool     readIndex(scl::reduce_stream& archive, uint32_t bid);
   mPackRes writeMemberPack(scl::stream& archive, size_t& elemid, int memberid,
-    std::function<void(size_t, PackIndex*)>& cb);
+    const scl::string& buildid, std::function<void(size_t, PackIndex*)>& cb);
 
  public:
   Packager(int nworkers = INT_MAX);
   ~Packager();
 
+  /**
+   * @brief Opens the pack family from the given name
+   *
+   * @param  path  pack family path
+   * @return true if success
+   * @return false if otherwise
+   */
   bool                    open(const scl::path& path);
+
+  /**
+   * @brief Requests the given filepath to be indexed (if not already), or
+   * decompressed (if already in pack).
+   *
+   * @param  path filepath to be opened
+   * @return Pointer to the pack index of the given path.
+   */
   PackIndex*              openFile(const scl::path& path);
+
+  /**
+   * @brief Vectored version of openFile. For info, see openFile().
+   * @see openFile
+   *
+   * @param  files  vector of files to open.
+   * @return Vector of pack indices for the given files.
+   */
   std::vector<PackIndex*> openFiles(const std::vector<scl::path>& files);
+
   /**
    * @brief Submits a file to be written to the pack when write() is called.
    *  Note: Files will only be written if they are active by the time write() is
@@ -235,19 +281,31 @@ class Packager : protected std::mutex {
   /**
    * @brief Writes all submitted files to the pack.
    * Invalidates all inactive pack files at the time of the call.
+   * @warning This function will call close(), and invalidate all info related
+   * to this packager.
    *
    * @param  cb Callback called with (elementid, pack_index), elementid being
    * its submission id, and pack_index being the index related to it. Called
    * after a file has been succesfully compressed, but not fully written.
-   * @return
-   * @return
+   * @return true on success
+   * @return false if otherwise.
    */
   bool write(std::function<void(size_t, PackIndex*)> cb = {});
 
+  /**
+   * @brief Returns the dictionary containing every index known in this pack
+   * family.
+   *
+   * @return
+   */
   const scl::dictionary<PackIndex>& index();
 
   PackIndex*                        operator[](const scl::string& path);
 
+  /**
+   * @brief Closes this pack.
+   *
+   */
   void                              close();
 };
 
