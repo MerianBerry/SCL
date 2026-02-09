@@ -393,7 +393,7 @@ Packager::mPackRes Packager::writeMemberPack(scl::stream& archive,
   size_t      itabsize = 0;
   scl::stream itab;
   size_t      off     = SPK_HEADER_SIZE;
-  mPackRes    res     = OK;
+  mPackRes    res     = mPackRes::OK;
   bool        written = false;
   for(; elemid < m_submitted.size(); elemid++) {
     // Grab the front of the async queue
@@ -421,13 +421,13 @@ Packager::mPackRes Packager::writeMemberPack(scl::stream& archive,
 #endif
       if(written)
         // Overflow so a new member can be made.
-        res = WOVERFLOW;
+        res = mPackRes::WOVERFLOW;
       else {
         // first file to be written causes overflow
         // there is no recourse for this, so error.
         fprintf(stderr, "file %s is too big to be written\n",
           aidx->m_file->cstr());
-        res = ERROR;
+        res = mPackRes::GENERAL_ERROR;
       }
       break;
     }
@@ -506,7 +506,8 @@ bool Packager::write(std::function<void(size_t, PackIndex*)> cb) {
     i++;
   }
   archives.push_back(new scl::stream());
-  while(writeMemberPack(*archives[mid], elem, mid, buildid, cb) == WOVERFLOW) {
+  while(writeMemberPack(*archives[mid], elem, mid, buildid, cb) ==
+        mPackRes::WOVERFLOW) {
     mid++;
     archives.push_back(new scl::stream());
   }

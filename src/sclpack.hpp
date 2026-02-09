@@ -222,13 +222,13 @@ class Packager : protected std::mutex {
   int                              m_workers;
   bool                             m_open = false;
 
-  enum mPackRes {
+  enum class mPackRes {
     // Continue
     OK = 0,
     // Current element overflowed member pack. Attempt on new member
     WOVERFLOW = 1,
     // Error
-    ERROR = 2,
+    GENERAL_ERROR = 2,
   };
 
   bool     readIndex(scl::reduce_stream& archive, uint32_t bid);
@@ -259,7 +259,6 @@ class Packager : protected std::mutex {
 
   /**
    * @brief Vectored version of openFile. For info, see openFile().
-   * @see openFile
    *
    * @param  files  vector of files to open.
    * @return Vector of pack indices for the given files.
@@ -268,7 +267,7 @@ class Packager : protected std::mutex {
 
   /**
    * @brief Submits a file to be written to the pack when write() is called.
-   *  Note: Files will only be written if they are active by the time write() is
+   * @note Files will only be written if they are active by the time write() is
    called.
 
    * This function will block simultanious calls.

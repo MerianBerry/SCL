@@ -419,7 +419,7 @@ class XmlNode {
    */
   [[deprecated("Use set_tag without the document argument")]] void set_tag(
     XmlAllocator& allo, const scl::string& tag) {
-    m_tag = m_allo->txt.alloc((int)tag.len() + 1);
+    m_tag = allo.txt.alloc((int)tag.len() + 1);
     memcpy(m_tag, tag.cstr(), tag.len());
   }
 
@@ -594,6 +594,7 @@ class XmlElem : public XmlNode<XmlElem, XmlElem> {
     skip(SPACE_PRED, p, &p);
     while(*p != '>' && *p != '/' && *p) {
       XmlAttr* attr = allo.nodes.alloc<xml::XmlAttr>();
+      attr->set_allocator(&allo);
       attr->parse<f>(allo, p, &p);
       add_attr(attr);
       skip(SPACE_PRED, p, &p);
@@ -606,6 +607,7 @@ class XmlElem : public XmlNode<XmlElem, XmlElem> {
       pn = p;
       while(1) {
         xml::XmlElem* celem = allo.nodes.alloc<xml::XmlElem>();
+        celem->set_allocator(&allo);
         celem->parse<f>(allo, leave, this, p, &p);
         *pn = '\0';
         if(m_data && !leave)
