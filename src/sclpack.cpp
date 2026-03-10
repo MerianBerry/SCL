@@ -250,7 +250,7 @@ bool Packager::readIndex(scl::reduce_stream& archive, uint32_t bid) {
       delete idx.m_file;
       continue;
     }
-    if(m_index[*idx.m_file] != m_index.end()) {
+    if(m_index.find(*idx.m_file) != m_index.end()) {
       fprintf(stderr, "duplicate file entry (%s) in pack\n",
         idx.m_file->cstr());
       delete idx.m_file;
@@ -319,31 +319,28 @@ bool Packager::open(const scl::path& path) {
 PackIndex* Packager::openFile(const path& path) {
   // Syncronous, cause it gotta be. (its cheap-ish).
   lock();
-  auto idx = m_index[path];
-  if(idx == m_index.end() || !idx->m_size) {
+  auto idx = m_index.find(path);
+  if(idx == m_index.end() || !idx->second.m_size) {
     // File does not exist in index, so make a new active one.
-    idx = std::move(PackIndex());
-    PackIndex nidx(&idx.key());
+    PackIndex nidx(&path);
     nidx.m_wt = PackWaitable(nullptr);
     nidx.m_wt.complete();
     nidx.m_family = this;
     nidx.m_active = true;
-    idx           = std::move(nidx);
+    m_index[path] = std::move(nidx);
     unlock();
-    return &idx.value();
-  } else if(idx->m_active) {
+    return &m_index[path];
+  } else if(idx->second.m_active) {
     // Active file. Do nothing.
     unlock();
-    return &idx.value();
+    return &idx->second;
   } else {
     // File is indexed, but not active.
-    idx->m_wt     = PackWaitable(new scl::stream());
-    idx->m_active = true;
-#if 1
-    auto& wt = m_serv.submitJob(new PackFetchJob(idx.value(), *this));
-#endif
+    idx->second.m_wt     = PackWaitable(new scl::stream());
+    idx->second.m_active = true;
+    auto& wt = m_serv.submitJob(new PackFetchJob(idx->second, *this));
     unlock();
-    return &idx.value();
+    return &idx->second;
   }
 }
 
@@ -358,9 +355,9 @@ std::vector<PackIndex*> Packager::openFiles(
 
 bool Packager::submit(const scl::path& path) {
   lock();
-  auto idx = m_index[path];
+  auto idx = m_index.find(path);
   if(idx != m_index.end()) {
-    m_submitted.push_back(&idx.value());
+    m_submitted.push_back(&idx->second);
     unlock();
     return true;
   }
@@ -527,15 +524,15 @@ bool Packager::write(std::function<void(size_t, PackIndex*)> cb) {
   return true;
 }
 
-const scl::dictionary<PackIndex>& Packager::index() {
+const std::unordered_map<scl::string, PackIndex>& Packager::index() {
   return m_index;
 }
 
 PackIndex* Packager::operator[](const scl::string& path) {
-  auto idx = m_index[path];
+  auto idx = m_index.find(path);
   if(idx == m_index.end())
     return nullptr;
-  return &idx.value();
+  return &idx->second;
 }
 
 void Packager::close() {
@@ -554,9 +551,9 @@ void Packager::close() {
     m_reduces.pop();
   }
   for(auto& i : m_index) {
-    if(i->m_active) {
-      i->m_wt->close();
-      delete &i->m_wt.stream();
+    if(i.second.m_active) {
+      i.second.m_wt->close();
+      delete &i.second.m_wt.stream();
     }
   }
   m_index.clear();

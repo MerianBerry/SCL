@@ -609,4 +609,13 @@ bool init();
  */
 void terminate();
 } // namespace scl
+
+namespace std {
+template <>
+struct hash<scl::string> {
+  size_t operator()(const scl::string& str) const noexcept {
+    return str.hash();
+  }
+};
+} // namespace std
 #endif

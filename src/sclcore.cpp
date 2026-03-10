@@ -268,7 +268,7 @@ long long string::ffi(const string& pattern) const {
     return -1;
   const char* p   = m_buf;
   unsigned    csl = (unsigned)pattern.len();
-  for(; p < m_buf + m_sz && *p; p++) {
+  for(; p < m_buf + m_ln && *p; p++) {
     if(!strncmp(p, pattern.cstr(), csl))
       return (long long)(p - m_buf);
   }

@@ -10,6 +10,7 @@
 #include "scldict.hpp"
 #include "sclpath.hpp"
 #include "scljobs.hpp"
+#include <unordered_map>
 
 #define SCL_MAX_CHUNKS 4
 
@@ -207,20 +208,20 @@ class Packager : protected std::mutex {
   friend class PackIndex;
 
  private:
-  jobs::JobServer                  m_serv;
-  scl::path                        m_family;
-  scl::path                        m_ext;
-  scl::dictionary<PackIndex>       m_index;
-  std::vector<PackIndex*>          m_submitted;
-  std::vector<scl::reduce_stream*> m_archives;
+  jobs::JobServer                            m_serv;
+  scl::path                                  m_family;
+  scl::path                                  m_ext;
+  std::unordered_map<scl::string, PackIndex> m_index;
+  std::vector<PackIndex*>                    m_submitted;
+  std::vector<scl::reduce_stream*>           m_archives;
   // Reduce queue mutex
-  std::mutex                       m_remux;
-  std::queue<scl::reduce_stream*>  m_reduces;
+  std::mutex                                 m_remux;
+  std::queue<scl::reduce_stream*>            m_reduces;
   // Queue of in-progress compressions
-  std::queue<PackIndex*>           m_writing;
-  std::atomic_uint32_t             m_waiting;
-  int                              m_workers;
-  bool                             m_open = false;
+  std::queue<PackIndex*>                     m_writing;
+  std::atomic_uint32_t                       m_waiting;
+  int                                        m_workers;
+  bool                                       m_open = false;
 
   enum class mPackRes {
     // Continue
@@ -292,20 +293,20 @@ class Packager : protected std::mutex {
   bool write(std::function<void(size_t, PackIndex*)> cb = {});
 
   /**
-   * @brief Returns the dictionary containing every index known in this pack
+   * @brief Returns an unordered map containing every index known in this pack
    * family.
    *
    * @return
    */
-  const scl::dictionary<PackIndex>& index();
+  const std::unordered_map<scl::string, PackIndex>& index();
 
-  PackIndex*                        operator[](const scl::string& path);
+  PackIndex* operator[](const scl::string& path);
 
   /**
    * @brief Closes this pack.
    *
    */
-  void                              close();
+  void       close();
 };
 
 bool packInit();

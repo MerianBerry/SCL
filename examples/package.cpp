@@ -29,7 +29,7 @@ int main(int argc, char** argv) {
 #if 0
   // Print all known files in the pack.
   for(const auto& i : pack.index()) {
-    fprintf(stderr, "File: %s\n", i->filepath().cstr());
+    fprintf(stderr, "File: %s\n", i.second.filepath().cstr());
   }
 
   // Request sclxml.hpp to be decompressed.

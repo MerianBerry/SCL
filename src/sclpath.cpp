@@ -36,19 +36,11 @@ path::path() {
 }
 
 path::path(const string& rhs) : string(rhs) {
-#ifdef _WIN32
-  replace("/", "\\");
-#else
   replace("\\", "/");
-#endif
 }
 
 path::path(const char* rhs) : string(rhs) {
-#ifdef _WIN32
-  replace("/", "\\");
-#else
   replace("\\", "/");
-#endif
 }
 
 path& path::fixendsplit() {
@@ -481,7 +473,8 @@ static int glob_recurse(int root, const string& mask, std::vector<path>& dirs) {
   return 0;
 }
 
-std::vector<path> path::glob(const string& pattern, GlobMode mode) {
+static void glob_singlepattern(std::vector<path>& finds, const string& pattern,
+  GlobMode mode) {
   auto                syms = path(pattern).split();
   /* LOOP (for each in syms)
     IF sym IS WILDCARD
@@ -515,7 +508,7 @@ std::vector<path> path::glob(const string& pattern, GlobMode mode) {
   // For every glob expression from second element and up, use previously
   // expanded expression as a search dir (dirs), then set the search dirs with
   // the results (ndirs).
-  std::vector<path> dirs = {globs[0]}, finds;
+  std::vector<path> dirs = {globs[0]};
   // For every dir glob
   int               rootl = 0;
   for(long long i = 1; i < globs.size(); i++) {
@@ -539,6 +532,24 @@ std::vector<path> path::glob(const string& pattern, GlobMode mode) {
   // Find requested items
   for(auto& dir : dirs)
     glob_(dir, fn, finds, mode);
+}
+
+std::vector<path> path::glob(const string& pattern, GlobMode mode) {
+  std::vector<string> searches;
+  const char*         sp = pattern.cstr();
+  while(true) {
+    scl::string tmp = sp;
+    auto        p   = tmp.ffi(";");
+    if(p <= 0) {
+      searches.push_back(tmp);
+      break;
+    }
+    searches.push_back(tmp.substr(0, p));
+    sp += p + 1;
+  }
+  std::vector<path> finds;
+  for(const auto& search : searches)
+    glob_singlepattern(finds, search, mode);
   return std::move(finds);
 }
 
@@ -579,13 +590,8 @@ path& path::join(const path& rhs, bool relative) {
 
   if(*this) {
     char c = this->len() > 0 ? this->cstr()[this->len() - 1] : 0;
-#ifdef _WIN32
-    if(c != '\\')
-      this->operator+= <64>("\\");
-#else
     if(c != '/')
       this->operator+= <64>("/");
-#endif
   }
   if(relative && !!*this)
     this->operator+= <64>(rhs.relative(*this));
