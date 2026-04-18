@@ -900,6 +900,8 @@ class XmlDocument : public XmlElem, public XmlAllocator {
       if(!p)
         return ERR;
       this->parse<f>(*this, leave, NULL, p, &p);
+      /* to fix the root node's m_allo member being set to NULL */
+      this->set_allocator(this);
     } catch(XmlResult e) {
       nodes.free();
       return e;

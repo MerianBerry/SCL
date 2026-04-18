@@ -123,7 +123,7 @@ string::string(const wchar_t* wstr) {
   m_sz  = 0;
   m_buf = nullptr;
   if(wstr) {
-    int n =
+    unsigned n =
       WideCharToMultiByte(CP_UTF8, 0, wstr, -1, nullptr, 0, nullptr, nullptr) +
       1;
     reserve(n);
@@ -216,7 +216,7 @@ const wchar_t* string::wstr() const {
     return nullptr;
   int      wlen  = MultiByteToWideChar(CP_UTF8, 0, m_buf, -1, nullptr, 0);
   int      wsize = (wlen + 1);
-  wchar_t* wstr  = new wchar_t[wsize];
+  wchar_t* wstr  = new wchar_t[(size_t)wsize];
   memset(wstr, 0, sizeof(wchar_t) * wsize);
   MultiByteToWideChar(CP_UTF8, 0, m_buf, -1, wstr, wlen);
   return wstr;
@@ -313,7 +313,7 @@ static char str_match(const char* pattern, const char* candidate, int p,
 bool string::match(const string& pattern) const {
   if(!*this || !pattern)
     return 0;
-  return str_match(pattern.cstr(), cstr(), 0, 0);
+  return (bool)str_match(pattern.cstr(), cstr(), 0, 0);
 }
 
 unsigned string::hash() const {
@@ -355,7 +355,7 @@ string& string::replace(const string& pattern, const string& with) {
 }
 
 scl::string& string::replace(const scl::string& with, int i, int j) {
-  if(!*this || i >= m_ln)
+  if(!*this || (unsigned)i >= m_ln)
     return *this;
   if(j < 0)
     j = 0x7fffffff;

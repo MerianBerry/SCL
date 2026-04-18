@@ -45,8 +45,7 @@ path::path(const char* rhs) : string(rhs) {
 
 path& path::fixendsplit() {
   unsigned p = len() - 1;
-  for(char c;
-    p != (unsigned)-1 && p >= 0 && (c = (*this)[p]) && (c == '/' || c == '\\');
+  for(char c; p != (unsigned)-1 && (c = (*this)[p]) && (c == '/' || c == '\\');
     p--) {
   }
   if(p != len() - 1)
@@ -75,7 +74,7 @@ static path trimpath(const path& path, const scl::path& with) {
   std::vector<scl::path> comp;
   auto                   frc = with.split();
   auto                   fic = path.split();
-  for(int i = 0; i < fic.size(); i++) {
+  for(unsigned i = 0; i < fic.size(); i++) {
     if(i < frc.size() && frc[i] == fic[i])
       continue;
     comp.push_back(fic[i]);
@@ -107,9 +106,11 @@ path path::parentpath() const {
     return "";
   auto        real = resolve();
   const char* abs  = real.cstr();
-  int         l    = real.len();
-  char*       p    = (char*)abs + l - 1;
-  int         n    = -1;
+  unsigned    l    = real.len();
+  if(!l)
+    return "";
+  char*    p = (char*)abs + l - 1;
+  unsigned n = (unsigned)-1;
   for(; *p && p >= abs; --p)
     if(*p == '/' || *p == '\\') {
       while(*p == '/' || *p == '\\')
@@ -117,7 +118,7 @@ path path::parentpath() const {
       p++;
       break;
     }
-  n          = int(p - abs);
+  n          = unsigned(p - abs);
   string out = (p != abs) ? real.substr(0, n) : ".";
   return out;
 }
@@ -126,7 +127,7 @@ path path::filename() const {
   auto p = std::max(fli("/"), fli("\\"));
   if(p == -1)
     return *this;
-  return substr(p + 1);
+  return substr((unsigned)p + 1);
 }
 
 string path::extension() const {
@@ -170,7 +171,7 @@ std::vector<path> path::split() const {
 
 bool path::exists() const {
   int r = access(cstr(), F_OK) == 0;
-  return r;
+  return (bool)r;
 }
 
 bool path::isfile() const {
@@ -252,7 +253,7 @@ path& path::replaceExtension(const path& nExt) {
   auto p = fli(".");
   if(p == -1)
     return *this;
-  replace(nExt, p);
+  replace(nExt, (int)p);
   return *this;
 }
 
@@ -420,7 +421,7 @@ static int glob_(const path dir, const path& mask, std::vector<path>& globs,
   return 0;
 }
 
-static int glob_recurse(int root, const string& mask, std::vector<path>& dirs) {
+static int glob_recurse(const string& mask, std::vector<path>& dirs) {
   // For each in dirs, add to finds.
   /* LOOP
     For each in dirs, search for every directory (ndirs).
@@ -510,15 +511,13 @@ static void glob_singlepattern(std::vector<path>& finds, const string& pattern,
   // the results (ndirs).
   std::vector<path> dirs = {globs[0]};
   // For every dir glob
-  int               rootl = 0;
-  for(long long i = 1; i < globs.size(); i++) {
-    rootl += globs[i - 1].len();
+  for(size_t i = 1; i < globs.size(); i++) {
     if(globs[i] == "**") {
       scl::string mask = "*";
       // If not the last glob exp, use the next exp as the mask
       if(i < globs.size() - 1)
         mask = globs[i + 1];
-      glob_recurse(rootl, mask, dirs);
+      glob_recurse(mask, dirs);
       i++;
     } else if(i != globs.size() - 1) {
 // Find new search dirs
@@ -544,7 +543,7 @@ std::vector<path> path::glob(const string& pattern, GlobMode mode) {
       searches.push_back(tmp);
       break;
     }
-    searches.push_back(tmp.substr(0, p));
+    searches.push_back(tmp.substr(0, (unsigned)p));
     sp += p + 1;
   }
   std::vector<path> finds;
@@ -573,13 +572,13 @@ path path::join(std::vector<path> components, bool ignoreback) {
 }
 
 std::vector<path> path::splitPaths(const scl::string& paths) {
-  const char *      ps = paths.cstr(), *s = ps, *pe = s + paths.len();
+  const char *      ps = paths.cstr(), *s = ps;
   std::vector<path> out;
   while(*ps) {
     auto p = scl::string::ffi(ps, ";");
     if(p < 0)
-      p = strlen(ps);
-    out.push_back(paths.substr(ps - s, p));
+      p = (long long)strlen(ps);
+    out.push_back(paths.substr(unsigned(ps - s), (unsigned)p));
     ps += p + 1;
   }
   return std::move(out);

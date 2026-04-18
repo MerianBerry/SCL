@@ -8,6 +8,11 @@ include("cmake/mini.cmake")
 
 include_directories("src" "${CMAKE_BINARY_DIR}")
 
+if (MSVC)
+  add_compile_options("/Wall" "/wd5045" "/wd4820")
+
+endif()
+
 set(SCL_HEADERS
   "src/sclcore.hpp"
   "src/scldict.hpp"
