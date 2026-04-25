@@ -27,7 +27,7 @@ class PackWaitable : public jobs::waitable {
   friend class PackFetchJob;
   friend class PackWriteJob;
 
-  int          m_tid    = -1;
+  // int          m_tid    = -1;
   scl::stream* m_stream = nullptr;
 
  public:
@@ -56,14 +56,14 @@ class PackIndex {
 
  private:
   PackWaitable m_wt;
-  Packager*    m_family;
-  scl::string* m_file;
+  scl::string  m_file;
+  Packager*    m_family = nullptr;
   uint32_t     m_off = 0, m_size = 0, m_original = 0;
   bool         m_active = 0, m_submitted = 0;
   uint8_t      m_pack = 0;
 
  public:
-  PackIndex(const scl::string* file = nullptr);
+  PackIndex(const scl::string& file = "");
   PackIndex(PackIndex&& rhs);
   PackIndex&         operator=(PackIndex&& rhs);
 

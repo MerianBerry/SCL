@@ -34,7 +34,7 @@ int main(int argc, char** argv) {
 
   // Request sclxml.hpp to be decompressed.
   pack
-    .openFile("src/sclxml.hpp")
+    .openFile("src/sclxml23.hpp")
     // Get the decompressed data stream. This will wait for the data to be
     // decompressed.
     ->stream()

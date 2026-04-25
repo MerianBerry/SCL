@@ -36,7 +36,7 @@ PackWaitable::PackWaitable(scl::stream* stream) {
   m_stream = stream;
 }
 
-PackIndex::PackIndex(const scl::string* file) : m_file((scl::string*)file) {
+PackIndex::PackIndex(const scl::string& file) : m_file(file) {
 }
 
 PackIndex::PackIndex(PackIndex&& rhs) : m_file(rhs.m_file) {
@@ -64,7 +64,7 @@ PackIndex& PackIndex::operator=(PackIndex&& rhs) {
 }
 
 const scl::string& PackIndex::filepath() const {
-  return *m_file;
+  return m_file;
 }
 
 PackWaitable& PackIndex::waitable() {
@@ -81,7 +81,7 @@ PackIndex& PackIndex::submit() {
 }
 
 bool PackIndex::open(OpenMode mode, bool binary) {
-  return m_wt->open(*m_file, mode, binary);
+  return m_wt->open(m_file, mode, binary);
 }
 
 scl::stream* PackIndex::stream() {
@@ -140,7 +140,7 @@ void PackFetchJob::doJob(PackWaitable* wt, const jobs::JobWorker& worker) {
   archive->end();
   if(out->tell() != m_idx.m_original) {
     worker.sync([&]() {
-      printf("Warning: Read underflow for %s\n", m_idx.m_file->cstr());
+      printf("Warning: Read underflow for %s\n", m_idx.m_file.cstr());
       fflush(stdout);
     });
   }
@@ -149,11 +149,13 @@ void PackFetchJob::doJob(PackWaitable* wt, const jobs::JobWorker& worker) {
 
 PackWriteJob::PackWriteJob(PackIndex& idx, Packager& pack)
     : m_idx(idx), m_pack(pack) {
+  m_idx.m_wt.reset();
 }
 
 PackWaitable* PackWriteJob::getWaitable() const {
-  m_idx.waitable().wait();
-  m_idx.waitable().reset();
+  // Keeping this here just in case
+  /* m_idx.waitable().wait();
+  m_idx.waitable().reset(); */
   return &m_idx.waitable();
 }
 
@@ -171,8 +173,8 @@ void PackWriteJob::doJob(PackWaitable* wt, const jobs::JobWorker& worker) {
     return take;
   });
 
-  wt->m_tid = worker.id();
-  if(!wt->m_stream) {
+  // wt->m_tid = worker.id();
+  if(!wt->m_stream && m_idx.filepath()) {
     wt->m_stream = new scl::stream();
     wt->m_stream->open(m_idx.filepath(), OpenMode::READ, true);
   }
@@ -238,25 +240,25 @@ bool Packager::readIndex(scl::reduce_stream& archive, uint32_t bid) {
       break;
     char* buf  = new char[len + 1];
     buf[len]   = 0;
-    idx.m_file = new scl::path();
+    idx.m_file = scl::path();
     archive.read(buf, len);
-    idx.m_file->claim(buf);
+    idx.m_file.claim(buf);
+    idx.m_family = this;
     archive.read(&idx.m_off, 4);
     archive.read(&idx.m_size, 4);
     archive.read(&idx.m_original, 4);
     idx.m_pack = header[SPK_H_MID];
     if(!idx.m_off || !idx.m_size || !idx.m_original) {
       // malformed
-      delete idx.m_file;
+      idx.m_file.clear();
       continue;
     }
-    if(m_index.find(*idx.m_file) != m_index.end()) {
-      fprintf(stderr, "duplicate file entry (%s) in pack\n",
-        idx.m_file->cstr());
-      delete idx.m_file;
+    if(m_index.find(idx.m_file) != m_index.end()) {
+      fprintf(stderr, "duplicate file entry (%s) in pack\n", idx.m_file.cstr());
+      idx.m_file.clear();
       continue;
     }
-    m_index[*idx.m_file] = std::move(idx);
+    m_index[idx.m_file] = std::move(idx);
   }
   return true;
 }
@@ -319,10 +321,11 @@ bool Packager::open(const scl::path& path) {
 PackIndex* Packager::openFile(const path& path) {
   // Syncronous, cause it gotta be. (its cheap-ish).
   lock();
+  m_serv.waitidle();
   auto idx = m_index.find(path);
   if(idx == m_index.end() || !idx->second.m_size) {
     // File does not exist in index, so make a new active one.
-    PackIndex nidx(&path);
+    PackIndex nidx(path);
     nidx.m_wt = PackWaitable(nullptr);
     nidx.m_wt.complete();
     nidx.m_family = this;
@@ -403,10 +406,13 @@ Packager::mPackRes Packager::writeMemberPack(scl::stream& archive,
     aidx->m_off = off;
     // Grab the reduce stream from the waitable
     scl::reduce_stream* reduce = (scl::reduce_stream*)aidx->m_wt.m_stream;
+    if(!reduce)
+      throw std::runtime_error("Attempted to write file with null stream");
+
     reduce->seek(StreamPos::start, 0);
     // itab entry size estimation
     // 2 path length, 4*3 for offset, size, and original size
-    uint16_t newitab = 14 + aidx->m_file->len();
+    uint16_t newitab = 14 + aidx->m_file.len();
     // check for pack overflow before writing
     if(off + aidx->m_size + itabsize + newitab >= SPK_MAX_PACK_SIZE) {
 // Overflow
@@ -423,7 +429,7 @@ Packager::mPackRes Packager::writeMemberPack(scl::stream& archive,
         // first file to be written causes overflow
         // there is no recourse for this, so error.
         fprintf(stderr, "file %s is too big to be written\n",
-          aidx->m_file->cstr());
+          aidx->m_file.cstr());
         res = mPackRes::GENERAL_ERROR;
       }
       break;
@@ -436,10 +442,10 @@ Packager::mPackRes Packager::writeMemberPack(scl::stream& archive,
     m_remux.lock();
     m_reduces.push(reduce);
     m_remux.unlock();
-    uint16_t filelen = aidx->m_file->len();
+    uint16_t filelen = aidx->m_file.len();
     // Write itab entry;
     itab.write(&filelen, 2, SCL_STREAM_BUF);
-    itab.write(*aidx->m_file);
+    itab.write(aidx->m_file);
     itab.write(&aidx->m_off, 4);
     itab.write(&aidx->m_size, 4);
     itab.write(&aidx->m_original, 4);
@@ -476,6 +482,9 @@ bool Packager::write(std::function<void(size_t, PackIndex*)> cb) {
     fflush(stderr);
     throw "SPK only configured for little endian systems";
   }
+
+  if(m_submitted.empty())
+    return true;
 
   if(!m_open)
     return false;
@@ -537,10 +546,8 @@ PackIndex* Packager::operator[](const scl::string& path) {
 
 void Packager::close() {
   lock();
-  m_family = path();
-  m_ext    = string();
-  m_serv.clearjobs();
   m_serv.stop();
+  m_serv.clearjobs();
   for(auto& i : m_archives) {
     if(i)
       delete i;
@@ -551,11 +558,12 @@ void Packager::close() {
     m_reduces.pop();
   }
   for(auto& i : m_index) {
-    if(i.second.m_active) {
-      i.second.m_wt->close();
-      delete &i.second.m_wt.stream();
+    if(i.second.m_wt.m_stream) {
+      delete i.second.m_wt.m_stream;
     }
   }
+  m_family = path();
+  m_ext    = string();
   m_index.clear();
   m_submitted.clear();
   m_waiting = 0;
