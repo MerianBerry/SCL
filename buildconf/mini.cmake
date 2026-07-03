@@ -10,7 +10,7 @@ function(minify name impflag guard headers sources)
   endif()
   message("headers: ${headers}")
   add_custom_target(${name} ${Python3_EXECUTABLE}
-    "${CMAKE_CURRENT_LIST_DIR}/scripts/mini.py"
+    "${CMAKE_CURRENT_LIST_DIR}/buildconf/mini.py"
     "-o" "${CMAKE_BINARY_DIR}/${name}"
     ${impflag}
     ${guard}

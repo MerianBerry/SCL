@@ -1,8 +1,10 @@
-/*  sclpak.cpp
+/*  pack.cpp
  *  SCL package manager
  */
 
-#include "sclpack.hpp"
+#include <scl_pack.hpp>
+#include <scl_time.hpp>
+#include "internal.hpp"
 #include <cassert>
 
 #define SPK_MAJOR       2
@@ -18,10 +20,6 @@
 #define SPK_H_BID       12
 
 #define SPK_MAX_MEMBERS 32
-
-#ifndef SPK_MAX_PACK_SIZE
-#  define SPK_MAX_PACK_SIZE 0xffffffff
-#endif
 
 bool is_little_endiann() {
   volatile uint32_t i = 0x01234567;
@@ -40,26 +38,26 @@ PackIndex::PackIndex(const scl::string& file) : m_file(file) {
 }
 
 PackIndex::PackIndex(PackIndex&& rhs) : m_file(rhs.m_file) {
-  m_wt        = std::move(rhs.m_wt);
-  m_family    = rhs.m_family;
-  m_off       = rhs.m_off;
-  m_size      = rhs.m_size;
-  m_original  = rhs.m_original;
-  m_active    = rhs.m_active;
+  m_wt = std::move(rhs.m_wt);
+  m_family = rhs.m_family;
+  m_off = rhs.m_off;
+  m_size = rhs.m_size;
+  m_original = rhs.m_original;
+  m_active = rhs.m_active;
   m_submitted = rhs.m_submitted;
-  m_pack      = rhs.m_pack;
+  m_pack = rhs.m_pack;
 }
 
 PackIndex& PackIndex::operator=(PackIndex&& rhs) {
-  m_wt        = std::move(rhs.m_wt);
-  m_family    = rhs.m_family;
-  m_file      = rhs.m_file;
-  m_off       = rhs.m_off;
-  m_size      = rhs.m_size;
-  m_original  = rhs.m_original;
-  m_active    = rhs.m_active;
+  m_wt = std::move(rhs.m_wt);
+  m_family = rhs.m_family;
+  m_file = rhs.m_file;
+  m_off = rhs.m_off;
+  m_size = rhs.m_size;
+  m_original = rhs.m_original;
+  m_active = rhs.m_active;
   m_submitted = rhs.m_submitted;
-  m_pack      = rhs.m_pack;
+  m_pack = rhs.m_pack;
   return *this;
 }
 
@@ -111,7 +109,7 @@ PackFetchJob::PackFetchJob(PackIndex& idx, Packager& pack)
 }
 
 bool PackFetchJob::checkJob(const jobs::JobWorker& worker) const {
-  size_t           bits = 1llu << m_idx.m_pack;
+  size_t bits = 1llu << m_idx.m_pack;
   jobs::JobServer& serv = worker.serv();
   // Is the target stream locked?
   if(serv.hasLockBits(bits))
@@ -123,9 +121,9 @@ bool PackFetchJob::checkJob(const jobs::JobWorker& worker) const {
 
 void PackFetchJob::doJob(PackWaitable* wt, const jobs::JobWorker& worker) {
   // Target stream lock bit
-  size_t              bits    = 1llu << m_idx.m_pack;
+  size_t bits = 1llu << m_idx.m_pack;
   scl::reduce_stream* archive = m_pack.m_archives[m_idx.m_pack];
-  scl::stream*        out     = m_idx.m_wt.m_stream;
+  scl::stream* out = m_idx.m_wt.m_stream;
   archive->seek(StreamPos::start, m_idx.m_off);
   // Begin decompression stream
   if(!archive->begin(reduce_stream::Decompress))
@@ -164,7 +162,7 @@ void PackWriteJob::doJob(PackWaitable* wt, const jobs::JobWorker& worker) {
   scl::reduce_stream* reduce;
   waitUntil([this, &reduce]() {
     m_pack.m_remux.lock();
-    bool take = m_pack.m_reduces.size();
+    bool take = !!m_pack.m_reduces.size();
     if(take) {
       reduce = m_pack.m_reduces.front();
       m_pack.m_reduces.pop();
@@ -193,8 +191,8 @@ void PackWriteJob::doJob(PackWaitable* wt, const jobs::JobWorker& worker) {
   reduce->write(*wt->m_stream, ask);
   reduce->end();
   // Update index
-  m_idx.m_size     = reduce->tell();
-  m_idx.m_original = ask;
+  m_idx.m_size = (uint32_t)reduce->tell();
+  m_idx.m_original = (uint32_t)ask;
   wt->m_stream->close();
   delete wt->m_stream;
   wt->m_stream = reduce;
@@ -215,7 +213,7 @@ Packager::~Packager() {
 
 bool Packager::readIndex(scl::reduce_stream& archive, uint32_t bid) {
   uint32_t off;
-  uint8_t  header[SPK_HEADER_SIZE];
+  uint8_t header[SPK_HEADER_SIZE];
   archive.seek(StreamPos::start, 0);
   archive.read(header, SPK_HEADER_SIZE);
   if(header[SPK_H_MAJOR] != SPK_MAJOR) {
@@ -224,9 +222,9 @@ bool Packager::readIndex(scl::reduce_stream& archive, uint32_t bid) {
   }
   // Check if pack is within member bounds, and has the same build id
   if(header[SPK_H_MID] >= header[SPK_H_NMEMBS] ||
-     *(uint32_t*)&header[SPK_H_BID] != bid) {
-    fprintf(stderr,
-      "Skipping pack that is not a member of this pack family.\n");
+    *(uint32_t*)&header[SPK_H_BID] != bid) {
+    fprintf(
+      stderr, "Skipping pack that is not a member of this pack family.\n");
     return true;
   }
   off = *(uint32_t*)&header[SPK_H_IOFF];
@@ -234,12 +232,12 @@ bool Packager::readIndex(scl::reduce_stream& archive, uint32_t bid) {
   archive.seek(StreamPos::start, off);
   while(true) {
     PackIndex idx;
-    uint16_t  len;
+    uint16_t len;
     archive.read(&len, 2);
     if(!len)
       break;
-    char* buf  = new char[len + 1];
-    buf[len]   = 0;
+    char* buf = new char[(size_t)len + 1];
+    buf[len] = 0;
     idx.m_file = scl::path();
     archive.read(buf, len);
     idx.m_file.claim(buf);
@@ -264,13 +262,13 @@ bool Packager::readIndex(scl::reduce_stream& archive, uint32_t bid) {
 }
 
 bool Packager::open(const scl::path& path) {
-  m_ext    = path.extension();
+  m_ext = path.extension();
   m_family = path;
   m_family.replaceExtension("");
   m_serv.slow();
   m_serv.start();
   if(path.exists()) {
-    char                header[SPK_HEADER_SIZE];
+    char header[SPK_HEADER_SIZE];
     scl::reduce_stream* arc = new scl::reduce_stream();
     arc->open(path, OpenMode::READ);
     arc->read(header, SPK_HEADER_SIZE);
@@ -284,31 +282,31 @@ bool Packager::open(const scl::path& path) {
       arc->close();
       return false;
     }
-    m_archives.reserve(header[SPK_H_NMEMBS]);
+    m_archives.reserve((size_t)header[SPK_H_NMEMBS]);
     m_archives.push_back(arc);
     // Find member packs
     auto mpacks = scl::path::glob(
       scl::string::fmt("%s_*%s", m_family.cstr(), m_ext.cstr()));
 
-    if(mpacks.size() < header[SPK_H_NMEMBS] - 1) {
+    if(mpacks.size() < (size_t)header[SPK_H_NMEMBS] - 1) {
       fprintf(stderr, "One or more packs are missing.\n");
       close();
       return false;
     }
 
     for(auto& i : mpacks) {
-      scl::reduce_stream* arc = new scl::reduce_stream();
-      arc->open(i, OpenMode::READ);
-      if(!arc->is_open())
+      scl::reduce_stream* member = new scl::reduce_stream();
+      member->open(i, OpenMode::READ);
+      if(!member->is_open())
         continue;
-      if(!readIndex(*arc, bid)) {
-        arc->close();
+      if(!readIndex(*member, bid)) {
+        member->close();
         continue;
       }
-      m_archives.push_back(arc);
+      m_archives.push_back(member);
     }
 
-    if(m_archives.size() < header[SPK_H_NMEMBS]) {
+    if(m_archives.size() < (size_t)header[SPK_H_NMEMBS]) {
       fprintf(stderr, "One or more packs failed to be opened.\n");
       close();
       return false;
@@ -339,7 +337,7 @@ PackIndex* Packager::openFile(const path& path) {
     return &idx->second;
   } else {
     // File is indexed, but not active.
-    idx->second.m_wt     = PackWaitable(new scl::stream());
+    idx->second.m_wt = PackWaitable(new scl::stream());
     idx->second.m_active = true;
     auto& wt = m_serv.submitJob(new PackFetchJob(idx->second, *this));
     unlock();
@@ -369,7 +367,7 @@ bool Packager::submit(const scl::path& path) {
 }
 
 Packager::mPackRes Packager::writeMemberPack(scl::stream& archive,
-  size_t& elemid, int memberid, const scl::string& buildid,
+  size_t& elemid, uint8_t memberid, const scl::string& buildid,
   std::function<void(size_t, PackIndex*)>& cb) {
   scl::path outpath;
   if(!memberid)
@@ -386,15 +384,15 @@ Packager::mPackRes Packager::writeMemberPack(scl::stream& archive,
   memcpy(header, SPK_MAGIC, 4);
   header[SPK_H_MAJOR] = SPK_MAJOR;
   header[SPK_H_MINOR] = SPK_MINOR;
-  header[SPK_H_MID]   = memberid;
+  header[SPK_H_MID] = (char)memberid;
   memcpy(&header[SPK_H_BID], buildid.cstr(), 4);
   archive.write(header, SPK_HEADER_SIZE);
 
-  size_t      itabsize = 0;
+  size_t itabsize = 0;
   scl::stream itab;
-  size_t      off     = SPK_HEADER_SIZE;
-  mPackRes    res     = mPackRes::OK;
-  bool        written = false;
+  size_t off = SPK_HEADER_SIZE;
+  mPackRes res = mPackRes::OK;
+  bool written = false;
   for(; elemid < m_submitted.size(); elemid++) {
     // Grab the front of the async queue
     auto* aidx = m_writing.front();
@@ -403,7 +401,7 @@ Packager::mPackRes Packager::writeMemberPack(scl::stream& archive,
       fprintf(stderr, "Time out\n");
     }
     // Set syncronous index info
-    aidx->m_off = off;
+    aidx->m_off = (uint32_t)off;
     // Grab the reduce stream from the waitable
     scl::reduce_stream* reduce = (scl::reduce_stream*)aidx->m_wt.m_stream;
     if(!reduce)
@@ -412,7 +410,7 @@ Packager::mPackRes Packager::writeMemberPack(scl::stream& archive,
     reduce->seek(StreamPos::start, 0);
     // itab entry size estimation
     // 2 path length, 4*3 for offset, size, and original size
-    uint16_t newitab = 14 + aidx->m_file.len();
+    size_t newitab = 14 + (size_t)aidx->m_file.len();
     // check for pack overflow before writing
     if(off + aidx->m_size + itabsize + newitab >= SPK_MAX_PACK_SIZE) {
 // Overflow
@@ -428,8 +426,8 @@ Packager::mPackRes Packager::writeMemberPack(scl::stream& archive,
       else {
         // first file to be written causes overflow
         // there is no recourse for this, so error.
-        fprintf(stderr, "file %s is too big to be written\n",
-          aidx->m_file.cstr());
+        fprintf(
+          stderr, "file %s is too big to be written\n", aidx->m_file.cstr());
         res = mPackRes::GENERAL_ERROR;
       }
       break;
@@ -442,7 +440,7 @@ Packager::mPackRes Packager::writeMemberPack(scl::stream& archive,
     m_remux.lock();
     m_reduces.push(reduce);
     m_remux.unlock();
-    uint16_t filelen = aidx->m_file.len();
+    int32_t filelen = aidx->m_file.len();
     // Write itab entry;
     itab.write(&filelen, 2, SCL_STREAM_BUF);
     itab.write(aidx->m_file);
@@ -474,9 +472,6 @@ Packager::mPackRes Packager::writeMemberPack(scl::stream& archive,
 }
 
 bool Packager::write(std::function<void(size_t, PackIndex*)> cb) {
-  const char maversion = 1;
-  const char miversion = 0;
-
   if(!is_little_endiann()) {
     fprintf(stderr, "SPK only configured for little endian systems\n");
     fflush(stderr);
@@ -491,11 +486,11 @@ bool Packager::write(std::function<void(size_t, PackIndex*)> cb) {
 
   lock();
   // Get semi-unique build id for this family
-  scl::string               buildid = scl::string::rand(4);
+  scl::string buildid = scl::string::rand(4);
   std::vector<scl::stream*> archives;
-  scl::stream               archive;
-  size_t                    elem = 0;
-  int                       mid  = 0;
+  scl::stream archive;
+  size_t elem = 0;
+  uint8_t mid = 0;
   // Prepare the job server
   m_serv.clearjobs();
   m_serv.waitidle();
@@ -504,7 +499,8 @@ bool Packager::write(std::function<void(size_t, PackIndex*)> cb) {
   for(int i = 0; i < m_workers; i++)
     m_reduces.push(new scl::reduce_stream());
   // Queue up the first few files i=threadid, j=elemid
-  for(int i = 0, j = 0; i < m_workers && j < m_submitted.size(); j++) {
+  for(size_t i = 0, j = 0; i < (size_t)m_workers && j < m_submitted.size();
+    j++) {
     // Skip if inactive
     m_serv.submitJob(new PackWriteJob(*m_submitted[j], *this));
     m_writing.push(m_submitted[j]);
@@ -512,15 +508,15 @@ bool Packager::write(std::function<void(size_t, PackIndex*)> cb) {
     i++;
   }
   archives.push_back(new scl::stream());
-  while(writeMemberPack(*archives[mid], elem, mid, buildid, cb) ==
-        mPackRes::WOVERFLOW) {
+  while(writeMemberPack(*archives[(size_t)mid], elem, mid, buildid, cb) ==
+    mPackRes::WOVERFLOW) {
     mid++;
     archives.push_back(new scl::stream());
   }
   m_submitted.resize(0);
   m_serv.slow();
 
-  const uint8_t nmems = mid + 1;
+  const uint8_t nmems = (uint8_t)(mid + 1);
   for(auto i : archives) {
     i->seek(StreamPos::start, SPK_H_NMEMBS);
     i->write(&nmems, 1);
@@ -563,11 +559,11 @@ void Packager::close() {
     }
   }
   m_family = path();
-  m_ext    = string();
+  m_ext = string();
   m_index.clear();
   m_submitted.clear();
   m_waiting = 0;
-  m_open    = false;
+  m_open = false;
   unlock();
 }
 

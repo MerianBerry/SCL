@@ -3,17 +3,11 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "sclcore.hpp"
-#include "sclpath.hpp"
-#include "sclpack.hpp"
-#include "sclxml.hpp"
-#include "sclreduce.hpp"
+#include <scl.hpp>
 
 #include <iostream>
 
 int main(int argc, char** argv) {
-  scl::init();
-
   scl::pack::Packager pack;
   // Open the pack family test.spk. Includes test_1.spk, etc.
   pack.open("test.spk");
@@ -47,7 +41,7 @@ int main(int argc, char** argv) {
  */
 #else
   // Get all files under src/
-  auto files  = scl::path::glob("src/**");
+  auto files = scl::path::glob("src/**");
   auto nfiles = files.size();
   // Open all those files
   auto indices = pack.openFiles(files);
@@ -70,7 +64,7 @@ int main(int argc, char** argv) {
     "Total original size: 0mB\n"
     "Total compressed size: 0mB\n");
   size_t ogtotal = 0;
-  size_t packed  = 0;
+  size_t packed = 0;
   // Write all submitted files
   double cst = scl::clock();
   // Provide a callback per written file that does some cool logging
@@ -90,8 +84,12 @@ int main(int argc, char** argv) {
       "\x1b[2KWrote file (%zu) %s\n"
       "\x1b[2KTotal original size: %0.2lfmB\n"
       "\x1b[2KTotal compressed size: %0.2lfmB\n",
-      (scl::clock() - cst), (id + 1) / (double)nfiles * 100.0, id + 1,
-      path.cstr(), (ogtotal / 1024.0 / 1024.0), (packed / 1000.0 / 1000.0));
+      (scl::clock() - cst),
+      (id + 1) / (double)nfiles * 100.0,
+      id + 1,
+      path.cstr(),
+      (ogtotal / 1024.0 / 1024.0),
+      (packed / 1000.0 / 1000.0));
   });
 #endif
 

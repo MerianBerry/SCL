@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root attribute="0">
+  <node attribute="1">hi there! im a &quot;test sample&quot;</node>
+  <node attribute="1" attribute2="hi &lt;3" attribute3="blab!"/>
+  <node>hi im node text!<node2 attribute="hi"/>
+  <node2/>
+  </node>
+</root>

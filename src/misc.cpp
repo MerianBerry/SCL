@@ -1,0 +1,39 @@
+/* misc.cpp
+ * scl misc utilities
+ */
+
+#include <cstdlib>
+#include <scl_misc.hpp>
+#include <string.h>
+
+namespace scl {
+
+unsigned char log2i(unsigned x) {
+  unsigned char r = 0;
+  while(x >>= 1)
+    r++;
+  return r;
+}
+
+static int seed_ = 1;
+
+void srand(int seed) {
+  seed_ = seed;
+}
+
+int rand() {
+  seed_ *= (seed_ * 33 + 7) >> 2;
+  return seed_;
+}
+
+int rand_int(int min, int max) {
+  return (abs(rand()) % (max - min + 1)) + min;
+}
+
+void* memdup(void* buffer, size_t size) {
+  void* buf = (void*)new char[size];
+  assert(buf);
+  memcpy(buf, buffer, size);
+  return buf;
+}
+} // namespace scl

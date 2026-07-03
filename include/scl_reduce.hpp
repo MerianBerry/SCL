@@ -1,44 +1,46 @@
-/*  sclreduce.hpp
+/*  scl_reduce.hpp
  *  Compression stream class.
  */
 
 #ifndef SCL_REDUCE_H
 #define SCL_REDUCE_H
-#include "sclcore.hpp"
+#include "scl_stream.hpp"
 
 namespace scl {
-class reduce_stream : public stream {
- public:
+class reduce_stream : public scl::stream {
+public:
   enum ReduceMode : bool {
     Decompress = false,
-    Compress   = true,
+    Compress = true,
   };
 
- private:
-  char * m_inbuf = nullptr, *m_outbuf = nullptr;
-  void*  m_lz4ctx   = nullptr;
+private:
+  char *m_inbuf = nullptr, *m_outbuf = nullptr;
+  void* m_lz4ctx = nullptr;
   size_t m_consumed = 0, m_inSize = 0, m_outConsumed = 0, m_outSize = 0,
          m_outCapacity = 0;
-  bool       m_ready   = false;
-  ReduceMode m_mode    = Decompress;
+  bool m_ready = false;
+  ReduceMode m_mode = Decompress;
 
-  bool       compress_init();
-  size_t     compress_flush();
-  size_t     compress_chunk(const void* buf, size_t bytes, bool flush);
-  bool       compress_begin();
-  bool       compress_end();
+  bool compress_init();
+  size_t compress_flush();
+  size_t compress_chunk(const void* buf, size_t bytes, bool flush);
+  bool compress_begin();
+  bool compress_end();
 
-  bool       decompress_init();
-  size_t     decompress_chunk(void* buf, size_t bytes);
-  bool       decompress_begin();
-  bool       decompress_end();
+  bool decompress_init();
+  size_t decompress_chunk(void* buf, size_t bytes);
+  bool decompress_begin();
+  bool decompress_end();
 
-  void       close_internal();
+  void close_internal();
 
 
- public:
+public:
   reduce_stream() = default;
 
+  reduce_stream(const reduce_stream&) = delete;
+  reduce_stream& operator=(const reduce_stream&) = delete;
   reduce_stream(reduce_stream&& rhs);
   reduce_stream(stream&& rhs);
   reduce_stream& operator=(reduce_stream&& rhs);
@@ -53,7 +55,7 @@ class reduce_stream : public stream {
    * @param  trunc  Whether or not to truncate (erase) existing file contents.
    * @return  true if the operation was successful.
    */
-  bool      open(const scl::path& path, OpenMode mode);
+  bool open(const scl::path& path, OpenMode mode);
 
   /**
    * @brief  Begins either a decompression or compression state.
@@ -66,7 +68,7 @@ class reduce_stream : public stream {
    * @param  mode  Mode to begin with. Defaults to decompression.
    * @return  true if the operation was successful.
    */
-  bool      begin(ReduceMode mode = Decompress);
+  bool begin(ReduceMode mode = Decompress);
 
   /**
    * @brief  Ends the previously started decompression/compression state, and
@@ -74,7 +76,7 @@ class reduce_stream : public stream {
    *
    * @return  true if the operation was successful.
    */
-  bool      end();
+  bool end();
 
   /**
    * @brief  Reads and decompresses data from this stream.
@@ -88,13 +90,13 @@ class reduce_stream : public stream {
    * @return  Number of decompressed bytes read. 0 if the operation errored, or
    * there was nothing to read.
    */
-  long long read(void* buf, size_t n) override;
+  size_t read(void* buf, size_t n) override;
 
   /**
    * @brief  Flushes internal buffers.
    *
    */
-  void      flush() override;
+  void flush() override;
   using stream::write;
   /**
    * @brief  Compresses and write data to this stream.
@@ -111,8 +113,8 @@ class reduce_stream : public stream {
    * @param  flush  true: Automatically calls flush(). By default true.
    * @return  true if the operation was successful.
    */
-  bool write(const void* buf, size_t n, size_t align = 1,
-    bool flush = true) override;
+  bool write(
+    const void* buf, size_t n, size_t align = 1, bool flush = true) override;
 
   /**
    * @brief  Writes uncompressed data to this stream. Equivalent to calling
@@ -128,8 +130,8 @@ class reduce_stream : public stream {
    * @param  flush  true: Automatically calls flush(). By default true.
    * @return  true if the operation was successful.
    */
-  bool write_uncompressed(const void* buf, size_t n, size_t align = 1,
-    bool flush = true);
+  bool write_uncompressed(
+    const void* buf, size_t n, size_t align = 1, bool flush = true);
 
   /**
    * @brief  Closes this stream. Also ends decompression/compression states if

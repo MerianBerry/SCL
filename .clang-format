@@ -1,20 +1,31 @@
-BasedOnStyle: Google
+---
+BasedOnStyle: LLVM
 
+IndentWidth: 2
+MaxEmptyLinesToKeep: 2
+
+ColumnLimit: 80
+TabWidth: 2
+UseCRLF: true
+UseTab: Never
+
+---
 Language: Cpp
 PointerAlignment: Left
 
-SortIncludes: false
-ColumnLimit: 80
+SortIncludes:
+  Enabled: false
+
 AlignAfterOpenBracket: DontAlign
-AlignConsecutiveAssignments: AcrossEmptyLines
-AlignConsecutiveDeclarations: AcrossEmptyLinesAndComments
+AlignConsecutiveAssignments: None
+AlignConsecutiveDeclarations: None
 AlignConsecutiveMacros: AcrossEmptyLines
 AlignEscapedNewlines: Left
-AlignOperands: AlignAfterOperator
+AlignOperands: DontAlign
 AlignTrailingComments:
   Kind: Always
   OverEmptyLines: 3
-AllowAllArgumentsOnNextLine: false
+AllowAllArgumentsOnNextLine: true
 AllowShortCaseLabelsOnASingleLine: false
 AllowShortEnumsOnASingleLine: false
 AllowShortIfStatementsOnASingleLine: Never
@@ -22,24 +33,27 @@ AllowShortFunctionsOnASingleLine: None
 AllowShortLoopsOnASingleLine: false
 AllowShortLambdasOnASingleLine: Empty
 AlwaysBreakBeforeMultilineStrings: true
-BinPackArguments: true
-BinPackParameters: true
+BinPackArguments: false
+BinPackParameters: BinPack
+BreakBeforeBraces: Attach
+
 InsertTrailingCommas: None
 IndentCaseLabels: false
 IndentGotoLabels: false
 IndentPPDirectives: AfterHash
-IndentWidth: 2
-MaxEmptyLinesToKeep: 2
 SeparateDefinitionBlocks: Always
 SpaceAfterCStyleCast: false
 SpaceAfterLogicalNot: false
 SpaceBeforeAssignmentOperators: true
-SpaceBeforeParens: Never
+SpaceBeforeParens: Custom
+SpaceBeforeParensOptions:
+  AfterControlStatements: false
+  AfterPlacementOperator: true
 SpaceBeforeSquareBrackets: false
 SpaceInEmptyBlock: false
 SpaceInEmptyParentheses: false
 SpacesBeforeTrailingComments: 1
-SpacesInAngles: false
+SpacesInAngles: Never
 SpacesInCStyleCastParentheses: false
 SpacesInConditionalStatement: false
 SpacesInContainerLiterals: false
@@ -49,6 +63,3 @@ KeepEmptyLinesAtTheStartOfBlocks: false
 QualifierAlignment: Custom
 QualifierOrder: ['inline', 'static', 'const', 'type']
 ContinuationIndentWidth: 2
-TabWidth: 2
-UseCRLF: true
-UseTab: Never

@@ -1,16 +1,17 @@
-/*  scljobs.cpp
+/*  scl_jobs.cpp
  *  SCL work multithreading library
  */
 #ifndef JOBS_H
 #define JOBS_H
 
+#include <functional>
 #include <climits>
 #include <vector>
 #include <thread>
 #include <queue>
 #include <mutex>
 #include <atomic>
-#include "sclcore.hpp"
+#include "scl_string.hpp"
 
 #ifndef SCL_JOBS_FAST_SLEEP
 #  define SCL_JOBS_FAST_SLEEP 0.001
@@ -23,8 +24,7 @@
 namespace scl {
 namespace jobs {
 
-template <class WtT>
-class job;
+template <class WtT> class job;
 class JobWorker;
 
 /**
@@ -33,16 +33,17 @@ class JobWorker;
  *
  */
 class waitable {
-  template <class Wt>
-  friend class job;
+  template <class Wt> friend class job;
   using _Waitable = bool;
 
- private:
+private:
   std::atomic_bool m_done;
 
- protected:
- public:
+protected:
+public:
   waitable();
+  waitable(const waitable& rhs) = delete;
+  waitable& operator=(const waitable& rhs) = delete;
   waitable(waitable&& rhs);
   waitable& operator=(waitable&& rhs);
 
@@ -50,12 +51,12 @@ class waitable {
    * @brief Completes the waitable.
    *
    */
-  void      complete();
+  void complete();
 
   /**
    * @brief Resets the completion state.
    */
-  void      reset();
+  void reset();
 
   /**
    * @brief Returns the completion status of the waitable.
@@ -63,7 +64,7 @@ class waitable {
    * @return true if the waitable is completed.
    * @return false if otherwise.
    */
-  bool      status() const;
+  bool status() const;
 
   /**
    * @brief Waits for this waitable to be marked completed.
@@ -71,7 +72,7 @@ class waitable {
    * @param timeout  Max number of seconds to wait.
    * @return   True: Wait did not time out, False: Wait did time out.
    */
-  bool      wait(double timeout = -1);
+  bool wait(double timeout = -1);
 };
 
 class JobWorker;
@@ -83,18 +84,17 @@ class JobServer;
  *
  * @tparam WtT  Type of waitable used by this job.
  */
-template <class WtT>
-class job {
+template <class WtT> class job {
   friend class JobServer;
   friend class JobWorker;
 
- private:
-  bool                                 autodelwt    = false;
+private:
+  bool autodelwt = false;
   static const typename WtT::_Waitable _is_waitable = 1;
 
- protected:
- public:
-  using Wt       = WtT;
+protected:
+public:
+  using Wt = WtT;
   virtual ~job() = default;
 
   /**
@@ -103,7 +103,7 @@ class job {
    * @return   A NEW handle to this jobs waitable. It will be passed back to it
    * when doJob() is called.
    */
-  virtual Wt*  getWaitable() const = 0;
+  virtual Wt* getWaitable() const = 0;
 
   /**
    * @brief Virtual method called by workers, to check if a job can be taken.
@@ -121,31 +121,36 @@ class job {
 class funcJob : public job<waitable> {
   std::function<void(const JobWorker& worker)> m_func;
 
- public:
+public:
   funcJob(std::function<void(const JobWorker& worker)> func);
 
   waitable* getWaitable() const override;
 
-  void      doJob(waitable* waitable, const JobWorker& worker) override;
+  void doJob(waitable* waitable, const JobWorker& worker) override;
 };
 
 class JobWorker {
   friend class JobServer;
-  scl::string      m_desc;
-  JobServer*       m_serv;
+  scl::string m_desc;
+  JobServer* m_serv;
   std::atomic_bool m_working;
   std::atomic_bool m_busy;
-  int              m_id;
+  int m_id;
 
-  void             quit();
+  void quit();
 
- public:
+public:
   JobWorker(JobServer* serv, int id);
+  JobWorker(const JobWorker&) = delete;
+  JobWorker& operator=(const JobWorker&) = delete;
+  JobWorker(JobWorker&&) = delete;
+  JobWorker& operator=(JobWorker&&) = delete;
+
 
   /**
    * @return   Job server that owns this worker.
    */
-  JobServer&  serv() const;
+  JobServer& serv() const;
 
   /**
    * @brief  Syncs the job server (freezes job queue, and waits for all workers
@@ -153,22 +158,22 @@ class JobWorker {
    *
    * @param func  Lambda function to call while synced.
    */
-  void        sync(const std::function<void()>& func) const;
+  void sync(const std::function<void()>& func) const;
 
   /**
    * @return   This workers id.
    */
-  int         id() const;
+  int id() const;
 
   /**
    * @return   Whether or not this worker is taking working.
    */
-  bool        working() const;
+  bool working() const;
 
   /**
    * @return   Whether or not this worker is completing a job.
    */
-  bool        busy() const;
+  bool busy() const;
 
   static void work(JobWorker* inst);
 };
@@ -180,21 +185,21 @@ class JobWorker {
  */
 class JobServer : protected std::mutex {
   using t_worker = std::pair<std::thread, JobWorker*>;
-  using t_wjob   = std::pair<job<waitable>*, waitable*>;
+  using t_wjob = std::pair<job<waitable>*, waitable*>;
   friend class JobWorker;
   std::vector<t_worker> m_workers;
-  std::queue<t_wjob>    m_jobs;
-  std::atomic<size_t>   m_lockBits;
-  int                   m_nworkers;
-  std::atomic_bool      m_slow;
-  std::atomic_bool      m_working;
+  std::queue<t_wjob> m_jobs;
+  std::atomic<size_t> m_lockBits;
+  int m_nworkers;
+  std::atomic_bool m_slow;
+  std::atomic_bool m_working;
 
 
-  bool                  takeJob(t_wjob& wjob, const JobWorker& worker);
+  bool takeJob(t_wjob& wjob, const JobWorker& worker);
 
-  static int            ClampThreads(int threads);
+  static int ClampThreads(int threads);
 
- public:
+public:
   /**
    * @brief Construct a new Job Server object
    *
@@ -204,19 +209,19 @@ class JobServer : protected std::mutex {
   JobServer(int workers = INT_MAX);
   ~JobServer();
 
-  JobServer(const JobServer&)      = delete;
+  JobServer(const JobServer&) = delete;
   JobServer& operator=(JobServer&) = delete;
 
   /**
    * @return Whether or not this job server is accepting jobs.
    */
-  bool       is_working() const;
+  bool is_working() const;
 
   /**
    * @brief Starts the job server, necessary for most operations.
    *
    */
-  void       start();
+  void start();
 
   /**
    * @brief Allows job workers to poll for jobs at a slower rate.
@@ -224,7 +229,7 @@ class JobServer : protected std::mutex {
    * @param state  True: 1ms poll rate, False: 0.001ms poll rate.
    * @note Job servers default to fast polling rates (0.001ms).
    */
-  void       slow(bool state = true);
+  void slow(bool state = true);
 
   /**
    * @brief Waits for all workers to be idle.
@@ -233,39 +238,39 @@ class JobServer : protected std::mutex {
    * (infinite).
    * @return  True: Wait did not time out, False: Wait did time out.
    */
-  bool       waitidle(double timeout = -1);
+  bool waitidle(double timeout = -1);
 
   /**
    * @brief Stops the job server, ignores any untaken jobs.
    *
    */
-  void       stop();
+  void stop();
 
   /**
    * @brief Set the lock bits of this server.
    *
    * @param bits  Bits to set.
    */
-  void       setLockBits(size_t bits);
+  void setLockBits(size_t bits);
 
   /**
    * @brief Unset the lock bits of this server.
    *
    * @param bits  Bits to unset.
    */
-  void       unsetLockBits(size_t bits);
+  void unsetLockBits(size_t bits);
 
   /**
    * @param bits  Bits to check.
    * @return   Whether or not this server has any of the given bits set.
    */
-  bool       hasLockBits(size_t bits) const;
+  bool hasLockBits(size_t bits) const;
 
   /**
    * @brief Clears the job queue.
    *
    */
-  void       clearjobs();
+  void clearjobs();
 
   /**
    * @brief  Syncs the job server (freezes job queue, and waits for all workers
@@ -273,7 +278,7 @@ class JobServer : protected std::mutex {
    *
    * @param func  Lambda function to call while synced.
    */
-  void       sync(const std::function<void()>& func);
+  void sync(const std::function<void()>& func);
 
   /**
    * @brief Submits a job instance to the job server.
@@ -290,7 +295,7 @@ class JobServer : protected std::mutex {
     waitable* wt = job->getWaitable();
     lock();
     scl::jobs::job<waitable>* job_ = (scl::jobs::job<waitable>*)job;
-    job_->autodelwt                = autodelwt;
+    job_->autodelwt = autodelwt;
     m_jobs.push(t_wjob(job_, wt));
     unlock();
     return (typename Jb::Wt&)*wt;
@@ -306,18 +311,18 @@ class JobServer : protected std::mutex {
    * be complete.
    * @note  If autodelwt = false, you must free the waitable handle.
    */
-  waitable*   submitJob(std::function<void(const JobWorker& worker)> func,
-      bool autodelwt = true);
+  waitable* submitJob(
+    std::function<void(const JobWorker& worker)> func, bool autodelwt = true);
 
   /**
    * @return  Number of workers in this server.
    */
-  int         workerCount() const;
+  int workerCount() const;
 
   /**
    * @return  Number of logical processors (threads) of the system.
    */
-  static int  GetNumThreads();
+  static int GetNumThreads();
 
   /**
    * @brief  Multithreads a lambda function over a given number of threads.
@@ -326,8 +331,8 @@ class JobServer : protected std::mutex {
    * @param  workers  Number of threads to multithread with, with a max of the
    * number of threads in the system.
    */
-  static void Multithread(std::function<void(int id, int workers)> func,
-    int workers = INT_MAX);
+  static void Multithread(
+    std::function<void(int id, int workers)> func, int workers = INT_MAX);
 };
 } // namespace jobs
 } // namespace scl

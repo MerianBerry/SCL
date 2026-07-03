@@ -2,15 +2,18 @@
  *  SCL work multithreading library
  */
 
-#include "scljobs.hpp"
+#include <scl_jobs.hpp>
+#include <scl_time.hpp>
+#include <algorithm>
+
 #ifdef _WIN32
+#  ifndef NOMINMAX
+#    define NOMINMAX
+#  endif
 #  ifndef WIN32_LEAN_AND_MEAN
 #    define WIN32_LEAN_AND_MEAN
 #  endif
 #  include <windows.h>
-#  ifdef min
-#    undef min
-#  endif
 #else
 #  include <unistd.h>
 #endif
@@ -46,12 +49,13 @@ bool waitable::status() const {
 bool waitable::wait(double timeout) {
   // This should be relatively safe. m_wdone is only set by waiting threads, and
   // isnt complex.
-  return m_done || waitUntil(
-                     [&]() {
-                       bool state = m_done;
-                       return state;
-                     },
-                     timeout);
+  return m_done ||
+    waitUntil(
+      [&]() {
+        bool state = m_done;
+        return state;
+      },
+      timeout);
 }
 
 funcJob::funcJob(std::function<void(const JobWorker& worker)> func)
@@ -71,10 +75,10 @@ void JobWorker::quit() {
 }
 
 JobWorker::JobWorker(JobServer* serv, int id) {
-  m_serv    = serv;
-  m_id      = id;
+  m_serv = serv;
+  m_id = id;
   m_working = false;
-  m_busy    = false;
+  m_busy = false;
 }
 
 int JobWorker::id() const {
@@ -107,13 +111,14 @@ void JobWorker::work(JobWorker* inst) {
         bool foundjob = serv->takeJob(wjob, *inst);
         return foundjob || !inst->working();
       },
-      -1, SCL_JOBS_SLEEP(serv->m_slow));
+      -1,
+      SCL_JOBS_SLEEP(serv->m_slow));
     if(!inst->working())
       break;
     job<waitable>* job = wjob.first;
-    waitable*      wt  = wjob.second;
+    waitable* wt = wjob.second;
 
-    inst->m_busy       = true;
+    inst->m_busy = true;
     if(job) {
       job->doJob(wt, *inst);
       wt->complete();
@@ -141,7 +146,7 @@ bool JobServer::takeJob(t_wjob& wjob, const JobWorker& worker) {
     avail--;
   }
   unlock();
-  return avail;
+  return !!avail;
 }
 
 int JobServer::GetNumThreads() {
@@ -154,28 +159,26 @@ int JobServer::GetNumThreads() {
 #else
 #endif
 #ifdef _SC_NPROCESSORS_ONLN
-  n = sysconf(_SC_NPROCESSORS_ONLN);
+  n = (int)sysconf(_SC_NPROCESSORS_ONLN);
   return n;
 #endif
   return 0;
 }
 
 int JobServer::ClampThreads(int threads) {
-  if(threads <= 0)
-    threads = 1;
   int max = GetNumThreads();
   if(max)
-    return std::min(threads, max);
+    return std::max(std::min(threads, max), 1);
   else
     return 0;
 }
 
 JobServer::JobServer(int workers) {
   int n = ClampThreads(workers);
-  m_workers.reserve(n);
+  m_workers.reserve((size_t)n);
   m_nworkers = n;
-  m_slow     = false;
-  m_working  = false;
+  m_slow = false;
+  m_working = false;
 
   for(int i = 0; i < n; i++) {
     m_workers.push_back(t_worker());
@@ -194,8 +197,8 @@ void JobServer::start() {
   if(!m_working) {
     m_working = true;
     lock();
-    for(int i = 0; i < m_nworkers; i++) {
-      JobWorker*  worker = new JobWorker(this, i);
+    for(size_t i = 0; i < (size_t)m_nworkers; i++) {
+      JobWorker* worker = new JobWorker(this, (int)i);
       std::thread t(JobWorker::work, worker);
       t.swap(m_workers[i].first);
       m_workers[i].second = worker;
@@ -227,7 +230,8 @@ bool JobServer::waitidle(double timeout) {
       unlock();
       return cond;
     },
-    timeout, SCL_JOBS_SLOW_SLEEP);
+    timeout,
+    SCL_JOBS_SLOW_SLEEP);
 }
 
 void JobServer::stop() {
@@ -244,12 +248,12 @@ void JobServer::stop() {
 }
 
 void JobServer::setLockBits(size_t bits) {
-  size_t b   = m_lockBits;
+  size_t b = m_lockBits;
   m_lockBits = b | bits;
 }
 
 void JobServer::unsetLockBits(size_t bits) {
-  size_t b   = m_lockBits;
+  size_t b = m_lockBits;
   m_lockBits = b ^ bits;
 }
 
@@ -288,9 +292,9 @@ int JobServer::workerCount() const {
   return m_nworkers;
 }
 
-void JobServer::Multithread(std::function<void(int id, int workers)> func,
-  int                                                                workers) {
-  int                      n = ClampThreads(workers);
+void JobServer::Multithread(
+  std::function<void(int id, int workers)> func, int workers) {
+  int n = ClampThreads(workers);
   std::vector<std::thread> w;
   for(int i = 0; i < n; i++)
     w.push_back(std::thread(func, i, n));

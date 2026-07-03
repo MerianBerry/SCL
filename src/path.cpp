@@ -1,17 +1,12 @@
-/*  sclpath.cpp
+/*  path.cpp
  *  Path class definitions for SCL
  */
 
-#include "sclpath.hpp"
+#include <scl_path.hpp>
+#include "internal.hpp"
 #include <sys/stat.h>
 
 #ifdef _WIN32
-#  ifndef WIN32_LEAN_AND_MEAN
-#    define WIN32_LEAN_AND_MEAN
-#  endif
-#  ifndef NOMINMAX
-#    define NOMINMAX
-#  endif
 #  include <windows.h>
 #  include <io.h>
 #  include <direct.h>
@@ -27,10 +22,6 @@
 #  endif
 #endif
 
-#ifndef PATH_MAX
-#  define PATH_MAX MAX_PATH
-#endif
-
 namespace scl {
 path::path() {
 }
@@ -44,9 +35,8 @@ path::path(const char* rhs) : string(rhs) {
 }
 
 path& path::fixendsplit() {
-  unsigned p = len() - 1;
-  for(char c; p != (unsigned)-1 && (c = (*this)[p]) && (c == '/' || c == '\\');
-    p--) {
+  int32_t p = len() - 1;
+  for(char c; p != -1 && (c = (*this)[p]) && (c == '/' || c == '\\'); p--) {
   }
   if(p != len() - 1)
     *this = substr(0, p + 1);
@@ -72,9 +62,9 @@ bool path::haspath(const path& path) const {
 
 static path trimpath(const path& path, const scl::path& with) {
   std::vector<scl::path> comp;
-  auto                   frc = with.split();
-  auto                   fic = path.split();
-  for(unsigned i = 0; i < fic.size(); i++) {
+  auto frc = with.split();
+  auto fic = path.split();
+  for(size_t i = 0; i < fic.size(); i++) {
     if(i < frc.size() && frc[i] == fic[i])
       continue;
     comp.push_back(fic[i]);
@@ -104,13 +94,13 @@ path path::relative(const path& base) const {
 path path::parentpath() const {
   if(!*this)
     return "";
-  auto        real = resolve();
-  const char* abs  = real.cstr();
-  unsigned    l    = real.len();
+  auto real = resolve();
+  const char* abs = real.cstr();
+  int32_t l = real.len();
   if(!l)
     return "";
-  char*    p = (char*)abs + l - 1;
-  unsigned n = (unsigned)-1;
+  char* p = (char*)abs + l - 1;
+  int32_t n = -1;
   for(; *p && p >= abs; --p)
     if(*p == '/' || *p == '\\') {
       while(*p == '/' || *p == '\\')
@@ -118,28 +108,28 @@ path path::parentpath() const {
       p++;
       break;
     }
-  n          = unsigned(p - abs);
+  n = (int32_t)(p - abs);
   string out = (p != abs) ? real.substr(0, n) : ".";
   return out;
 }
 
 path path::filename() const {
-  auto p = std::max(fli("/"), fli("\\"));
+  int32_t p = std::max(fli("/"), fli("\\"));
   if(p == -1)
     return *this;
-  return substr((unsigned)p + 1);
+  return substr(p + 1);
 }
 
 string path::extension() const {
-  path      file = filename();
-  long long p    = file.ffi(".");
-  return p >= 0 ? file.substr((unsigned)p) : "";
+  path file = filename();
+  int32_t p = file.ffi(".");
+  return p >= 0 ? file.substr(p) : "";
 }
 
 path path::stem() const {
-  path      file = filename();
-  long long p    = file.ffi(".");
-  return p >= 0 ? file.substr(0, (unsigned)p) : file;
+  path file = filename();
+  int32_t p = file.ffi(".");
+  return p >= 0 ? file.substr(0, p) : file;
 }
 
 bool path::iswild() const {
@@ -148,13 +138,13 @@ bool path::iswild() const {
 
 std::vector<path> path::split() const {
   std::vector<path> syms;
-  const char *      s = cstr(), *p = cstr();
+  const char *s = cstr(), *p = cstr();
   if(!s)
     return syms;
   while(*s && *p) {
     while(*p && *p != '/' && *p != '\\')
       p++;
-    string sym = substr(unsigned(s - cstr()), unsigned(p - s));
+    string sym = substr((int32_t)(s - cstr()), (int32_t)(p - s));
     if(sym.ffi("**") > 0)
       sym = "**";
     else if(!sym)
@@ -171,7 +161,7 @@ std::vector<path> path::split() const {
 
 bool path::exists() const {
   int r = access(cstr(), F_OK) == 0;
-  return (bool)r;
+  return !!r;
 }
 
 bool path::isfile() const {
@@ -230,7 +220,7 @@ long long path::wtime() const {
   ulint.LowPart  = ftWrite.dwLowDateTime;
   ulint.HighPart = ftWrite.dwHighDateTime;
   CloseHandle ((HANDLE)(intptr_t)hf);
-  return (unsigned long)ulint.QuadPart;
+  return (int32_t long)ulint.QuadPart;
 #  endif
 #endif
 }
@@ -244,7 +234,7 @@ path& path::replaceFilename(const path& nFile) {
   auto c = split();
   if(c.size() > 0) {
     c.back() = nFile;
-    *this    = join(c);
+    *this = join(c);
   }
   return *this;
 }
@@ -280,7 +270,7 @@ path path::execdir() {
   char buf[PATH_MAX];
   proc_pidpath(getpid(), buf, PATH_MAX);
 #else
-  char    buf[PATH_MAX];
+  char buf[PATH_MAX];
   ssize_t count = readlink("/proc/self/exe", buf, PATH_MAX);
 #endif
   path p = buf;
@@ -288,7 +278,7 @@ path path::execdir() {
 }
 
 bool path::mkdir(const path& path) {
-  auto       dirs = path.split();
+  auto dirs = path.split();
   class path dir;
   for(auto& i : dirs) {
     dir = dir / i;
@@ -362,12 +352,12 @@ static void align_reserve(std::vector<T>& vec, int add, int align = 128) {
 }
 
 static void join_(char* buf, const scl::string& one, const scl::string& two) {
-  const auto l1 = one.len();
-  auto       l2 = two.len();
-  l2            = std::min(l2, l1 + l2 + 2 - PATH_MAX);
-  memcpy(buf, one.cstr(), l1);
+  const int32_t l1 = one.len();
+  int32_t l2 = two.len();
+  l2 = std::min(l2, l1 + l2 + 2 - PATH_MAX);
+  memcpy(buf, one.cstr(), (size_t)l1);
   buf[l1] = '/';
-  memcpy(buf + l1 + 1, two.cstr(), l2);
+  memcpy(buf + l1 + 1, two.cstr(), (size_t)l2);
   buf[l1 + l2 + 1] = 0;
 }
 
@@ -375,8 +365,8 @@ static int glob_(const path dir, const path& mask, std::vector<path>& globs,
   scl::GlobMode mode = scl::GlobMode::FILES) {
   char buf[PATH_MAX];
 #ifdef _WIN32
-  const path       spec  = dir / (mask.iswild() ? "*" : mask);
-  HANDLE           hFind = NULL;
+  const path spec = dir / (mask.iswild() ? "*" : mask);
+  HANDLE hFind = NULL;
   WIN32_FIND_DATAA ffd;
   hFind = FindFirstFileA(spec.cstr(), &ffd);
   if(hFind == NULL || hFind == (HANDLE)0xffffffffLL)
@@ -441,42 +431,16 @@ static int glob_recurse(const string& mask, std::vector<path>& dirs) {
   for(size_t i = 0; i < searches.size(); i++) {
     glob_(searches[i], "*", searches, GlobMode::DIRS);
     if(searches[i].filename().match(mask)) {
-      align_reserve(dirs, 1);
+      align_reserve(dirs, 4);
       dirs.push_back(std::move(searches[i]));
     }
   }
-#if 0
-  while(dirs.size() > 0) {
-    std::vector<path> ndirs;
-    for(size_t i = 0; i < dirs.size(); i++) {
-      glob_(dirs[i], "*", dirs, GlobMode::DIRS);
-    }
-    if(misdir) {
-      dirs.clear();
-      for(auto& i : ndirs) {
-        if(i.match(mask)) {
-          align_reserve(finds, 1);
-          finds.push_back(i);
-        } else {
-          align_reserve(dirs, 1);
-          dirs.push_back(i);
-        }
-      }
-    } else {
-      for(auto& i : ndirs) {
-        align_reserve(finds, 1);
-        finds.push_back(i);
-      }
-    }
-    dirs = std::move(ndirs);
-  }
-#endif
   return 0;
 }
 
-static void glob_singlepattern(std::vector<path>& finds, const string& pattern,
-  GlobMode mode) {
-  auto                syms = path(pattern).split();
+static void glob_singlepattern(
+  std::vector<path>& finds, const string& pattern, GlobMode mode) {
+  auto syms = path(pattern).split();
   /* LOOP (for each in syms)
     IF sym IS WILDCARD
       IF glob IS NOT EMPTY
@@ -491,7 +455,7 @@ static void glob_singlepattern(std::vector<path>& finds, const string& pattern,
   // IF glob IS VALID AND glob IS NOT WILD
   //   Add glob to globs.
   std::vector<string> globs;
-  path                glob;
+  path glob;
   for(auto& sym : syms) {
     if(sym.iswild()) {
       if(glob)
@@ -519,12 +483,11 @@ static void glob_singlepattern(std::vector<path>& finds, const string& pattern,
         mask = globs[i + 1];
       glob_recurse(mask, dirs);
       i++;
+      // If not the last glob exp
     } else if(i != globs.size() - 1) {
-// Find new search dirs
-#if 1
+      // Find new search dirs
       for(size_t j = 0; j < dirs.size(); j++)
         glob_(dirs[j], globs[i], dirs, GlobMode::DIRS);
-#endif
     }
   }
   path fn = globs.back();
@@ -535,15 +498,15 @@ static void glob_singlepattern(std::vector<path>& finds, const string& pattern,
 
 std::vector<path> path::glob(const string& pattern, GlobMode mode) {
   std::vector<string> searches;
-  const char*         sp = pattern.cstr();
+  const char* sp = pattern.cstr();
   while(true) {
     scl::string tmp = sp;
-    auto        p   = tmp.ffi(";");
+    int32_t p = tmp.ffi(";");
     if(p <= 0) {
       searches.push_back(tmp);
       break;
     }
-    searches.push_back(tmp.substr(0, (unsigned)p));
+    searches.push_back(tmp.substr(0, p));
     sp += p + 1;
   }
   std::vector<path> finds;
@@ -572,13 +535,13 @@ path path::join(std::vector<path> components, bool ignoreback) {
 }
 
 std::vector<path> path::splitPaths(const scl::string& paths) {
-  const char *      ps = paths.cstr(), *s = ps;
+  const char *ps = paths.cstr(), *s = ps;
   std::vector<path> out;
   while(*ps) {
-    auto p = scl::string::ffi(ps, ";");
+    int32_t p = scl::string::ffi(ps, ";");
     if(p < 0)
-      p = (long long)strlen(ps);
-    out.push_back(paths.substr(unsigned(ps - s), (unsigned)p));
+      p = (int32_t)strlen(ps);
+    out.push_back(paths.substr((int32_t)(ps - s), p));
     ps += p + 1;
   }
   return std::move(out);

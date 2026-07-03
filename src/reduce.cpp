@@ -1,13 +1,19 @@
-/*  sclreduce.cpp
+/*  reduce.cpp
  */
 
-#include "sclreduce.hpp"
+#include <scl_reduce.hpp>
+#include "internal.hpp"
 #define LZ4F_STATIC_LINKING_ONLY
 #include "lz4/lz4frame.h"
 
 static const LZ4F_preferences_t kPrefs = {
-  {LZ4F_max1MB, LZ4F_blockLinked, LZ4F_contentChecksumEnabled, LZ4F_frame,
-    0 /* unknown content size */, 0 /* no dictID */, LZ4F_noBlockChecksum},
+  {LZ4F_max1MB,
+    LZ4F_blockLinked,
+    LZ4F_contentChecksumEnabled,
+    LZ4F_frame,
+    0 /* unknown content size */,
+    0 /* no dictID */,
+    LZ4F_noBlockChecksum},
   0,         /* compression level; 0 == default */
   0,         /* autoflush */
   1,         /* favor decompression speed */
@@ -34,9 +40,9 @@ namespace scl {
 
 bool reduce_stream::compress_init() {
   if(!m_inbuf) {
-    m_inbuf       = new char[SCL_STREAM_BUF];
+    m_inbuf = new char[SCL_STREAM_BUF];
     m_outCapacity = LZ4F_compressBound(SCL_STREAM_BUF, &kPrefs);
-    m_outbuf      = new char[m_outCapacity];
+    m_outbuf = new char[m_outCapacity];
     const size_t ctxRes =
       LZ4F_createCompressionContext((LZ4F_cctx**)&m_lz4ctx, LZ4F_VERSION);
     if(LZ4F_isError(ctxRes)) {
@@ -44,7 +50,7 @@ bool reduce_stream::compress_init() {
         delete[] m_inbuf;
       if(m_outbuf)
         delete[] m_outbuf;
-      m_inbuf  = nullptr;
+      m_inbuf = nullptr;
       m_outbuf = nullptr;
       return false;
     }
@@ -56,29 +62,29 @@ size_t reduce_stream::compress_flush() {
   size_t outSize =
     LZ4F_flush((LZ4F_cctx*)m_lz4ctx, m_outbuf, m_outCapacity, NULL);
   if(LZ4F_isError(outSize)) {
-    return -1;
+    return (size_t)-1;
   }
   if(!write_internal(m_outbuf, outSize, SCL_STREAM_BUF))
-    return -1;
+    return (size_t)-1;
   return outSize;
 }
 
-size_t reduce_stream::compress_chunk(const void* buf, size_t bytes,
-  bool flush) {
+size_t reduce_stream::compress_chunk(
+  const void* buf, size_t bytes, bool flush) {
   size_t outSize;
 
   if(!m_ready || bytes > SCL_STREAM_BUF)
-    return -1;
+    return (size_t)-1;
   if(!bytes)
     return 0;
 
-  outSize = LZ4F_compressUpdate((LZ4F_cctx*)m_lz4ctx, m_outbuf, m_outCapacity,
-    buf, bytes, NULL);
+  outSize = LZ4F_compressUpdate(
+    (LZ4F_cctx*)m_lz4ctx, m_outbuf, m_outCapacity, buf, bytes, NULL);
   if(LZ4F_isError(outSize)) {
     return 0;
   }
   if(!write_internal(m_outbuf, outSize, SCL_STREAM_BUF))
-    return -1;
+    return (size_t)-1;
 
   if(flush)
     outSize = compress_flush();
@@ -121,29 +127,33 @@ bool reduce_stream::decompress_init() {
 }
 
 size_t reduce_stream::decompress_chunk(void* buf, size_t bytes) {
-  size_t ret     = 1;
+  size_t ret = 1;
   size_t written = 0;
   // Fetch and decompress data into outbuf
   while(ret) {
     // Load more input, if necessary
     if(m_consumed >= m_inSize) {
-      m_inSize   = read_internal(m_inbuf, SCL_STREAM_BUF);
+      m_inSize = read_internal(m_inbuf, SCL_STREAM_BUF);
       m_consumed = 0;
     }
-    size_t      readSize = m_inSize - m_consumed;
-    const void* srcptr   = m_inbuf + m_consumed;
-    const void* srcend   = (char*)srcptr + readSize;
+    size_t readSize = m_inSize - m_consumed;
+    const void* srcptr = m_inbuf + m_consumed;
+    const void* srcend = (char*)srcptr + readSize;
     if(!readSize)
       break;
 
     /* Decompress, continueing until srcptr >= srcend, or error */
     while(srcptr < srcend && ret) {
       size_t dstSize = bytes - written;
-      size_t srcSize = (char*)srcend - (char*)srcptr;
-      ret = LZ4F_decompress((LZ4F_dctx*)m_lz4ctx, (char*)buf + written,
-        &dstSize, srcptr, &srcSize, NULL);
+      size_t srcSize = (size_t)((char*)srcend - (char*)srcptr);
+      ret = LZ4F_decompress((LZ4F_dctx*)m_lz4ctx,
+        (char*)buf + written,
+        &dstSize,
+        srcptr,
+        &srcSize,
+        NULL);
       if(LZ4F_isError(ret)) {
-        return -1;
+        return (size_t)-1;
       }
       // Update number of written bytes
       written += dstSize;
@@ -167,7 +177,7 @@ bool reduce_stream::decompress_begin() {
   const size_t readSize = read_internal(m_inbuf, SCL_STREAM_BUF);
   if(!readSize)
     return false;
-  m_inSize   = readSize;
+  m_inSize = readSize;
   m_consumed = readSize;
 
   LZ4F_frameInfo_t info;
@@ -190,13 +200,13 @@ bool reduce_stream::decompress_begin() {
 bool reduce_stream::decompress_end() {
   if(m_outbuf)
     delete[] m_outbuf;
-  m_consumed    = 0;
-  m_inSize      = 0;
-  m_outbuf      = nullptr;
+  m_consumed = 0;
+  m_inSize = 0;
+  m_outbuf = nullptr;
   m_outConsumed = 0;
-  m_outSize     = 0;
+  m_outSize = 0;
   m_outCapacity = 0;
-  m_ready       = false;
+  m_ready = false;
   return true;
 }
 
@@ -212,29 +222,29 @@ void reduce_stream::close_internal() {
     delete[] m_inbuf;
   if(m_outbuf)
     delete[] m_outbuf;
-  m_lz4ctx      = nullptr;
-  m_inbuf       = nullptr;
-  m_consumed    = 0;
-  m_inSize      = 0;
-  m_outbuf      = nullptr;
+  m_lz4ctx = nullptr;
+  m_inbuf = nullptr;
+  m_consumed = 0;
+  m_inSize = 0;
+  m_outbuf = nullptr;
   m_outConsumed = 0;
-  m_outSize     = 0;
+  m_outSize = 0;
   m_outCapacity = 0;
-  m_ready       = false;
+  m_ready = false;
 }
 
 reduce_stream::reduce_stream(reduce_stream&& rhs) {
   stream(std::move(rhs));
-  m_inbuf       = rhs.m_inbuf;
-  m_outbuf      = rhs.m_outbuf;
-  m_lz4ctx      = rhs.m_lz4ctx;
-  m_consumed    = rhs.m_consumed;
-  m_inSize      = rhs.m_inSize;
+  m_inbuf = rhs.m_inbuf;
+  m_outbuf = rhs.m_outbuf;
+  m_lz4ctx = rhs.m_lz4ctx;
+  m_consumed = rhs.m_consumed;
+  m_inSize = rhs.m_inSize;
   m_outConsumed = rhs.m_outConsumed;
-  m_outSize     = rhs.m_outSize;
+  m_outSize = rhs.m_outSize;
   m_outCapacity = rhs.m_outCapacity;
-  m_ready       = rhs.m_ready;
-  m_mode        = rhs.m_mode;
+  m_ready = rhs.m_ready;
+  m_mode = rhs.m_mode;
 }
 
 reduce_stream::reduce_stream(stream&& rhs) {
@@ -244,16 +254,16 @@ reduce_stream::reduce_stream(stream&& rhs) {
 reduce_stream& reduce_stream::operator=(reduce_stream&& rhs) {
   stream::operator=(std::move(rhs));
   close_internal();
-  m_inbuf       = rhs.m_inbuf;
-  m_outbuf      = rhs.m_outbuf;
-  m_lz4ctx      = rhs.m_lz4ctx;
-  m_consumed    = rhs.m_consumed;
-  m_inSize      = rhs.m_inSize;
+  m_inbuf = rhs.m_inbuf;
+  m_outbuf = rhs.m_outbuf;
+  m_lz4ctx = rhs.m_lz4ctx;
+  m_consumed = rhs.m_consumed;
+  m_inSize = rhs.m_inSize;
   m_outConsumed = rhs.m_outConsumed;
-  m_outSize     = rhs.m_outSize;
+  m_outSize = rhs.m_outSize;
   m_outCapacity = rhs.m_outCapacity;
-  m_ready       = rhs.m_ready;
-  m_mode        = rhs.m_mode;
+  m_ready = rhs.m_ready;
+  m_mode = rhs.m_mode;
   return *this;
 }
 
@@ -304,7 +314,7 @@ bool reduce_stream::end() {
     return decompress_end();
 }
 
-long long reduce_stream::read(void* buf, size_t n) {
+size_t reduce_stream::read(void* buf, size_t n) {
   if(!m_ready || m_mode != Decompress) {
     // Non-decompress read mode returns compressed data
     return read_internal(buf, n);
@@ -312,7 +322,7 @@ long long reduce_stream::read(void* buf, size_t n) {
   if(m_outSize > m_outCapacity || m_outConsumed > m_outCapacity)
     return 0;
   if(m_outConsumed < m_outSize) {
-    size_t avail     = m_outSize - m_outConsumed;
+    size_t avail = m_outSize - m_outConsumed;
     size_t readBytes = avail > n ? n : avail;
     memcpy(buf, m_outbuf + m_outConsumed, readBytes);
     n -= readBytes;
@@ -324,7 +334,7 @@ long long reduce_stream::read(void* buf, size_t n) {
   size_t buffered = decompress_chunk(m_outbuf, m_outCapacity);
   if(!buffered)
     return 0;
-  m_outSize     = buffered;
+  m_outSize = buffered;
   m_outConsumed = 0;
   return read(buf, n);
 }
@@ -355,8 +365,8 @@ bool reduce_stream::write(const void* buf, size_t n, size_t align, bool flush) {
   return true;
 }
 
-bool reduce_stream::write_uncompressed(const void* buf, size_t n, size_t align,
-  bool flush) {
+bool reduce_stream::write_uncompressed(
+  const void* buf, size_t n, size_t align, bool flush) {
   if(m_ready)
     // Cannot write uncompressed while "active"
     // TODO: allow this behavior during compression (lz4f allows it)

@@ -10,3 +10,5 @@ horosont.glb
 *.spk
 massiftest
 valtest
+__pycache__
+test/xml.py

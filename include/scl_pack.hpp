@@ -1,15 +1,13 @@
-/*  sclpak.hpp
+/*  scl_pack.hpp
  *  SCL package manager
  */
 
 #ifndef SCL_PACKAGER_H
 #define SCL_PACKAGER_H
 
-#include "sclcore.hpp"
-#include "sclreduce.hpp"
-#include "scldict.hpp"
-#include "sclpath.hpp"
-#include "scljobs.hpp"
+#include "scl_reduce.hpp"
+#include "scl_path.hpp"
+#include "scl_jobs.hpp"
 #include <unordered_map>
 
 #define SCL_MAX_CHUNKS 4
@@ -30,9 +28,13 @@ class PackWaitable : public jobs::waitable {
   // int          m_tid    = -1;
   scl::stream* m_stream = nullptr;
 
- public:
+public:
   PackWaitable() = default;
   PackWaitable(scl::stream* stream);
+  PackWaitable(const PackWaitable&) = delete;
+  PackWaitable& operator=(const PackWaitable&) = delete;
+  PackWaitable(PackWaitable&&) = default;
+  PackWaitable& operator=(PackWaitable&&) = default;
 
   scl::stream& stream() {
     wait();
@@ -54,18 +56,20 @@ class PackIndex {
   friend class PackFetchJob;
   friend class PackWriteJob;
 
- private:
+private:
   PackWaitable m_wt;
-  scl::string  m_file;
-  Packager*    m_family = nullptr;
-  uint32_t     m_off = 0, m_size = 0, m_original = 0;
-  bool         m_active = 0, m_submitted = 0;
-  uint8_t      m_pack = 0;
+  scl::string m_file;
+  Packager* m_family = nullptr;
+  uint32_t m_off = 0, m_size = 0, m_original = 0;
+  bool m_active = 0, m_submitted = 0;
+  uint8_t m_pack = 0;
 
- public:
+public:
   PackIndex(const scl::string& file = "");
+  PackIndex(const PackIndex&) = delete;
+  PackIndex& operator=(const PackIndex&) = delete;
   PackIndex(PackIndex&& rhs);
-  PackIndex&         operator=(PackIndex&& rhs);
+  PackIndex& operator=(PackIndex&& rhs);
 
   /**
    * @brief Returns the filepath associated with this index
@@ -80,7 +84,7 @@ class PackIndex {
    * Note: Files are compressed either when they are loaded from a pack, or are
    * written.
    */
-  uint32_t           compressed() const {
+  uint32_t compressed() const {
     return m_size;
   }
 
@@ -115,7 +119,7 @@ class PackIndex {
    *
    * @return reference to this object
    */
-  PackIndex&    submit();
+  PackIndex& submit();
 
   /**
    * @brief Convenience function to open this file's stream.
@@ -127,7 +131,7 @@ class PackIndex {
    * @return true if opened succesfully
    * @return false if otherwise
    */
-  bool          open(OpenMode mode, bool binary = false);
+  bool open(OpenMode mode, bool binary = false);
 
   /**
    * @brief Returns the stream of this file index.
@@ -137,7 +141,7 @@ class PackIndex {
    *
    * @return Pointer to this index's stream
    */
-  scl::stream*  stream();
+  scl::stream* stream();
 
   /**
    * @brief Returns the stream of this file index.
@@ -147,7 +151,7 @@ class PackIndex {
    *
    * @return Pointer to this index's stream
    */
-  scl::stream*  operator->() {
+  scl::stream* operator->() {
     return m_wt.m_stream;
   }
 
@@ -170,31 +174,35 @@ class PackIndex {
 // Job to decompress a file from a stream into memory
 class PackFetchJob : public jobs::job<PackWaitable> {
   PackIndex& m_idx;
-  Packager&  m_pack;
+  Packager& m_pack;
 
- public:
+public:
   PackFetchJob(PackIndex& idx, Packager& pack);
+  PackFetchJob(const PackFetchJob&) = delete;
+  PackFetchJob& operator=(const PackFetchJob&) = delete;
 
   PackWaitable* getWaitable() const override;
 
-  bool          checkJob(const jobs::JobWorker& worker) const override;
+  bool checkJob(const jobs::JobWorker& worker) const override;
 
-  void          doJob(PackWaitable* wt, const jobs::JobWorker& worker) override;
+  void doJob(PackWaitable* wt, const jobs::JobWorker& worker) override;
 };
 
 class PackWriteJob : public jobs::job<PackWaitable> {
   friend class Packager;
   PackIndex& m_idx;
-  Packager&  m_pack;
+  Packager& m_pack;
 
- public:
+public:
   PackWriteJob(PackIndex& idx, Packager& pack);
+  PackWriteJob(const PackWriteJob&) = delete;
+  PackWriteJob& operator=(const PackWriteJob&) = delete;
 
   PackWaitable* getWaitable() const override;
 
   // bool          checkJob(const jobs::JobWorker& worker) const override;
 
-  void          doJob(PackWaitable* wt, const jobs::JobWorker& worker) override;
+  void doJob(PackWaitable* wt, const jobs::JobWorker& worker) override;
 };
 
 /**
@@ -207,21 +215,21 @@ class Packager : protected std::mutex {
   friend class PackWriteJob;
   friend class PackIndex;
 
- private:
-  jobs::JobServer                            m_serv;
-  scl::path                                  m_family;
-  scl::path                                  m_ext;
+private:
+  jobs::JobServer m_serv;
+  scl::path m_family;
+  scl::path m_ext;
   std::unordered_map<scl::string, PackIndex> m_index;
-  std::vector<PackIndex*>                    m_submitted;
-  std::vector<scl::reduce_stream*>           m_archives;
+  std::vector<PackIndex*> m_submitted;
+  std::vector<scl::reduce_stream*> m_archives;
   // Reduce queue mutex
-  std::mutex                                 m_remux;
-  std::queue<scl::reduce_stream*>            m_reduces;
+  std::mutex m_remux;
+  std::queue<scl::reduce_stream*> m_reduces;
   // Queue of in-progress compressions
-  std::queue<PackIndex*>                     m_writing;
-  std::atomic_uint32_t                       m_waiting;
-  int                                        m_workers;
-  bool                                       m_open = false;
+  std::queue<PackIndex*> m_writing;
+  std::atomic_uint32_t m_waiting;
+  int m_workers;
+  bool m_open = false;
 
   enum class mPackRes {
     // Continue
@@ -232,12 +240,15 @@ class Packager : protected std::mutex {
     GENERAL_ERROR = 2,
   };
 
-  bool     readIndex(scl::reduce_stream& archive, uint32_t bid);
-  mPackRes writeMemberPack(scl::stream& archive, size_t& elemid, int memberid,
-    const scl::string& buildid, std::function<void(size_t, PackIndex*)>& cb);
+  bool readIndex(scl::reduce_stream& archive, uint32_t bid);
+  mPackRes writeMemberPack(scl::stream& archive, size_t& elemid,
+    uint8_t memberid, const scl::string& buildid,
+    std::function<void(size_t, PackIndex*)>& cb);
 
- public:
+public:
   Packager(int nworkers = INT_MAX);
+  Packager(const Packager&) = delete;
+  Packager& operator=(const Packager&) = delete;
   ~Packager();
 
   /**
@@ -247,7 +258,7 @@ class Packager : protected std::mutex {
    * @return true if success
    * @return false if otherwise
    */
-  bool                    open(const scl::path& path);
+  bool open(const scl::path& path);
 
   /**
    * @brief Requests the given filepath to be indexed (if not already), or
@@ -256,7 +267,7 @@ class Packager : protected std::mutex {
    * @param  path filepath to be opened
    * @return Pointer to the pack index of the given path.
    */
-  PackIndex*              openFile(const scl::path& path);
+  PackIndex* openFile(const scl::path& path);
 
   /**
    * @brief Vectored version of openFile. For info, see openFile().
@@ -276,7 +287,7 @@ class Packager : protected std::mutex {
    * @param  path
    * @return <b>true</b> if file was successfully submitted.
    */
-  bool                    submit(const scl::path& path);
+  bool submit(const scl::path& path);
 
   /**
    * @brief Writes all submitted files to the pack.
@@ -306,7 +317,7 @@ class Packager : protected std::mutex {
    * @brief Closes this pack.
    *
    */
-  void       close();
+  void close();
 };
 
 bool packInit();
