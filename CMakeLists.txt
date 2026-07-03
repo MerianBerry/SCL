@@ -37,7 +37,7 @@ add_library(scl ${SCL_SOURCES})
 minify(miniscl.hpp SCL_IMPL "" "${SCL_HEADERS}" "${SCL_SOURCES}")
 
 if (NOT DEFINED SCL_TESTS)
-  set(SCL_TESTS TRUE)
+  set(SCL_TESTS FALSE)
 endif()
 
 if (SCL_TESTS)
@@ -45,7 +45,7 @@ if (SCL_TESTS)
 endif()
 
 if (NOT DEFINED SCL_EXAMPLES)
-  set(SCL_EXAMPLES TRUE)
+  set(SCL_EXAMPLES FALSE)
 endif()
 
 if (SCL_EXAMPLES)

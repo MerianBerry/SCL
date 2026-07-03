@@ -5,7 +5,9 @@
 #ifndef scl_defs_hpp
 #define scl_defs_hpp
 
-#include <cstdint>
+#include <stddef.h>
+#include <stdint.h>
+#include <limits.h>
 
 #ifndef SCL_STREAM_BUF
 #  define SCL_STREAM_BUF 0x8000
