@@ -174,7 +174,7 @@ public:
   bool write(const scl::string& str, size_t align = 1, bool flush = false);
 
   /**
-   * @brief  Writes another scl::string into this stream.
+   * @brief  Writes another scl::stream into this stream.
    *
    * @param  src  Stream to read from.
    * @param  max  Max number of bytes to write. By default -1 (infinite).
