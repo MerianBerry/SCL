@@ -12,6 +12,7 @@
 #  include <windows.h>
 #else
 #  include <unistd.h>
+#  include <time.h>
 #  include <math.h>
 #endif
 

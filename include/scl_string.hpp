@@ -9,6 +9,8 @@
 #include <fstream>
 #include <stdarg.h>
 #include <string.h>
+#include <limits.h>
+#include <stdint.h>
 
 namespace scl {
 class string;

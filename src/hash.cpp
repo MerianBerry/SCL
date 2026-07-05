@@ -2,7 +2,7 @@
  * scl hash functions
  */
 
-#include <stdint.h>
+#include "internal.hpp"
 
 namespace scl {
 namespace internal {
