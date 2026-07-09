@@ -26,26 +26,26 @@
 #include <string.h>
 
 #ifndef min
-#define min(x, y) ((x) < (y) ? (x) : (y))
-#define max(x, y) ((x) > (y) ? (x) : (y))
+#  define min(x, y) ((x) < (y) ? (x) : (y))
+#  define max(x, y) ((x) > (y) ? (x) : (y))
 #endif
 
-const char *strrstr(const char *haystack, const char *needle) {
-  if (!haystack || !needle)
+const char* strrstr(const char* haystack, const char* needle) {
+  if(!haystack || !needle)
     return NULL;
   size_t i = strlen(haystack);
   const size_t J = strlen(needle);
-  if (!J)
+  if(!J)
     return NULL;
-  if (!i)
+  if(!i)
     return NULL;
   size_t j = J;
-  for (;; i--, j--) {
+  for(;; i--, j--) {
     /* Reset search if not applicable */
-    if (haystack[i] != needle[j])
+    if(haystack[i] != needle[j])
       /* needs plus one due to the decrement */
       j = J + 1;
-    if (!i || !j)
+    if(!i || !j)
       break;
   }
   /* if the start of needle was reached, found the last instance.
@@ -53,93 +53,93 @@ const char *strrstr(const char *haystack, const char *needle) {
   return !j ? &haystack[i] : NULL;
 }
 
-bool strendswith(const char *str, const char *end) {
-  if (!str || !end)
+bool strendswith(const char* str, const char* end) {
+  if(!str || !end)
     return false;
   size_t i = strlen(str);
   size_t j = strlen(end);
-  if (!j)
+  if(!j)
     return true;
-  if (!i)
+  if(!i)
     return false;
-  for (;; i--, j--) {
-    if (str[i] != end[j])
+  for(;; i--, j--) {
+    if(str[i] != end[j])
       return false;
-    if (!i || !j)
+    if(!i || !j)
       break;
   }
   return true;
 }
 
-static bool _strmatch(const char *pattern, const char *candidate, int32_t p,
-                      int32_t c) {
-  if (pattern[p] == '\0') {
+static bool _strmatch(
+  const char* pattern, const char* candidate, int32_t p, int32_t c) {
+  if(pattern[p] == '\0') {
     return candidate[c] == '\0';
-  } else if (pattern[p] == '*') {
-    for (;; c++) {
-      if (candidate[c] == '\0' || candidate[c] == pattern[p + 1])
+  } else if(pattern[p] == '*') {
+    for(;; c++) {
+      if(candidate[c] == '\0' || candidate[c] == pattern[p + 1])
         break;
     }
     return _strmatch(pattern, candidate, p + 1, c);
-  } else if (candidate[c] == pattern[p]) {
+  } else if(candidate[c] == pattern[p]) {
     return _strmatch(pattern, candidate, p + 1, c + 1);
   }
   return false;
 }
 
-bool strmatch(const char *str, const char *pattern) {
-  if (!str || !pattern)
+bool strmatch(const char* str, const char* pattern) {
+  if(!str || !pattern)
     return false;
   return _strmatch(pattern, str, 0, 0);
 }
 
-const char *strsub(const char *str, size_t i, size_t j) {
-  if (!str)
+const char* strsub(const char* str, size_t i, size_t j) {
+  if(!str)
     return NULL;
   const size_t l1 = strlen(str);
-  if (i >= l1)
+  if(i >= l1)
     return NULL;
   j = min(j, l1 - i);
-  char *ptr = (char *)malloc(j + 1);
+  char* ptr = (char*)malloc(j + 1);
   memcpy(ptr, str + i, j);
   ptr[j] = 0;
   return ptr;
 }
 
-const char *strcopy(const char *str) {
-  if (!str)
+const char* strcopy(const char* str) {
+  if(!str)
     return NULL;
   const size_t l = strlen(str);
-  char *ptr = (char *)malloc(l + 1);
+  char* ptr = (char*)malloc(l + 1);
   memcpy(ptr, str, l + 1);
   return ptr;
 }
 
-const char *strreplace(const char *str, const char *replacement, size_t i,
-                       size_t j) {
-  if (!str || !replacement)
+const char* strreplace(
+  const char* str, const char* replacement, size_t i, size_t j) {
+  if(!str || !replacement)
     return NULL;
   const size_t l1 = strlen(str);
-  if (i >= l1)
+  if(i >= l1)
     return NULL;
   const size_t l2 = strlen(replacement);
   j = min(j, l1 - i);
   /* l1 - i - j will never be less than 0, so its ok */
   const size_t d = l1 - i - j;
-  char *ptr = (char *)malloc(i + l2 + d + 1);
+  char* ptr = (char*)malloc(i + l2 + d + 1);
   // memset(ptr, 0, i + l2 + d + 1);
   memcpy(ptr, str, l1);
   /* if necessary, move post replacement text back */
-  if (d)
+  if(d)
     memcpy(ptr + i + l2, str + i + j, d);
   memcpy(ptr + i, replacement, l2);
   ptr[i + l2 + d] = 0;
   return ptr;
 }
 
-const char *strreplacestr(const char *str, const char *pattern,
-                          const char *replacement) {
-  if (!str || !pattern || !replacement)
+const char* strreplacestr(
+  const char* str, const char* pattern, const char* replacement) {
+  if(!str || !pattern || !replacement)
     return NULL;
   const size_t l1 = strlen(str);
   const ssize_t l2 = strlen(replacement);
@@ -148,12 +148,12 @@ const char *strreplacestr(const char *str, const char *pattern,
   size_t i = 0;
   size_t j = 0;
   /* find the final string size, to reduce reallocations */
-  for (; i < l1; i++) {
-    if (str[i] != pattern[j]) {
+  for(; i < l1; i++) {
+    if(str[i] != pattern[j]) {
       j = 0;
       continue;
     }
-    if (j == J) {
+    if(j == J) {
       j = 0;
       d += l2 - (ssize_t)J;
       continue;
@@ -163,16 +163,16 @@ const char *strreplacestr(const char *str, const char *pattern,
   i = 0;
   j = 0;
   const size_t fl = l1 + d;
-  char *ptr = (char *)malloc(fl + 1);
+  char* ptr = (char*)malloc(fl + 1);
   /* copy and replace */
-  for (; *str && i < fl; str++) {
-    if (*str != pattern[j]) {
+  for(; *str && i < fl; str++) {
+    if(*str != pattern[j]) {
       j = 0;
       ptr[i] = *str;
       i++;
       continue;
     }
-    if (j == J) {
+    if(j == J) {
       memcpy(ptr + i, replacement, l2);
       ptr += i;
       j = 0;
@@ -184,24 +184,24 @@ const char *strreplacestr(const char *str, const char *pattern,
   return ptr;
 }
 
-const char *strupper(char *str) {
-  if (!str)
+const char* strupper(char* str) {
+  if(!str)
     return NULL;
   size_t l = strlen(str);
-  for (size_t i = 0; i < l; i++) {
-    if (str[i] >= 'a' && str[i] <= 'z') {
+  for(size_t i = 0; i < l; i++) {
+    if(str[i] >= 'a' && str[i] <= 'z') {
       str[i] -= 32;
     }
   }
   return str;
 }
 
-const char *strlower(char *str) {
-  if (!str)
+const char* strlower(char* str) {
+  if(!str)
     return NULL;
   size_t l = strlen(str);
-  for (size_t i = 0; i < l; i++) {
-    if (str[i] >= 'A' && str[i] <= 'Z') {
+  for(size_t i = 0; i < l; i++) {
+    if(str[i] >= 'A' && str[i] <= 'Z') {
       str[i] += 32;
     }
   }
@@ -212,54 +212,57 @@ static int rand_int(int min, int max) {
   return (abs(rand()) % (max - min + 1)) + min;
 }
 
-const char *strrand(int len) {
+const char* strrand(int len) {
   static const char rchars[] =
-      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  if (len <= 0)
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  if(len <= 0)
     return NULL;
-  char *ptr = (char *)malloc((size_t)len + 1);
+  char* ptr = (char*)malloc((size_t)len + 1);
   ptr[len] = 0;
-  for (int i = 0; i < len; i++) {
-    ptr[i] = rchars[rand_int(0, sizeof(rchars) - 1)];
+  for(int i = 0; i < len; i++) {
+    ptr[i] = rchars[rand_int(0, sizeof(rchars) - 2)];
+  }
+  if(!*ptr) {
+    printf("h");
   }
   return ptr;
 }
 
 #define _svalignup(x, align) ((((x) + ((align) - 1)) / (align)) * align)
 
-const char **_svnalloc(const char **vec, int align, int bytes) {
-  strvec_header_t *header = _svheader(vec);
+const char** _svnalloc(const char** vec, int align, int bytes) {
+  strvec_header_t* header = _svheader(vec);
   /* check for potential strings/sentinel crossover (undersize) */
-  if (!header ||
-      header->strings - bytes < (char *)header->sentinel + sizeof(void *) * 2) {
+  if(!header ||
+    header->strings - bytes < (char*)header->sentinel + sizeof(void*) * 2) {
     int i;
     bytes = _svalignup((header ? header->size : 0) + bytes, align);
-    void *buffer = malloc(sizeof(*header) + bytes);
-    char *strings = (char *)buffer + sizeof(*header) + bytes;
+    void* buffer = malloc(sizeof(*header) + bytes);
+    char* strings = (char*)buffer + sizeof(*header) + bytes;
     *--strings = 0x7f; /* strings sentinel */
-    const char **nvec = (const char **)((char *)buffer + sizeof(*header));
-    for (i = 0; vec && vec[i]; i++) {
-      const char *string = vec[i];
+    const char** nvec = (const char**)((char*)buffer + sizeof(*header));
+    for(i = 0; vec && vec[i]; i++) {
+      const char* string = vec[i];
       const uint32_t ssize = strlen(string) + 1;
       strings -= ssize;
       memcpy(strings, string, ssize);
       nvec[i] = strings;
     }
     nvec[i] = NULL; /* sentinel */
-    if (header)
+    if(header)
       free(header);
     header = buffer;
     header->size = bytes;
     header->sentinel = &nvec[i];
     header->strings = strings;
-    vec = (const char **)(((char *)header) + sizeof(*header));
+    vec = (const char**)(((char*)header) + sizeof(*header));
   }
   return vec;
 }
 
-void _svappend(const char **vec, const char *str) {
-  strvec_header_t *header = _svheader(vec);
-  if (!header || !str)
+void _svappend(const char** vec, const char* str) {
+  strvec_header_t* header = _svheader(vec);
+  if(!header || !str)
     return;
   const uint32_t ssize = strlen(str) + 1;
   header->strings -= ssize;
@@ -268,22 +271,22 @@ void _svappend(const char **vec, const char *str) {
   *++header->sentinel = NULL;
 }
 
-size_t _svlen(const char **vec) {
-  strvec_header_t *header = _svheader(vec);
-  if (!header)
+size_t _svlen(const char** vec) {
+  strvec_header_t* header = _svheader(vec);
+  if(!header)
     return 0;
   return header->sentinel - vec;
 }
 
-void scl_svseparator(const char **vec, char oldSeparator, char separator) {
-  strvec_header_t *header = _svheader(vec);
-  if (!header)
+void scl_svseparator(const char** vec, char oldSeparator, char separator) {
+  strvec_header_t* header = _svheader(vec);
+  if(!header)
     return;
-  char *s = header->strings;
-  while (true) {
-    if (*s == oldSeparator || !*s) {
+  char* s = header->strings;
+  while(true) {
+    if(*s == oldSeparator || !*s) {
       *s = separator;
-      if (*++s == 0x7f) /* encountered sentinel (007f) */ {
+      if(*++s == 0x7f) /* encountered sentinel (007f) */ {
         *(s - 1) = 0; /* restore sentinel */
         break;
       }

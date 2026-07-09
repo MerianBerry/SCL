@@ -31,25 +31,27 @@
 extern "C" {
 #endif
 
+#include "sclc_base.h"
+
 /**
  * @brief Resets the output of sclc_clock(), making current time epoch.
  *
  */
-void scl_resetclock();
+extern SCLAPI void scl_resetclock();
 
 /**
  * @note You can use scl_resetclock() to control this function's epoch.
  *
  * @return   Seconds since epoch.
  */
-double scl_clock();
+extern SCLAPI double scl_clock();
 
 /**
  * @brief Makes this thread sleep for a given amount of milliseconds.
  *
  * @param sleemms  Number of milliseconds to sleep for.
  */
-void scl_waitms(double ms);
+extern SCLAPI void scl_waitms(double ms);
 
 #ifdef __cplusplus
 }

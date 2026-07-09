@@ -46,17 +46,24 @@
 #  include <BaseTsd.h>
 #  include <malloc.h>
 typedef SSIZE_T ssize_t;
-#  ifdef SCL_DLL
-#    define SCLAPI __declspec(dllexport)
-#  else
-#    define SCLAPI __declspec(dllimport)
-#  endif
 #else
 #  include <alloca.h>
-#  ifdef SCL_DLL
-#    define SCLAPI __attribute__((visibility("default")))
+#endif
+
+#ifndef SCLAPI
+#  if defined(_MSC_VER)
+#    ifdef SCL_DLL
+#      define SCLAPI __declspec(dllexport)
+#    else
+#      define SCLAPI
+#    endif
 #  else
-#    define SCLAPI
+#    ifdef SCL_DLL
+#      define SCLAPI __attribute__((visibility("default")))
+#    else
+#      define SCLAPI
+#    endif
+
 #  endif
 #endif
 
@@ -114,7 +121,7 @@ extern "C" {
 
 #define scl_iswild(str) (strstr(str, "*") != NULL)
 
-int scl_pathjoinx(char* buf, const char* one, const char* two);
+extern SCLAPI int scl_pathjoinx(char* buf, const char* one, const char* two);
 
 #define scl_pathjoin(buf, one, two)                          \
   {                                                          \
@@ -123,33 +130,34 @@ int scl_pathjoinx(char* buf, const char* one, const char* two);
     scl_pathjoinx((char*)(buf), (one), (two));               \
   }
 
-const char* scl_pathabs(const char* path, char* resolved);
+extern SCLAPI const char* scl_pathabs(const char* path, char* resolved);
 
-const char* scl_execdir();
+extern SCLAPI const char* scl_execdir();
 
-bool scl_pathexists(const char* path);
+extern SCLAPI bool scl_pathexists(const char* path);
 
-bool scl_isdirectory(const char* path);
+extern SCLAPI bool scl_isdirectory(const char* path);
 
-bool scl_isfile(const char* path);
+extern SCLAPI bool scl_isfile(const char* path);
 
-const char* scl_filename(const char* path);
+extern SCLAPI const char* scl_filename(const char* path);
 
-const char* scl_pathstem(const char* path);
+extern SCLAPI const char* scl_pathstem(const char* path);
 
-const char* scl_parentpath(const char* path);
+extern SCLAPI const char* scl_parentpath(const char* path);
 
-const char* scl_pathcomponent(const char** path);
+extern SCLAPI const char* scl_pathcomponent(const char** path);
 
-bool scl_chdir(const char* path);
+extern SCLAPI bool scl_chdir(const char* path);
 
-bool scl_mkdir(const char* path);
+extern SCLAPI bool scl_mkdir(const char* path);
 
-bool scl_mkdirs(const char** paths, int count);
+extern SCLAPI bool scl_mkdirs(const char** paths, int count);
 
-const char** scl_glob(const char* pattern, const char** finds, int mode);
+extern SCLAPI const char** scl_glob(
+  const char* pattern, const char** finds, int mode);
 
-int64_t scl_wtime(const char* path);
+extern SCLAPI int64_t scl_wtime(const char* path);
 
 #ifdef __cplusplus
 }
@@ -203,23 +211,23 @@ extern "C" {
  * @return Returns a pointer to the last instance of needle in haystack, the
  * pointer will be in haystack, or null if no instance was found.
  */
-SCLAPI const char* strrstr(const char* haystack, const char* needle);
+extern SCLAPI const char* strrstr(const char* haystack, const char* needle);
 
 /**
  * @return Returns true if end is at the end of string.
  */
-SCLAPI bool strendswith(const char* str, const char* end);
+extern SCLAPI bool strendswith(const char* str, const char* end);
 
-SCLAPI bool strmatch(const char* str, const char* pattern);
+extern SCLAPI bool strmatch(const char* str, const char* pattern);
 
-SCLAPI const char* strsub(const char* str, size_t i, size_t j);
+extern SCLAPI const char* strsub(const char* str, size_t i, size_t j);
 
-SCLAPI const char* strcopy(const char* str);
+extern SCLAPI const char* strcopy(const char* str);
 
-SCLAPI const char* strreplace(
+extern SCLAPI const char* strreplace(
   const char* str, const char* replacement, size_t i, size_t j);
 
-SCLAPI const char* strreplacestr(
+extern SCLAPI const char* strreplacestr(
   const char* str, const char* pattern, const char* replacement);
 
 /**
@@ -229,7 +237,7 @@ SCLAPI const char* strreplacestr(
  * @param  str
  * @return Returns the string pointer given.
  */
-SCLAPI const char* strupper(char* str);
+extern SCLAPI const char* strupper(char* str);
 
 /**
  * @brief Replaces any ascii uppercase letters with their lowercase varients.
@@ -238,9 +246,9 @@ SCLAPI const char* strupper(char* str);
  * @param  str
  * @return Returns the string pointer given.
  */
-SCLAPI const char* strlower(char* str);
+extern SCLAPI const char* strlower(char* str);
 
-SCLAPI const char* strrand(int len);
+extern SCLAPI const char* strrand(int len);
 
 #define scl_stkfmt(buf, mx, fmt, ...)                                \
   {                                                                  \
@@ -268,9 +276,9 @@ typedef struct strvec_header_t {
   (vec ? (strvec_header_t*)((char*)vec - sizeof(strvec_header_t)) \
        : (strvec_header_t*)NULL)
 
-SCLAPI const char** _svnalloc(const char** vec, int align, int bytes);
+extern SCLAPI const char** _svnalloc(const char** vec, int align, int bytes);
 
-SCLAPI void _svappend(const char** vec, const char* str);
+extern SCLAPI void _svappend(const char** vec, const char* str);
 
 #define scl_svappend(vec, str, align)                   \
   {                                                     \
@@ -278,7 +286,7 @@ SCLAPI void _svappend(const char** vec, const char* str);
     _svappend((vec), (str));                            \
   }
 
-SCLAPI size_t _svlen(const char** vec);
+extern SCLAPI size_t _svlen(const char** vec);
 #define scl_svlen(vec) _svlen(vec)
 
 #define scl_svback(vec) \
@@ -286,7 +294,7 @@ SCLAPI size_t _svlen(const char** vec);
 
 #define scl_svstrings(vec) ((vec) ? _svheader(vec)->strings : NULL)
 
-SCLAPI void scl_svseparator(
+extern SCLAPI void scl_svseparator(
   const char** vec, char oldSeparator, char separator);
 
 #define scl_svfree(vec) \
@@ -331,25 +339,27 @@ SCLAPI void scl_svseparator(
 extern "C" {
 #endif
 
+/*#include "sclc_base.h"*/
+
 /**
  * @brief Resets the output of sclc_clock(), making current time epoch.
  *
  */
-void scl_resetclock();
+extern SCLAPI void scl_resetclock();
 
 /**
  * @note You can use scl_resetclock() to control this function's epoch.
  *
  * @return   Seconds since epoch.
  */
-double scl_clock();
+extern SCLAPI double scl_clock();
 
 /**
  * @brief Makes this thread sleep for a given amount of milliseconds.
  *
  * @param sleemms  Number of milliseconds to sleep for.
  */
-void scl_waitms(double ms);
+extern SCLAPI void scl_waitms(double ms);
 
 #ifdef __cplusplus
 }

@@ -29,6 +29,7 @@ message(STATUS "${CLANGD_LANG} standard: ${CLANGD_LANG_STANDARD}")
 #   [TARGET <target>]
 #   [OUTPUT_DIRECTORY <dir>]
 #   [DEFINITIONS [def1[=val1], def2[=val2]]
+#   [INCLUDE_DIRECTORISE ...]
 #   [EXCLUDE_PATHS [arg1, ...]
 #   [WARNINGS [arg1, ...]]
 #   [INLAY_HINTS]
@@ -40,6 +41,7 @@ message(STATUS "${CLANGD_LANG} standard: ${CLANGD_LANG_STANDARD}")
 #  
 # TARGET: optional, selects a target to gather settings from
 # OUTPUT_DIRECTORY: Path to a directory where .clangd will be written to. Defaults to CMAKE_CURRENT_LISTS_DIR
+# INCLUDE_DIRECTORIES: optional, additional include directories to be added
 # EXCLUDE_PATHS: optional, adds paths that clangd excludes from processing
 # WARNINGS: optional, clang warning names (Ex: all, no-unused-includes) to use
 # INLAY_HINTS: enables inlay-hints for block end comments
@@ -52,7 +54,7 @@ message(STATUS "${CLANGD_LANG} standard: ${CLANGD_LANG_STANDARD}")
 function(clangd)
   set(options INLAY_HINTS INLAY_BLOCK_END INLAY_DESIGNATORS INLAY_PARAMETER_NAMES INLAY_DEDUCED_TYPES)
   set(oneValueArgs TARGET OUTPUT_DIRECTORY INLAY_TYPENAME_LIMIT)
-  set(multiValueArgs DEFINITIONS EXCLUDE_PATHS WARNINGS)
+  set(multiValueArgs DEFINITIONS INCLUDE_DIRECTORIES EXCLUDE_PATHS WARNINGS)
   cmake_parse_arguments(PARSE_ARGV 0 arg
     "${options}" "${oneValueArgs}" "${multiValueArgs}"
   )
@@ -62,6 +64,11 @@ function(clangd)
   else()
     get_property(inc_dirs DIRECTORY ${CMAKE_CURRENT_LIST_DIR} PROPERTY INCLUDE_DIRECTORIES)
     # message(STATUS "${inc_dirs}")
+  endif()
+  if (DEFINED arg_INCLUDE_DIRECTORIES)
+    foreach(dir ${arg_INCLUDE_DIRECTORIES})
+      list(APPEND inc_dirs ${dir})
+    endforeach()
   endif()
   set(CLANGD_INCLUDE_DIRS "")
 

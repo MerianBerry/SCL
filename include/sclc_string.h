@@ -44,23 +44,23 @@ extern "C" {
  * @return Returns a pointer to the last instance of needle in haystack, the
  * pointer will be in haystack, or null if no instance was found.
  */
-SCLAPI const char* strrstr(const char* haystack, const char* needle);
+extern SCLAPI const char* strrstr(const char* haystack, const char* needle);
 
 /**
  * @return Returns true if end is at the end of string.
  */
-SCLAPI bool strendswith(const char* str, const char* end);
+extern SCLAPI bool strendswith(const char* str, const char* end);
 
-SCLAPI bool strmatch(const char* str, const char* pattern);
+extern SCLAPI bool strmatch(const char* str, const char* pattern);
 
-SCLAPI const char* strsub(const char* str, size_t i, size_t j);
+extern SCLAPI const char* strsub(const char* str, size_t i, size_t j);
 
-SCLAPI const char* strcopy(const char* str);
+extern SCLAPI const char* strcopy(const char* str);
 
-SCLAPI const char* strreplace(
+extern SCLAPI const char* strreplace(
   const char* str, const char* replacement, size_t i, size_t j);
 
-SCLAPI const char* strreplacestr(
+extern SCLAPI const char* strreplacestr(
   const char* str, const char* pattern, const char* replacement);
 
 /**
@@ -70,7 +70,7 @@ SCLAPI const char* strreplacestr(
  * @param  str
  * @return Returns the string pointer given.
  */
-SCLAPI const char* strupper(char* str);
+extern SCLAPI const char* strupper(char* str);
 
 /**
  * @brief Replaces any ascii uppercase letters with their lowercase varients.
@@ -79,9 +79,9 @@ SCLAPI const char* strupper(char* str);
  * @param  str
  * @return Returns the string pointer given.
  */
-SCLAPI const char* strlower(char* str);
+extern SCLAPI const char* strlower(char* str);
 
-SCLAPI const char* strrand(int len);
+extern SCLAPI const char* strrand(int len);
 
 #define scl_stkfmt(buf, mx, fmt, ...)                                \
   {                                                                  \
@@ -109,9 +109,9 @@ typedef struct strvec_header_t {
   (vec ? (strvec_header_t*)((char*)vec - sizeof(strvec_header_t)) \
        : (strvec_header_t*)NULL)
 
-SCLAPI const char** _svnalloc(const char** vec, int align, int bytes);
+extern SCLAPI const char** _svnalloc(const char** vec, int align, int bytes);
 
-SCLAPI void _svappend(const char** vec, const char* str);
+extern SCLAPI void _svappend(const char** vec, const char* str);
 
 #define scl_svappend(vec, str, align)                   \
   {                                                     \
@@ -119,7 +119,7 @@ SCLAPI void _svappend(const char** vec, const char* str);
     _svappend((vec), (str));                            \
   }
 
-SCLAPI size_t _svlen(const char** vec);
+extern SCLAPI size_t _svlen(const char** vec);
 #define scl_svlen(vec) _svlen(vec)
 
 #define scl_svback(vec) \
@@ -127,7 +127,7 @@ SCLAPI size_t _svlen(const char** vec);
 
 #define scl_svstrings(vec) ((vec) ? _svheader(vec)->strings : NULL)
 
-SCLAPI void scl_svseparator(
+extern SCLAPI void scl_svseparator(
   const char** vec, char oldSeparator, char separator);
 
 #define scl_svfree(vec) \

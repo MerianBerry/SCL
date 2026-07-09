@@ -38,17 +38,24 @@
 #  include <BaseTsd.h>
 #  include <malloc.h>
 typedef SSIZE_T ssize_t;
-#  ifdef SCL_DLL
-#    define SCLAPI __declspec(dllexport)
-#  else
-#    define SCLAPI __declspec(dllimport)
-#  endif
 #else
 #  include <alloca.h>
-#  ifdef SCL_DLL
-#    define SCLAPI __attribute__((visibility("default")))
+#endif
+
+#ifndef SCLAPI
+#  if defined(_MSC_VER)
+#    ifdef SCL_DLL
+#      define SCLAPI __declspec(dllexport)
+#    else
+#      define SCLAPI
+#    endif
 #  else
-#    define SCLAPI
+#    ifdef SCL_DLL
+#      define SCLAPI __attribute__((visibility("default")))
+#    else
+#      define SCLAPI
+#    endif
+
 #  endif
 #endif
 

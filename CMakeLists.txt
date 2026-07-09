@@ -2,6 +2,14 @@ cmake_minimum_required(VERSION "3.22")
 
 project("SCL" VERSION "1.0" DESCRIPTION "Stormground C/C++ Library" LANGUAGES C CXX)
 set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_C_STANDARD 11)
+
+if (PROJECT_IS_TOP_LEVEL)
+  set(SCL_EXTRAS_DEFAULT ON)
+  else()
+  set(SCL_EXTRAS_DEFAULT OFF)
+endif()
+
 
 include("buildconf/clangd.cmake")
 include("buildconf/mini.cmake")
@@ -39,12 +47,21 @@ set(SCLC_HEADERS
 set(SCLC_SOURCES
   "src/sclc_path.c"
   "src/sclc_string.c"
+  "src/sclc_swiss.c"
+  "src/sclc_time.c"
+  "src/xxhash.c"
  )
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 add_library(scl ${SCL_SOURCES})
 add_library(sclc ${SCLC_SOURCES})
+#target_compile_options(sclc PUBLIC "/arch:AVX2")
+
+get_target_property(sclc_type sclc TYPE)
+if (${sclc_type} STREQUAL "SHARED_LIBRARY")
+  target_compile_definitions(sclc PRIVATE "SCL_DLL=1")
+endif()
 
 minify(miniscl.hpp SCL_IMPL "" "${SCL_HEADERS}" "${SCL_SOURCES}")
 minify2(HEADER "sclc.h" SOURCE "sclc.c"
@@ -53,7 +70,7 @@ minify2(HEADER "sclc.h" SOURCE "sclc.c"
   SOURCES ${SCLC_SOURCES})
 
 if (NOT DEFINED SCL_TESTS)
-  set(SCL_TESTS FALSE)
+  set(SCL_TESTS ${SCL_EXTRAS_DEFAULT})
 endif()
 
 if (SCL_TESTS)
@@ -61,7 +78,7 @@ if (SCL_TESTS)
 endif()
 
 if (NOT DEFINED SCL_EXAMPLES)
-  set(SCL_EXAMPLES FALSE)
+  set(SCL_EXAMPLES ${SCL_EXTRAS_DEFAULT})
 endif()
 
 if (SCL_EXAMPLES)
