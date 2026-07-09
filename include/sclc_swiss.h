@@ -21,36 +21,42 @@
 */
 
 
-/* sclc_base.h
- * base definitions
+/* sclc_swiss.h
+ * swiss table declarations
  */
 
-#ifndef sclc_base_h
-#define sclc_base_h
+#ifndef sclc_swiss_h
+#define sclc_swiss_h
 
-#include <stdint.h>
-#include <stddef.h>
-#ifndef __cplusplus
-#  include <stdbool.h>
+#ifdef __cplusplus
+extern "C" {
 #endif
 
-#if defined(_MSC_VER)
-#  include <BaseTsd.h>
-#  include <malloc.h>
-typedef SSIZE_T ssize_t;
-#  ifdef SCL_DLL
-#    define SCLAPI __declspec(dllexport)
-#  else
-#    define SCLAPI __declspec(dllimport)
-#  endif
-#else
-#  include <alloca.h>
-#  ifdef SCL_DLL
-#    define SCLAPI __attribute__((visibility("default")))
-#  else
-#    define SCLAPI
-#  endif
+#include "sclc_base.h"
+
+typedef struct scl_shmap_t scl_shmap_t;
+
+SCLAPI scl_shmap_t* scl_shnew();
+
+SCLAPI void scl_shfree(scl_shmap_t* map);
+
+SCLAPI const void* scl_shget(const scl_shmap_t* map, uint64_t hash);
+
+SCLAPI const void* scl_shgets(const scl_shmap_t* map, const char* key);
+
+SCLAPI const void* scl_shkey(const scl_shmap_t* map, uint64_t hash);
+
+SCLAPI void scl_shset(
+  const scl_shmap_t* map, const void* key, uint64_t hash, const void* data);
+
+SCLAPI void scl_shsets(
+  const scl_shmap_t* map, const char* key, const void* data);
+
+SCLAPI void scl_shremove(const scl_shmap_t* map, uint64_t hash);
+
+SCLAPI void scl_shremoves(const scl_shmap_t* map, const char* key);
+
+#ifdef __cplusplus
+}
 #endif
-
-
 #endif

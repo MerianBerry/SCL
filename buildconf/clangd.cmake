@@ -61,7 +61,7 @@ function(clangd)
     get_property(inc_dirs TARGET ${arg_TARGET} PROPERTY INCLUDE_DIRECTORIES)
   else()
     get_property(inc_dirs DIRECTORY ${CMAKE_CURRENT_LIST_DIR} PROPERTY INCLUDE_DIRECTORIES)
-    message(STATUS "${inc_dirs}")
+    # message(STATUS "${inc_dirs}")
   endif()
   set(CLANGD_INCLUDE_DIRS "")
 

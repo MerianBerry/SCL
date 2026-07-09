@@ -21,36 +21,20 @@
 */
 
 
-/* sclc_base.h
- * base definitions
+/* sclc_swiss.c
+ * swiss hash map implementation
  */
+#include <sclc_swiss.h>
 
-#ifndef sclc_base_h
-#define sclc_base_h
+typedef struct shnode_t {
+  const void *key;
+  const void *data;
+  uint64_t hash;
+} shnode_t;
 
-#include <stdint.h>
-#include <stddef.h>
-#ifndef __cplusplus
-#  include <stdbool.h>
-#endif
-
-#if defined(_MSC_VER)
-#  include <BaseTsd.h>
-#  include <malloc.h>
-typedef SSIZE_T ssize_t;
-#  ifdef SCL_DLL
-#    define SCLAPI __declspec(dllexport)
-#  else
-#    define SCLAPI __declspec(dllimport)
-#  endif
-#else
-#  include <alloca.h>
-#  ifdef SCL_DLL
-#    define SCLAPI __attribute__((visibility("default")))
-#  else
-#    define SCLAPI
-#  endif
-#endif
-
-
-#endif
+typedef struct scl_shmap_t {
+  shnode_t *map;
+  uint8_t *meta;
+  uint32_t cap;
+  uint32_t count;
+} scl_shmap_t;

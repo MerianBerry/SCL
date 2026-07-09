@@ -1,3 +1,26 @@
+/*
+  Copyright (c) 2026 Merian
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the "Software"), to deal
+  in the Software without restriction, including without limitation the rights
+  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be included in all
+  copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
+*/
+
+
 /* sclc_string.h
  * extends the existing string.h helpers
  */
@@ -21,23 +44,23 @@ extern "C" {
  * @return Returns a pointer to the last instance of needle in haystack, the
  * pointer will be in haystack, or null if no instance was found.
  */
-const char* strrstr(const char* haystack, const char* needle);
+SCLAPI const char* strrstr(const char* haystack, const char* needle);
 
 /**
  * @return Returns true if end is at the end of string.
  */
-bool strendswith(const char* str, const char* end);
+SCLAPI bool strendswith(const char* str, const char* end);
 
-bool strmatch(const char* str, const char* pattern);
+SCLAPI bool strmatch(const char* str, const char* pattern);
 
-const char* strsub(const char* str, size_t i, size_t j);
+SCLAPI const char* strsub(const char* str, size_t i, size_t j);
 
-const char* strcopy(const char* str);
+SCLAPI const char* strcopy(const char* str);
 
-const char* strreplace(
+SCLAPI const char* strreplace(
   const char* str, const char* replacement, size_t i, size_t j);
 
-const char* strreplacestr(
+SCLAPI const char* strreplacestr(
   const char* str, const char* pattern, const char* replacement);
 
 /**
@@ -47,7 +70,7 @@ const char* strreplacestr(
  * @param  str
  * @return Returns the string pointer given.
  */
-const char* strupper(char* str);
+SCLAPI const char* strupper(char* str);
 
 /**
  * @brief Replaces any ascii uppercase letters with their lowercase varients.
@@ -56,9 +79,9 @@ const char* strupper(char* str);
  * @param  str
  * @return Returns the string pointer given.
  */
-const char* strlower(char* str);
+SCLAPI const char* strlower(char* str);
 
-const char* strrand(int len);
+SCLAPI const char* strrand(int len);
 
 #define scl_stkfmt(buf, mx, fmt, ...)                                \
   {                                                                  \
@@ -76,19 +99,19 @@ const char* strrand(int len);
     ((char*)(buf))[__l] = 0;                                         \
   }
 
-typedef struct strvec_header {
+typedef struct strvec_header_t {
   uint32_t size;         /* Buffer size */
   const char** sentinel; /* Array sentinel pointer */
   char* strings;         /* String section start */
-} strvec_header;
+} strvec_header_t;
 
-#define _svheader(vec)                                        \
-  (vec ? (strvec_header*)((char*)vec - sizeof(strvec_header)) \
-       : (strvec_header*)NULL)
+#define _svheader(vec)                                            \
+  (vec ? (strvec_header_t*)((char*)vec - sizeof(strvec_header_t)) \
+       : (strvec_header_t*)NULL)
 
-const char** _svnalloc(const char** vec, int align, int bytes);
+SCLAPI const char** _svnalloc(const char** vec, int align, int bytes);
 
-void _svappend(const char** vec, const char* str);
+SCLAPI void _svappend(const char** vec, const char* str);
 
 #define scl_svappend(vec, str, align)                   \
   {                                                     \
@@ -96,7 +119,7 @@ void _svappend(const char** vec, const char* str);
     _svappend((vec), (str));                            \
   }
 
-size_t _svlen(const char** vec);
+SCLAPI size_t _svlen(const char** vec);
 #define scl_svlen(vec) _svlen(vec)
 
 #define scl_svback(vec) \
@@ -104,7 +127,8 @@ size_t _svlen(const char** vec);
 
 #define scl_svstrings(vec) ((vec) ? _svheader(vec)->strings : NULL)
 
-void scl_svseparator(const char** vec, char oldSeparator, char separator);
+SCLAPI void scl_svseparator(
+  const char** vec, char oldSeparator, char separator);
 
 #define scl_svfree(vec) \
   if(vec)               \

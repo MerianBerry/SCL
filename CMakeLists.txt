@@ -30,11 +30,27 @@ set(SCL_SOURCES
   "src/lz4/lz4hc.c"
   "src/lz4/xxhash.c")
 
+set(SCLC_HEADERS
+  "include/sclc_path.h"
+  "include/sclc_string.h"
+  "include/sclc_time.h"
+ )
+
+set(SCLC_SOURCES
+  "src/sclc_path.c"
+  "src/sclc_string.c"
+ )
+
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 add_library(scl ${SCL_SOURCES})
+add_library(sclc ${SCLC_SOURCES})
 
 minify(miniscl.hpp SCL_IMPL "" "${SCL_HEADERS}" "${SCL_SOURCES}")
+minify2(HEADER "sclc.h" SOURCE "sclc.c"
+  IMPLEMENT_FLAG SCLC_IMPL
+  HEADERS ${SCLC_HEADERS}
+  SOURCES ${SCLC_SOURCES})
 
 if (NOT DEFINED SCL_TESTS)
   set(SCL_TESTS FALSE)
