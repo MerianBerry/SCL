@@ -57,7 +57,7 @@ extern SCLAPI int scl_pathjoinx(char* buf, const char* one, const char* two);
     scl_pathjoinx((char*)(buf), (one), (two));               \
   }
 
-extern SCLAPI const char* scl_pathabs(const char* path, char* resolved);
+extern SCLAPI const char* scl_realpath(const char* path, char* resolved);
 
 extern SCLAPI const char* scl_execdir();
 

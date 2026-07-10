@@ -89,7 +89,7 @@ int scl_pathjoinx(char* buf, const char* one, const char* two) {
   return L;
 }
 
-const char* scl_pathabs(const char* path, char* resolved) {
+const char* scl_realpath(const char* path, char* resolved) {
   if(!path)
     return NULL;
   if(!resolved) {
@@ -233,9 +233,9 @@ bool scl_chdir(const char* path) {
   if(!path)
     return false;
 #if defined(_WIN32)
-  return !_chdir(path);
+  return _chdir(path);
 #else
-  return !chdir(path);
+  return chdir(path);
 #endif
 }
 
