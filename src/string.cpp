@@ -30,6 +30,7 @@
 #include <scl_misc.hpp>
 #include "internal.hpp"
 #include "lz4/xxhash.h"
+#include <string>
 
 #ifdef _WIN32
 #  include <windows.h>

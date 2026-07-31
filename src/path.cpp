@@ -429,7 +429,7 @@ static int glob_(const path dir, const path& mask, std::vector<path>& globs,
 
 /* clang-format on */
 #else
-#  pragma message("scl::io::glob has no implementation for this platform")
+#  pragma message("scl::path::glob has no implementation for this platform")
 #endif
   return 0;
 }
