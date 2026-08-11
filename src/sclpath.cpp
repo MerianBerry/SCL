@@ -154,7 +154,7 @@ std::vector<path> path::split() const {
   while(*s && *p) {
     while(*p && *p != '/' && *p != '\\')
       p++;
-    string sym = substr(unsigned(s - cstr()), unsigned(p - s));
+    string sym = substr(unsigned(s - cstr()), std::max(unsigned(p - s), 1u));
     if(sym.ffi("**") > 0)
       sym = "**";
     else if(!sym)
@@ -501,7 +501,10 @@ static void glob_singlepattern(std::vector<path>& finds, const string& pattern,
       globs.push_back(sym);
       glob.clear();
     } else {
-      glob = glob / sym;
+      if (glob)
+        glob = glob / sym;
+      else
+        glob = sym;
     }
   }
   if(glob && !glob.iswild())
