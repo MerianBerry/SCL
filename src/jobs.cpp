@@ -44,6 +44,10 @@
 namespace scl {
 namespace jobs {
 
+timeout_exception::timeout_exception(const scl::string& msg)
+    : std::runtime_error(msg.cstr()) {
+}
+
 waitable::waitable() {
   m_done = false;
 }
@@ -223,6 +227,7 @@ void JobServer::start() {
     for(size_t i = 0; i < (size_t)m_nworkers; i++) {
       JobWorker* worker = new JobWorker(this, (int)i);
       std::thread t(JobWorker::work, worker);
+      m_idmap[t.get_id()] = i;
       t.swap(m_workers[i].first);
       m_workers[i].second = worker;
       waitUntil([&]() {
@@ -267,6 +272,7 @@ void JobServer::stop() {
         i.first.join();
       delete i.second;
     }
+    m_idmap.clear();
   }
 }
 

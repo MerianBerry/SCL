@@ -34,6 +34,9 @@
 #include <queue>
 #include <mutex>
 #include <atomic>
+#include <tuple>
+#include <utility>
+#include <type_traits>
 #include "scl_string.hpp"
 
 #ifndef SCL_JOBS_FAST_SLEEP
@@ -47,7 +50,13 @@
 namespace scl {
 namespace jobs {
 
+class timeout_exception : public std::runtime_error {
+public:
+  timeout_exception(const scl::string& msg);
+};
+
 template <class WtT> class job;
+template <class R, class... Args> class job2;
 class JobWorker;
 
 /**
@@ -59,10 +68,9 @@ class waitable {
   template <class Wt> friend class job;
   using _Waitable = bool;
 
-private:
+protected:
   std::atomic_bool m_done;
 
-protected:
 public:
   waitable();
   waitable(const waitable& rhs) = delete;
@@ -74,7 +82,7 @@ public:
    * @brief Completes the waitable.
    *
    */
-  void complete();
+  virtual void complete();
 
   /**
    * @brief Resets the completion state.
@@ -96,6 +104,91 @@ public:
    * @return   True: Wait did not time out, False: Wait did time out.
    */
   bool wait(double timeout = -1);
+};
+
+template <class R> class waitable2 : public waitable {
+protected:
+  R m_data;
+  bool m_autodel = false;
+
+public:
+  waitable2() : waitable(), m_data() {
+  }
+
+  void complete() override {
+    // call parent complete
+    waitable::complete();
+    // if autodel is true, just delete
+    if(m_autodel)
+      delete this;
+  }
+
+  /**
+   * @brief Sets stored data
+   * @warning INTERNAL USE
+   */
+  void complete2(R&& data) {
+    m_data = std::move(data);
+  }
+
+  void autodelete() {
+    m_autodel = true;
+  }
+
+  /**
+   * @brief Waits and returns the completed value stored in this waitable.
+   *
+   * @exception scl::jobs::timeout_exception  Exceeded max timeout duration.
+   * @param  timeout  Max time to wait for completion. If < 0, waits forever.
+   * @return  Value resolved by the associated job.
+   */
+  R yield(double timeout = -1) {
+    if(!wait(timeout)) {
+      throw timeout_exception("waitable2 timeout during yield()");
+    }
+    return m_data;
+  }
+};
+
+template <class R> class promise {
+protected:
+  waitable2<R>* m_wt = nullptr;
+
+public:
+  promise() = default;
+
+  promise(waitable2<R>* wt) : m_wt(wt) {
+  }
+
+  promise(const promise&) = delete;
+  promise& operator=(const promise&) = delete;
+
+  promise(promise&& rhs) : m_wt(rhs.m_wt) {
+    rhs.m_wt = nullptr;
+  };
+
+  promise& operator=(promise&& rhs) {
+    m_wt = rhs.m_wt;
+    rhs.m_wt = nullptr;
+    return *this;
+  };
+
+  ~promise() {
+    if(m_wt) {
+      if(m_wt->status())
+        delete m_wt;
+      else
+        m_wt->autodelete();
+    }
+  }
+
+  waitable2<R>* waitable() {
+    return m_wt;
+  }
+
+  waitable2<R>* operator->() {
+    return m_wt;
+  }
 };
 
 class JobWorker;
@@ -139,6 +232,28 @@ public:
   }
 
   virtual void doJob(Wt* waitable, const JobWorker& worker) = 0;
+};
+
+template <class R, class... Args> class job2 : public job<waitable2<R>> {
+  std::tuple<Args...> m_args;
+  std::function<R(Args...)> m_func;
+
+public:
+  job2(std::function<R(Args...)> func, Args... args)
+      : m_func(func), m_args(std::make_tuple(args...)) {
+  }
+
+  waitable2<R>* getWaitable() const override {
+    return new waitable2<R>();
+  }
+
+  void doJob(waitable2<R>* waitable, const jobs::JobWorker& worker) override {
+    if(!waitable) {
+      throw std::runtime_error("job2: waitable2 is null");
+    }
+    R result = std::apply(m_func, m_args);
+    waitable->complete2(std::move(result));
+  }
 };
 
 class funcJob : public job<waitable> {
@@ -211,6 +326,7 @@ class JobServer : protected std::mutex {
   using t_wjob = std::pair<job<waitable>*, waitable*>;
   friend class JobWorker;
   std::vector<t_worker> m_workers;
+  std::unordered_map<std::thread::id, int> m_idmap;
   std::queue<t_wjob> m_jobs;
   std::atomic<size_t> m_lockBits;
   int m_nworkers;
@@ -336,6 +452,31 @@ public:
    */
   waitable* submitJob(
     std::function<void(const JobWorker& worker)> func, bool autodelwt = true);
+
+  /**
+   * @brief Submits a callable function with arguments to the job server.
+   *
+   * @tparam  F a callable type.
+   * @tparam  Args
+   * @tparam  R
+   * @param  func  A callable value to be asynhcronously called.
+   * @param  args  Args to pass to the given function.
+   * @return  A promise containing a waitable holding the result of the call.
+   * If the promise is discarded, so will be the waitable once it is completed.
+   */
+  template <class F, class... Args, class R = std::invoke_result_t<F, Args...>>
+  promise<R> invoke(const F& func, Args... args) {
+    static_assert(std::is_invocable<F, Args...>(),
+      "invoke requires template type F to be callable");
+    job2<R, Args...>* job = new job2<R, Args...>(func, args...);
+    waitable2<R>* wt = job->getWaitable();
+    promise<R> P = promise<R>(wt);
+    lock();
+    scl::jobs::job<waitable>* job_ = (scl::jobs::job<waitable>*)job;
+    m_jobs.push(t_wjob(job_, wt));
+    unlock();
+    return P;
+  }
 
   /**
    * @return  Number of workers in this server.

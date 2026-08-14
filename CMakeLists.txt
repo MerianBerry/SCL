@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION "3.22")
 
 project("SCL" VERSION "1.0" DESCRIPTION "Stormground C/C++ Library" LANGUAGES C CXX)
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_C_STANDARD 11)
 
 if (PROJECT_IS_TOP_LEVEL)
