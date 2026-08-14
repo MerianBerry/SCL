@@ -1,7 +1,15 @@
 cmake_minimum_required(VERSION "3.22")
 
 project("SCL" VERSION "1.0" DESCRIPTION "Stormground C/C++ Library" LANGUAGES C CXX)
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_C_STANDARD 11)
+
+if (PROJECT_IS_TOP_LEVEL)
+  set(SCL_EXTRAS_DEFAULT ON)
+  else()
+  set(SCL_EXTRAS_DEFAULT OFF)
+endif()
+
 
 include("cmake/clangd.cmake")
 include("cmake/mini.cmake")
@@ -9,7 +17,7 @@ include("cmake/mini.cmake")
 include_directories("src" "${CMAKE_BINARY_DIR}")
 
 if (MSVC)
-  add_compile_options("/Wall" "/wd5045" "/wd4820")
+  add_compile_options("/wd5045" "/wd4820")
 
 endif()
 
@@ -42,6 +50,7 @@ endif()
 
 if (SCL_EXAMPLES)
   add_executable(package "examples/package.cpp" ${SCL_SOURCES})
+  add_executable(jobs "examples/jobs.cpp" ${SCL_SOURCES})
 endif()
 #target_compile_definitions(package PUBLIC LZ4F_STATIC_LINKING_ONLY)
 clangd(
