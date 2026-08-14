@@ -296,7 +296,11 @@ int JobServer::workerCount() const {
 
 void JobServer::Multithread(std::function<void(int id, int workers)> func,
   int                                                                workers) {
-  int                      n = ClampThreads(workers);
+  jobs::Multithread(func, workers);
+}
+
+void Multithread(std::function<void(int id, int workers)> func, int workers) {
+  int                      n = JobServer::ClampThreads(workers);
   std::vector<std::thread> w;
   for(int i = 0; i < n; i++)
     w.push_back(std::thread(func, i, n));

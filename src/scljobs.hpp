@@ -308,9 +308,8 @@ class JobServer : protected std::mutex {
   std::atomic_bool                         m_working;
 
 
-  bool       takeJob(t_wjob& wjob, const JobWorker& worker);
+  bool takeJob(t_wjob& wjob, const JobWorker& worker);
 
-  static int ClampThreads(int threads);
 
  public:
   /**
@@ -439,7 +438,7 @@ class JobServer : protected std::mutex {
    * If the promise is discarded, so will be the waitable once it is completed.
    */
   template <class F, class... Args, class R = std::invoke_result_t<F, Args...>>
-  promise<R> invoke(const F& func, Args... args) {
+  promise<R> async(const F& func, Args... args) {
     static_assert(std::is_invocable<F, Args...>(),
       "invoke requires template type F to be callable");
     job2<R, Args...>* job = new job2<R, Args...>(func, args...);
@@ -462,16 +461,28 @@ class JobServer : protected std::mutex {
    */
   static int  GetNumThreads();
 
+  static int  ClampThreads(int threads);
+
   /**
-   * @brief  Multithreads a lambda function over a given number of threads.
+   * @brief  Multithreads a given function over a given number of threads.
    *
-   * @param  func(id, n)  Lambda function to be multithreaded.
+   * @param  func(id, n)  Function to be multithreaded.
    * @param  workers  Number of threads to multithread with, with a max of the
    * number of threads in the system.
    */
   static void Multithread(std::function<void(int id, int workers)> func,
     int workers = INT_MAX);
 };
+
+/**
+ * @brief  Multithreads a given function over a given number of threads.
+ *
+ * @param  func(id, n)  Function to be multithreaded.
+ * @param  workers  Number of threads to multithread with, with a max of the
+ * number of threads in the system.
+ */
+void Multithread(std::function<void(int id, int workers)> func,
+  int                                                     workers = INT_MAX);
 } // namespace jobs
 } // namespace scl
 #endif
