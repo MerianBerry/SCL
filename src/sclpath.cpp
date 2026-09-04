@@ -501,7 +501,7 @@ static void glob_singlepattern(std::vector<path>& finds, const string& pattern,
       globs.push_back(sym);
       glob.clear();
     } else {
-      if (glob)
+      if(glob)
         glob = glob / sym;
       else
         glob = sym;
@@ -517,8 +517,8 @@ static void glob_singlepattern(std::vector<path>& finds, const string& pattern,
   for(size_t i = 1; i < globs.size(); i++) {
     if(globs[i] == "**") {
       scl::string mask = "*";
-      // If not the last glob exp, use the next exp as the mask
-      if(i < globs.size() - 1)
+      // if there are more than 1 components left, use the next as a mask
+      if(i < globs.size() - 2)
         mask = globs[i + 1];
       glob_recurse(mask, dirs);
       i++;
