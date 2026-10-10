@@ -160,7 +160,7 @@ static shnode_t* _metamatch(
   return NULL;
 }
 
-inline uint32_t _fullgeti(const scl_shmap_t* map, uint64_t hash) {
+static uint32_t _fullgeti(const scl_shmap_t* map, uint64_t hash) {
   shnode_t* node;
   const uint8_t lokey = _lowkey(hash);
   uint32_t base = _basei(map->cap, hash);
@@ -252,7 +252,8 @@ static void _rehash(scl_shmap_t* map, uint32_t newcap) {
   if(!map->cap)
     return;
   const uint32_t oldcount = map->count;
-  for(uint32_t i = 0; i < map->cap; i++) {
+  uint32_t i;
+  for(i = 0; i < map->cap; i++) {
     /* if the node is not full, skip */
     if(map->meta[i] & SWISS_PMASK)
       continue;
