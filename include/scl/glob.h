@@ -20,44 +20,54 @@
   SOFTWARE.
 */
 
-
-/* sclc_base.h
- * base definitions
+/* glob.h
+ * libscl filesystem glob functions
  */
 
-#ifndef sclc_base_h
-#define sclc_base_h
+#ifndef SCL_GLOB_H
+#define SCL_GLOB_H
 
-#include <stdint.h>
-#include <stddef.h>
-#ifndef __cplusplus
-#  include <stdbool.h>
+#ifdef __cplusplus
+extern "C" {
 #endif
 
-#if defined(_MSC_VER)
-#  include <BaseTsd.h>
-#  include <malloc.h>
-typedef SSIZE_T ssize_t;
-#else
-#  include <alloca.h>
+#include "base.h"
+#include "uv.h"
+
+/*
+ * execdir
+ * exists
+ * isdir
+ * isfile
+ * chdir
+ * copy
+ * mkdir
+ * mkdirs
+ * glob (just reimpl for now, add extra search stuff later)
+ * timespec
+ */
+
+typedef struct scl_glob_s {
+  const char* pattern;
+  const char** finds;
+  size_t count;
+} scl_glob_t;
+
+SCLLIB void scl_globfree(scl_glob_t* glob);
+/**
+ * @brief
+ * @warning Ensure glob.finds is NULL or valid before this call, or it will
+ * segfault.
+ * @param  glob
+ * @param  mode
+ * @return
+ */
+SCLLIB int scl_glob(scl_glob_t* glob, int mode);
+
+SCLLIB int scl_globAsync(
+  scl_glob_t* glob, int mode, uv_work_t* work, uv_after_work_cb cb);
+
+#ifdef __cplusplus
+}
 #endif
-
-#ifndef SCLAPI
-#  if defined(_MSC_VER)
-#    ifdef SCL_DLL
-#      define SCLAPI __declspec(dllexport)
-#    else
-#      define SCLAPI
-#    endif
-#  else
-#    ifdef SCL_DLL
-#      define SCLAPI __attribute__((visibility("default")))
-#    else
-#      define SCLAPI
-#    endif
-
-#  endif
-#endif
-
-
 #endif

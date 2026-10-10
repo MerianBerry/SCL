@@ -1,20 +1,17 @@
 cmake_minimum_required(VERSION "3.22")
 
-project("SCL" VERSION "1.0" DESCRIPTION "Stormground C/C++ Library" LANGUAGES C CXX)
-set(CMAKE_CXX_STANDARD 17)
+project("SCL" VERSION "1.0" DESCRIPTION "Stormground C/C++ Library" LANGUAGES C)
+#set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_C_STANDARD 11)
 
 if (PROJECT_IS_TOP_LEVEL)
-  set(SCL_EXTRAS_DEFAULT ON)
-  else()
-  set(SCL_EXTRAS_DEFAULT OFF)
+  option(SCL_EXAMPLES "Configure SCL example executables" ON)
+  option(SCL_TESTS "Enable SCL test executables" ON)
 endif()
+option(SCL_CXX "Enable SCL's c++ bindings" ON)
 
-
-include("buildconf/clangd.cmake")
-include("buildconf/mini.cmake")
-
-include_directories("src" "${CMAKE_BINARY_DIR}")
+set(ENABLE_CLANG_TIDY OFF)
+add_subdirectory(deps/uv)
 
 if (MSVC AND OFF)
   add_compile_options("/Wall" "/wd5045" "/wd4820" "/wd4100" "/wd4514")
@@ -24,19 +21,19 @@ set(SCL_HEADERS
   "include/scl.hpp")
   
 set(SCL_SOURCES
-  "src/hash.cpp"
-  "src/jobs.cpp"
-  "src/misc.cpp"
-  "src/pack.cpp"
-  "src/path.cpp"
-  "src/reduce.cpp"
-  "src/stream.cpp"
-  "src/string.cpp"
-  "src/time.cpp"
-  "src/lz4/lz4.c"
-  "src/lz4/lz4frame.c"
-  "src/lz4/lz4hc.c"
-  "src/lz4/xxhash.c")
+  src/cpp/hash.cpp
+  src/cpp/jobs.cpp
+  src/cpp/misc.cpp
+  src/cpp/pack.cpp
+  src/cpp/path.cpp
+  src/cpp/reduce.cpp
+  src/cpp/stream.cpp
+  src/cpp/string.cpp
+  src/cpp/time.cpp
+  src/lz4/lz4.c
+  src/lz4/lz4frame.c
+  src/lz4/lz4hc.c
+  src/lz4/xxhash.c)
 
 set(SCLC_HEADERS
   "include/sclc_path.h"
@@ -44,48 +41,72 @@ set(SCLC_HEADERS
   "include/sclc_time.h"
  )
 
-set(SCLC_SOURCES
-  "src/sclc_path.c"
-  "src/sclc_string.c"
-  "src/sclc_swiss.c"
-  "src/sclc_time.c"
-  "src/xxhash.c"
+set(CORE_SOURCES
+  src/fs.c
+  src/glob.c
+  src/pack.c
+  src/path.c
+  src/string.c
+  src/swiss.c
+  src/time.c
+  src/xxhash.c
  )
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+include_directories(
+  src
+  ${CMAKE_CURRENT_SOURCE_DIR}/include
+  ${CMAKE_CURRENT_SOURCE_DIR}/deps/uv/include
+)
 
-add_library(scl ${SCL_SOURCES})
-add_library(sclc ${SCLC_SOURCES})
-#target_compile_options(sclc PUBLIC "/arch:AVX2")
+#[[
+add_library(libscl SHARED ${CORE_SOURCES})
+target_compile_definitions(libscl PRIVATE "SCL_DLL=1")
+# Force libuv to export its functions
+target_compile_definitions(uv_a
+  INTERFACE
+    USING_UV_SHARED=1
+  PRIVATE
+    BUILDING_UV_SHARED=1)
+# Link the entirety of the libuv exports
+target_link_libraries(libscl PRIVATE 
+  $<LINK_LIBRARY:WHOLE_ARCHIVE,uv_a>)
+set_target_properties(libscl PROPERTIES OUTPUT_NAME "scl")]]
 
-get_target_property(sclc_type sclc TYPE)
-if (${sclc_type} STREQUAL "SHARED_LIBRARY")
-  target_compile_definitions(sclc PRIVATE "SCL_DLL=1")
+add_library(libscl_a STATIC ${CORE_SOURCES})
+target_link_libraries(libscl_a PUBLIC uv_a)
+set_target_properties(libscl_a PROPERTIES OUTPUT_NAME "scl")
+if (WIN32)
+  set_target_properties(libscl_a PROPERTIES PREFIX "lib")
 endif()
 
-minify(miniscl.hpp SCL_IMPL "" "${SCL_HEADERS}" "${SCL_SOURCES}")
-minify2(HEADER "sclc.h" SOURCE "sclc.c"
-  IMPLEMENT_FLAG SCLC_IMPL
-  HEADERS ${SCLC_HEADERS}
-  SOURCES ${SCLC_SOURCES})
-
-if (NOT DEFINED SCL_TESTS)
-  set(SCL_TESTS ${SCL_EXTRAS_DEFAULT})
+if (SCL_CXX OR SCL_EXAMPLES)
+  #add_library(scl ${SCL_SOURCES})
+  #target_link_libraries(scl PUBLIC libscl_a)
 endif()
 
 if (SCL_TESTS)
-  add_subdirectory(test)
-endif()
-
-if (NOT DEFINED SCL_EXAMPLES)
-  set(SCL_EXAMPLES ${SCL_EXTRAS_DEFAULT})
+  #add_subdirectory(test)
 endif()
 
 if (SCL_EXAMPLES)
-  add_executable(package "examples/package.cpp" ${SCL_SOURCES})
+  add_executable(x "examples/test.c")
+  target_link_libraries(x PRIVATE libscl_a)
+
+  #add_executable(package "examples/package.cpp")
+  #target_link_libraries(package scl)
+  #target_compile_definitions(package PUBLIC LZ4F_STATIC_LINKING_ONLY)
 endif()
-#target_compile_definitions(package PUBLIC LZ4F_STATIC_LINKING_ONLY)
-clangd(
-  INLAY_HINTS
-  INLAY_PARAMETER_NAMES
-)
+
+if (PROJECT_IS_TOP_LEVEL)
+  include("buildconf/clangd.cmake")
+  clangd(
+    INLAY_HINTS
+  )
+endif()
+
+
+#minify(miniscl.hpp SCL_IMPL "" "${SCL_HEADERS}" "${SCL_SOURCES}")
+#[[minify2(HEADER "sclc.h" SOURCE "sclc.c"
+  IMPLEMENT_FLAG SCLC_IMPL
+  HEADERS ${SCLC_HEADERS}
+  SOURCES ${CORE_SOURCES})]]

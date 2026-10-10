@@ -20,51 +20,43 @@
   SOFTWARE.
 */
 
-
-/* sclc_swiss.h
- * swiss table declarations
+/* jobs.h
+ * libscl jobs/events system
  */
 
-#ifndef sclc_swiss_h
-#define sclc_swiss_h
+#ifndef SCL_JOBS_H
+#define SCL_JOBS_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "sclc_base.h"
+#include "base.h"
+#include <stdatomic.h>
 
-typedef struct scl_shmap_t scl_shmap_t;
+/*
+ * init
+ * turn (sync)
+ * start (async)
+ * stop
+ * flush (work + waitidle)
+ * isworking
+ * async
+ */
 
-extern SCLAPI scl_shmap_t* scl_shnew();
+typedef enum {
+  SCL_EV_NONE = 0,
+  SCL_EV_SYNC = 1,
+} scl_ev_initflags;
 
-extern SCLAPI void scl_shfree(scl_shmap_t* map);
+typedef struct {
+  void* data;
+  atomic_bool done;
+} scl_promise_t;
 
-extern SCLAPI void scl_shclear(scl_shmap_t* map);
+SCLLIB int scl_ev_init(int flags);
 
-extern SCLAPI const void* scl_shget(const scl_shmap_t* map, uint64_t hash);
-
-extern SCLAPI const void* scl_shgets(const scl_shmap_t* map, const char* key);
-
-extern SCLAPI bool scl_shhas(const scl_shmap_t* map, uint64_t hash);
-
-extern SCLAPI bool scl_shhass(const scl_shmap_t* map, const char* key);
-
-extern SCLAPI const void* scl_shkey(const scl_shmap_t* map, uint64_t hash);
-
-extern SCLAPI bool scl_shset(
-  scl_shmap_t* map, const void* key, uint64_t hash, const void* data);
-
-extern SCLAPI bool scl_shsets(
-  scl_shmap_t* map, const char* key, const void* data);
-
-extern SCLAPI void scl_shremove(scl_shmap_t* map, uint64_t hash);
-
-extern SCLAPI void scl_shremoves(scl_shmap_t* map, const char* key);
-
-extern SCLAPI uint32_t scl_shlength(const scl_shmap_t* map);
-extern SCLAPI uint32_t scl_shcapacity(const scl_shmap_t* map);
-
+SCLLIB int scl_ev_async();
 #ifdef __cplusplus
 }
 #endif

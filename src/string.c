@@ -21,7 +21,7 @@
 */
 
 
-#include <sclc_string.h>
+#include "scl/string.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -34,11 +34,13 @@ const char* strrstr(const char* haystack, const char* needle) {
   if(!haystack || !needle)
     return NULL;
   size_t i = strlen(haystack);
-  const size_t J = strlen(needle);
+  size_t J = strlen(needle);
   if(!J)
     return NULL;
   if(!i)
     return NULL;
+  i--;
+  J--;
   size_t j = J;
   for(;; i--, j--) {
     /* Reset search if not applicable */
@@ -97,7 +99,7 @@ const char* strsub(const char* str, size_t i, size_t j) {
   if(!str)
     return NULL;
   const size_t l1 = strlen(str);
-  if(i >= l1)
+  if(i > l1)
     return NULL;
   j = min(j, l1 - i);
   char* ptr = (char*)malloc(j + 1);
@@ -115,6 +117,15 @@ const char* strcopy(const char* str) {
   return ptr;
 }
 
+const char* strncopy(const char* str, size_t n) {
+  if(!str)
+    return NULL;
+  char* ptr = (char*)malloc(n + 1);
+  memcpy(ptr, str, n);
+  ptr[n] = 0;
+  return ptr;
+}
+
 const char* strreplace(
   const char* str, const char* replacement, size_t i, size_t j) {
   if(!str || !replacement)
@@ -128,7 +139,7 @@ const char* strreplace(
   const size_t d = l1 - i - j;
   char* ptr = (char*)malloc(i + l2 + d + 1);
   // memset(ptr, 0, i + l2 + d + 1);
-  memcpy(ptr, str, l1);
+  memcpy(ptr, str, i);
   /* if necessary, move post replacement text back */
   if(d)
     memcpy(ptr + i + l2, str + i + j, d);
@@ -142,8 +153,11 @@ const char* strreplacestr(
   if(!str || !pattern || !replacement)
     return NULL;
   const size_t l1 = strlen(str);
+  const char* e = str + l1;
   const ssize_t l2 = strlen(replacement);
   const size_t J = strlen(pattern);
+  if(!J)
+    return strcopy(str);
   ssize_t d = 0;
   size_t i = 0;
   size_t j = 0;
@@ -153,7 +167,7 @@ const char* strreplacestr(
       j = 0;
       continue;
     }
-    if(j == J) {
+    if(j == J - 1) {
       j = 0;
       d += l2 - (ssize_t)J;
       continue;
@@ -165,20 +179,18 @@ const char* strreplacestr(
   const size_t fl = l1 + d;
   char* ptr = (char*)malloc(fl + 1);
   /* copy and replace */
-  for(; *str && i < fl; str++) {
-    if(*str != pattern[j]) {
-      j = 0;
-      ptr[i] = *str;
-      i++;
-      continue;
-    }
-    if(j == J) {
+  while(str && i < fl) {
+    const char* p = strstr(str, pattern);
+    if(p) {
+      memcpy(ptr + i, str, p - str);
+      i += p - str;
       memcpy(ptr + i, replacement, l2);
-      ptr += i;
-      j = 0;
-      continue;
+      i += l2;
+    } else {
+      memcpy(ptr + i, str, e - str);
+      break;
     }
-    j++;
+    str = p + J;
   }
   ptr[fl] = 0;
   return ptr;
@@ -230,7 +242,7 @@ const char* strrand(int len) {
 
 #define _svalignup(x, align) ((((x) + ((align) - 1)) / (align)) * align)
 
-const char** _svnalloc(const char** vec, int align, int bytes) {
+const char** _svnalloc(const char** vec, int align, uint32_t bytes) {
   strvec_header_t* header = _svheader(vec);
   /* check for potential strings/sentinel crossover (undersize) */
   if(!header ||
@@ -261,12 +273,16 @@ const char** _svnalloc(const char** vec, int align, int bytes) {
 }
 
 void _svappend(const char** vec, const char* str) {
+  const uint32_t ssize = strlen(str) + 1;
+  _svnappend(vec, str, ssize);
+}
+
+void _svnappend(const char** vec, const char* str, uint32_t bytes) {
   strvec_header_t* header = _svheader(vec);
   if(!header || !str)
     return;
-  const uint32_t ssize = strlen(str) + 1;
-  header->strings -= ssize;
-  memcpy(header->strings, str, ssize);
+  header->strings -= bytes;
+  memcpy(header->strings, str, bytes);
   *header->sentinel = header->strings;
   *++header->sentinel = NULL;
 }

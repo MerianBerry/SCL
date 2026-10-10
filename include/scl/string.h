@@ -32,7 +32,7 @@
 extern "C" {
 #endif
 
-#include "sclc_base.h"
+#include "base.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -44,23 +44,25 @@ extern "C" {
  * @return Returns a pointer to the last instance of needle in haystack, the
  * pointer will be in haystack, or null if no instance was found.
  */
-extern SCLAPI const char* strrstr(const char* haystack, const char* needle);
+SCLLIB const char* strrstr(const char* haystack, const char* needle);
 
 /**
  * @return Returns true if end is at the end of string.
  */
-extern SCLAPI bool strendswith(const char* str, const char* end);
+SCLLIB bool strendswith(const char* str, const char* end);
 
-extern SCLAPI bool strmatch(const char* str, const char* pattern);
+SCLLIB bool strmatch(const char* str, const char* pattern);
 
-extern SCLAPI const char* strsub(const char* str, size_t i, size_t j);
+SCLLIB const char* strsub(const char* str, size_t i, size_t j);
 
-extern SCLAPI const char* strcopy(const char* str);
+SCLLIB const char* strcopy(const char* str);
 
-extern SCLAPI const char* strreplace(
+SCLLIB const char* strncopy(const char* str, size_t n);
+
+SCLLIB const char* strreplace(
   const char* str, const char* replacement, size_t i, size_t j);
 
-extern SCLAPI const char* strreplacestr(
+SCLLIB const char* strreplacestr(
   const char* str, const char* pattern, const char* replacement);
 
 /**
@@ -70,7 +72,7 @@ extern SCLAPI const char* strreplacestr(
  * @param  str
  * @return Returns the string pointer given.
  */
-extern SCLAPI const char* strupper(char* str);
+SCLLIB const char* strupper(char* str);
 
 /**
  * @brief Replaces any ascii uppercase letters with their lowercase varients.
@@ -79,25 +81,25 @@ extern SCLAPI const char* strupper(char* str);
  * @param  str
  * @return Returns the string pointer given.
  */
-extern SCLAPI const char* strlower(char* str);
+SCLLIB const char* strlower(char* str);
 
-extern SCLAPI const char* strrand(int len);
+SCLLIB const char* strrand(int len);
 
 #define scl_stkfmt(buf, mx, fmt, ...)                                \
-  {                                                                  \
+  do {                                                               \
     int __l = min(snprintf(NULL, 0, fmt, __VA_ARGS__), (int)mx - 1); \
     if(!(buf))                                                       \
       (buf) = alloca(__l + 1);                                       \
     snprintf((void*)buf, __l + 1, fmt, __VA_ARGS__);                 \
     ((char*)(buf))[__l] = 0;                                         \
-  }
+  } while(0)
 
 #define scl_stkfmtx(buf, mx, fmt, ...)                               \
-  {                                                                  \
+  do {                                                               \
     int __l = min(snprintf(NULL, 0, fmt, __VA_ARGS__), (int)mx - 1); \
     snprintf((void*)buf, __l + 1, fmt, __VA_ARGS__);                 \
     ((char*)(buf))[__l] = 0;                                         \
-  }
+  } while(0)
 
 typedef struct strvec_header_t {
   uint32_t size;         /* Buffer size */
@@ -109,17 +111,25 @@ typedef struct strvec_header_t {
   (vec ? (strvec_header_t*)((char*)vec - sizeof(strvec_header_t)) \
        : (strvec_header_t*)NULL)
 
-extern SCLAPI const char** _svnalloc(const char** vec, int align, int bytes);
+SCLLIB const char** _svnalloc(const char** vec, int align, uint32_t bytes);
 
-extern SCLAPI void _svappend(const char** vec, const char* str);
+SCLLIB void _svappend(const char** vec, const char* str);
+
+SCLLIB void _svnappend(const char** vec, const char* str, uint32_t bytes);
 
 #define scl_svappend(vec, str, align)                   \
-  {                                                     \
+  do {                                                  \
     (vec) = _svnalloc((vec), (align), strlen(str) + 1); \
     _svappend((vec), (str));                            \
-  }
+  } while(0)
 
-extern SCLAPI size_t _svlen(const char** vec);
+#define scl_svnappend(vec, str, bytes, align)   \
+  do {                                          \
+    (vec) = _svnalloc((vec), (align), (bytes)); \
+    _svnappend((vec), (str), (bytes));          \
+  } while(0)
+
+SCLLIB size_t _svlen(const char** vec);
 #define scl_svlen(vec) _svlen(vec)
 
 #define scl_svback(vec) \
@@ -127,7 +137,7 @@ extern SCLAPI size_t _svlen(const char** vec);
 
 #define scl_svstrings(vec) ((vec) ? _svheader(vec)->strings : NULL)
 
-extern SCLAPI void scl_svseparator(
+SCLLIB void scl_svseparator(
   const char** vec, char oldSeparator, char separator);
 
 #define scl_svfree(vec) \

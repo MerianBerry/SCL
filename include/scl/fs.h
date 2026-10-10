@@ -20,38 +20,46 @@
   SOFTWARE.
 */
 
-/* sclc_time.h
- *
+/* fs.h
+ * libscl filesystem operations
  */
 
-#ifndef sclc_time_h
-#define sclc_time_h
+#ifndef SCL_FS_H
+#define SCL_FS_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "sclc_base.h"
+#include "base.h"
 
-/**
- * @brief Resets the output of sclc_clock(), making current time epoch.
- *
+/*
+ * exepath
+ * exedir
+ * exists
+ * isdir
+ * isfile
+ * chdir
+ * copy
+ * mkdir
+ * mtime
  */
-extern SCLAPI void scl_resetclock();
 
-/**
- * @note You can use scl_resetclock() to control this function's epoch.
- *
- * @return   Seconds since epoch.
- */
-extern SCLAPI double scl_clock();
+SCLLIB const char* scl_fs_exepath();
 
-/**
- * @brief Makes this thread sleep for a given amount of milliseconds.
- *
- * @param sleemms  Number of milliseconds to sleep for.
- */
-extern SCLAPI void scl_waitms(double ms);
+SCLLIB const char* scl_fs_exedir();
+
+SCLLIB const char* scl_fs_realpath(const char* path);
+
+SCLLIB bool scl_fs_exists(const char* path);
+
+SCLLIB bool scl_fs_isdirectory(const char* path);
+
+SCLLIB bool scl_fs_isfile(const char* path);
+
+SCLLIB int64_t scl_mtime(const char* path);
+
+SCLLIB bool scl_fs_copy(const char* src, const char* dst);
 
 #ifdef __cplusplus
 }

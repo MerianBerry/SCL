@@ -83,40 +83,6 @@ TEST_CASE("swiss_remove") {
 }
 
 #if 0
-TEST_CASE("scl_htab") {
-  printf("scl_htab (old)\n");
-  printf("generating %u keys...\n", n);
-  const char** keys = (const char**)malloc(sizeof(char*) * n);
-  for(int i = 0; i < n; i++) {
-    keys[i] = strrand(10);
-  }
-
-  sclo_htab* map = sclo_htabnew();
-  printf("populating hash map...\n");
-  double cs = scl_clock();
-  for(int i = 0; i < n; i++) {
-    sclo_htabset(map, keys[i], (void*)(intptr_t)(i + 1));
-  }
-  double ce = scl_clock();
-  const double popt = ce - cs;
-
-  printf("checking keys...\n");
-  cs = scl_clock();
-  for(int i = 0; i < n; i++) {
-    if((intptr_t)sclo_htabget(map, keys[i]) != (intptr_t)i + 1) {
-      printf("failed to find %s. test invalidated\n", keys[i]);
-    }
-  }
-  ce = scl_clock();
-  const double gett = ce - cs;
-  // printf("count: %u\ncapacity: %u\n", scl_shlength(map),
-  // scl_shcapacity(map)); scl_shfree(map);
-  printf("time:\n  populating: %0.2lfms\n  querying: %0.2lfms\n\n",
-    popt * 1000,
-    gett * 1000);
-}
-
-
 TEST_CASE("unordered_main", "[benchmark]") {
   printf("std::unordered_map\n");
   printf("generating %u keys...\n", n);

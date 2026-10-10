@@ -250,26 +250,26 @@ SCENARIO("string::substr") {
 
     WHEN("substr() is called without max length") {
       auto sub = str.substr(0, 5);
-      CHECK(sub == "Hi im");
+      CHECK((sub == "Hi im"));
     }
     WHEN("substr() is called with max length") {
       auto sub = str.substr(3);
-      CHECK(sub == "im test string!");
+      CHECK((sub == "im test string!"));
     }
     WHEN("substr() is called with 0 length") {
       auto sub = str.substr(3, 0);
-      CHECK(sub == "");
+      CHECK((sub == ""));
     }
     WHEN("substr() is called with out of bounds i") {
       auto sub = str.substr(INT_MAX);
-      CHECK((sub == ""));
+      CHECK_FALSE(!!sub);
     }
   }
   GIVEN("an empty string") {
-    scl::string str;
+    scl::string str = "";
     WHEN("substr() is called") {
       auto sub = str.substr(0);
-      CHECK(sub == "");
+      CHECK((sub == ""));
     }
   }
 }
@@ -303,7 +303,7 @@ SCENARIO("string::replace(str, int, int)") {
     WHEN("replace() is called with out of bounds i") {
       str.replace("blab!", INT_MAX);
       THEN("nothing happens") {
-        CHECK(str == "Hi im test string!");
+        CHECK((str == "Hi im test string!"));
       }
     }
   }

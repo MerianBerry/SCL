@@ -21,70 +21,50 @@
 */
 
 
-/* sclc_path.h
+/* path.h
  *
  */
 
-#ifndef sclc_path_h
-#define sclc_path_h
+#ifndef SCL_PATH_H
+#define SCL_PATH_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "sclc_base.h"
+#include "base.h"
 #include <stdio.h>
 
 #ifdef _WIN32
 #  define PATH_MAX 260
-#  define _SLASH   "\\"
 #else
 #  include <limits.h>
-#  define _SLASH "/"
 #endif
+#define _SLASH          "/"
 
-#define SCL_PATH_FILES  0
-#define SCL_PATH_DIRS   1
+#define SCL_GLOB_FILES  0
+#define SCL_GLOB_DIRS   1
 
-#define scl_iswild(str) (strstr(str, "*") != NULL)
+#define scl_iswild(str) (str ? strstr(str, "*") != NULL : 0)
 
-extern SCLAPI int scl_pathjoinx(char* buf, const char* one, const char* two);
+SCLLIB int scl_pathjoinx(char* buf, const char* one, const char* two);
 
 #define scl_pathjoin(buf, one, two)                          \
-  {                                                          \
+  do {                                                       \
     if(!(buf))                                               \
       (buf) = alloca(scl_pathjoinx(NULL, (one), (two)) + 1); \
     scl_pathjoinx((char*)(buf), (one), (two));               \
-  }
+  } while(0)
 
-extern SCLAPI const char* scl_pathabs(const char* path, char* resolved);
+SCLLIB const char* scl_filename(const char* path);
 
-extern SCLAPI const char* scl_execdir();
+SCLLIB const char* scl_pathext(const char* path);
 
-extern SCLAPI bool scl_pathexists(const char* path);
+SCLLIB const char* scl_pathstem(const char* path);
 
-extern SCLAPI bool scl_isdirectory(const char* path);
+SCLLIB const char* scl_parentpath(const char* path);
 
-extern SCLAPI bool scl_isfile(const char* path);
-
-extern SCLAPI const char* scl_filename(const char* path);
-
-extern SCLAPI const char* scl_pathstem(const char* path);
-
-extern SCLAPI const char* scl_parentpath(const char* path);
-
-extern SCLAPI const char* scl_pathcomponent(const char** path);
-
-extern SCLAPI bool scl_chdir(const char* path);
-
-extern SCLAPI bool scl_mkdir(const char* path);
-
-extern SCLAPI bool scl_mkdirs(const char** paths, int count);
-
-extern SCLAPI const char** scl_glob(
-  const char* pattern, const char** finds, int mode);
-
-extern SCLAPI int64_t scl_wtime(const char* path);
+SCLLIB const char* scl_pathcomponent(const char** path);
 
 #ifdef __cplusplus
 }

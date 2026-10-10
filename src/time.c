@@ -20,13 +20,11 @@
   SOFTWARE.
 */
 
-
-/* time.cpp
- * scl time helpers
+/* sclc_time.c
+ * scl time utilities
  */
 
-#include <scl_time.hpp>
-#include "internal.hpp"
+#include "scl/time.h"
 
 #ifdef _WIN32
 #  ifndef CREATE_WAITABLE_TIMER_HIGH_RESOLUTION
@@ -40,7 +38,6 @@
 #endif
 
 
-namespace scl {
 #ifdef _WIN32
 /* Windows sleep in 100ns units */
 static BOOLEAN _nanosleep(LONGLONG ns) {
@@ -50,15 +47,15 @@ static BOOLEAN _nanosleep(LONGLONG ns) {
   HANDLE timer;     /* Timer handle */
   LARGE_INTEGER li; /* Time defintion */
   /* Create timer */
-  if(!(timer = CreateWaitableTimerExW(nullptr,
-         nullptr,
+  if(!(timer = CreateWaitableTimerExW(NULL,
+         NULL,
          CREATE_WAITABLE_TIMER_HIGH_RESOLUTION,
          TIMER_ALL_ACCESS))) {
     return FALSE;
   }
   /* Set timer properties */
   li.QuadPart = -ns;
-  if(!SetWaitableTimer(timer, &li, 0, nullptr, nullptr, FALSE)) {
+  if(!SetWaitableTimer(timer, &li, 0, NULL, NULL, FALSE)) {
     CloseHandle(timer);
     return FALSE;
   }
@@ -75,7 +72,7 @@ static LARGE_INTEGER base_clock = {{0}};
 static double base_clock = 0.0;
 #endif
 
-void resetclock() {
+void scl_resetclock() {
 #ifdef _WIN32
   QueryPerformanceCounter(&base_clock);
 #else
@@ -83,7 +80,7 @@ void resetclock() {
 #endif
 }
 
-double clock() {
+double scl_clock() {
 #if defined(_WIN32)
   LARGE_INTEGER pc;
   LARGE_INTEGER pf;
@@ -97,7 +94,7 @@ double clock() {
 #endif
 }
 
-void waitms(double ms) {
+void scl_waitms(double ms) {
 #if defined(__unix__) || defined(__APPLE__)
   struct timespec ts = {2000, 0};
   ts.tv_sec = ms / 1000.0;
@@ -121,17 +118,3 @@ void waitms(double ms) {
   }
 #endif
 }
-
-bool waitUntil(std::function<bool()> cond, double timeout, double sleepms) {
-  bool infinite = timeout == -1;
-  double cs = scl::clock();
-  double ce;
-  bool timedout = false;
-  while(!cond() && !timedout) {
-    scl::waitms(sleepms);
-    ce = scl::clock();
-    timedout = ((ce - cs) > timeout && !infinite);
-  }
-  return !timedout;
-}
-} // namespace scl

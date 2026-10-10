@@ -30,6 +30,7 @@
 #include <scl_misc.hpp>
 #include "internal.hpp"
 #include "lz4/xxhash.h"
+#include <sclc_string.h>
 #include <string>
 
 #ifdef _WIN32
@@ -182,20 +183,7 @@ const wchar_t* string::wstr() const {
 int64_t string::toInt() const {
   if(!*this)
     return 0;
-  bool hex = this->operator[](0) == '0' && this->operator[](1) == 'x';
-  int64_t o = 0;
-  for(int32_t i = hex ? 2 : 0; i < len(); i++) {
-    char c = m_buf[i];
-    int m = 0;
-    if((c >= '0' && c <= '9'))
-      m = c - '0';
-    else if(hex && _isHex(c))
-      m = _fromHex(c);
-    else
-      break;
-    o = o * (hex ? 16 : 10) + m;
-  }
-  return o;
+  return (int64_t)strtoll(m_buf, NULL, 0);
 }
 
 int32_t string::len() const {
@@ -212,26 +200,19 @@ int32_t string::size() const {
 int32_t string::ffi(const string& pattern) const {
   if(!*this || !pattern)
     return -1;
-  const char* p = m_buf;
-  int32_t csl = pattern.len();
-  for(; p < m_buf + m_ln && *p; p++) {
-    if(!strncmp(p, pattern.cstr(), (size_t)csl))
-      return (int32_t)(p - m_buf);
-  }
-  return -1;
+  const char* p = strstr(m_buf, pattern.cstr());
+  if(!p)
+    return -1;
+  return (int32_t)(p - m_buf);
 }
 
 int32_t string::fli(const string& pattern) const {
   if(!*this || !pattern)
     return -1;
-  const int32_t l = m_ln;
-  int32_t csl = pattern.m_ln;
-  const char* p = m_buf + l - csl;
-  for(; p >= m_buf && *p; p--) {
-    if(!strncmp(p, pattern.m_buf, (size_t)csl))
-      return (int32_t)(p - m_buf);
-  }
-  return -1;
+  const char* p = strrstr(m_buf, pattern.cstr());
+  if(!p)
+    return -1;
+  return (int32_t)(p - m_buf);
 }
 
 bool string::endswith(const string& pattern) const {
@@ -239,26 +220,8 @@ bool string::endswith(const string& pattern) const {
   return p > 0 && p == m_ln - pattern.m_ln;
 }
 
-static bool str_match(
-  const char* pattern, const char* candidate, int32_t p, int32_t c) {
-  if(pattern[p] == '\0') {
-    return candidate[c] == '\0';
-  } else if(pattern[p] == '*') {
-    for(;; c++) {
-      if(candidate[c] == '\0' || candidate[c] == pattern[p + 1])
-        break;
-    }
-    return str_match(pattern, candidate, p + 1, c);
-  } else if(candidate[c] == pattern[p]) {
-    return str_match(pattern, candidate, p + 1, c + 1);
-  }
-  return false;
-}
-
 bool string::match(const string& pattern) const {
-  if(!*this || !pattern)
-    return 0;
-  return (bool)str_match(pattern.cstr(), cstr(), 0, 0);
+  return strmatch(cstr(), pattern.cstr());
 }
 
 uint64_t string::hash() const {
@@ -269,93 +232,48 @@ uint64_t string::hash() const {
 }
 
 string string::substr(int32_t i, int32_t j) const {
-  if(!*this || i >= m_ln)
-    return "";
-  i = _plen(i); // i >= 0
-  j = _mlen(j); // j >= 0
-  j = std::min(j, (int32_t)strlen(m_buf + i));
-  char* out = new char[(size_t)j + 1];
-  if(!out)
-    throw "out of stream";
-  memset(out, 0, (size_t)j + 1);
-  memcpy(out, m_buf + i, (size_t)j);
-  string sout;
-  sout.claim(out);
-  return std::move(sout);
+  const char* sub = strsub(m_buf, (size_t)i, (size_t)j);
+  return string().claim(sub);
 }
 
 string& string::replace(const string& pattern, const string& with) {
-  if(!*this || !pattern)
-    return *this;
-  const char* str = m_buf;
-  string out;
-  while(1) {
-    string tstr = str;
-    int32_t p = tstr.ffi(pattern);
-    if(p < 0)
-      break;
-    replace(with, p, pattern.len());
-    str = m_buf;
-  }
+  const char* str = strreplacestr(m_buf, pattern.cstr(), with.cstr());
+  if(str)
+    claim(str);
   return *this;
 }
 
 scl::string& string::replace(const scl::string& with, int32_t i, int32_t j) {
-  if(!*this || i >= m_ln)
-    return *this;
-  i = _plen(i); // i >= 0
-  j = _mlen(j); // j >= 0
-  auto l = with.len();
-  j = std::min(j, m_ln - i);
-  int32_t d = len() - i - j;
-  if(len() - j + l > size())
-    reserve(i + l + d);
-  else if(isview())
-    make_unique();
-  if(d)
-    memcpy(m_buf + i + l, m_buf + i + j, (size_t)d);
-  memcpy(m_buf + i, with.cstr(), (size_t)l);
-  m_buf[i + l + d] = 0;
-  m_ln = i + l + d;
+  const char* str = strreplace(m_buf, with.cstr(), (size_t)i, (size_t)j);
+  if(str)
+    claim(str);
   return *this;
 }
 
 string& string::toUpper() {
-  for(auto& c : *this) {
-    if(c >= 'a' && c <= 'z') {
-      c -= 32;
-    }
-  }
+  make_unique();
+  strupper(m_buf);
   return *this;
 }
 
 string& string::toLower() {
-  for(auto& c : *this) {
-    if(c >= 'A' && c <= 'Z') {
-      c += 32;
-    }
-  }
+  make_unique();
+  strlower(m_buf);
   return *this;
 }
 
 int32_t string::ffi(const char* str, const char* pattern) {
-  if(!str || !pattern)
-    return -1;
-  scl::string S(str); // View str
+  string S = str; // View str
   return S.ffi(pattern);
 }
 
 int32_t string::fli(const char* str, const char* pattern) {
-  if(!str || !pattern)
-    return -1;
-  scl::string S(str); // View str
+  scl::string S = str; // View str
   return S.fli(pattern);
 }
 
 string string::substr(const char* str, int32_t i, int32_t j) {
-  if(!str)
-    return "";
-  scl::string S(str); // View str;
+  scl::string S = str; // View str;
   return S.substr(i, j);
 }
 
@@ -364,17 +282,7 @@ string string::copy() const {
 }
 
 string string::rand(int32_t len) {
-  static const char rchars[] =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  string str;
-  len = len < 0 ? 0 : len;
-  str.reserve(len);
-  int32_t i;
-  for(i = 0; i < len; i++) {
-    str[i] = rchars[rand_int(0, sizeof(rchars) - 1)];
-    str.m_ln++;
-  }
-  return str;
+  return string().claim(strrand(len));
 }
 
 string string::vfmt(const char* fmt, va_list args) {
@@ -406,9 +314,7 @@ uint64_t string::hash(const string& str) {
 }
 
 bool string::match(const char* str, const char* pattern) {
-  if(!str || !pattern)
-    return 0;
-  return str_match(pattern, str, 0, 0);
+  return strmatch(str, pattern);
 }
 
 _str_iterator string::begin() {

@@ -32,6 +32,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdarg.h>
+#include <sclc_string.h>
 
 #if defined(_WIN32)
 #  include <malloc.h>
@@ -51,14 +52,6 @@ namespace scl {
       (buf) = alloca(__l + 1);                                      \
     vsnprintf((char*)(buf), __l + 1, fmt, args);                    \
     (buf)[__l] = 0;                                                 \
-  }
-#define scl_stkfmt(buf, mx, fmt, ...)                                     \
-  {                                                                       \
-    int __l = std::min(snprintf(NULL, 0, fmt, __VA_ARGS__), (int)mx - 1); \
-    if(!(buf))                                                            \
-      (buf) = alloca(__l + 1);                                            \
-    snprintf((char*)(buf), __l + 1, fmt, __VA_ARGS__);                    \
-    ((char*)(buf))[__l] = 0;                                              \
   }
 
 #define scl_vstkfmt2(buf, mx, fmt, args)                         \

@@ -8,6 +8,7 @@
 #include <iostream>
 
 int main(int argc, char** argv) {
+#if 1
   scl::pack::Packager pack;
   // Open the pack family test.spk. Includes test_1.spk, etc.
   pack.open("test.spk");
@@ -20,9 +21,9 @@ int main(int argc, char** argv) {
    * The openFile algorithm used here can be extended to multiple files
    * with openFiles, which returns a vector.
    */
-#if 0
+#  if 0
   // Print all known files in the pack.
-  for(const auto& i : pack.index()) {
+  for(const auto& i : pac k.index()) {
     fprintf(stderr, "File: %s\n", i.second.filepath().cstr());
   }
 
@@ -39,7 +40,7 @@ int main(int argc, char** argv) {
 /* Example of writing files:
  * Writes all files under src/ into a pack.
  */
-#else
+#  else
   // Get all files under src/
   auto files = scl::path::glob("src/**");
   auto nfiles = files.size();
@@ -91,8 +92,9 @@ int main(int argc, char** argv) {
       (ogtotal / 1024.0 / 1024.0),
       (packed / 1000.0 / 1000.0));
   });
-#endif
+#  endif
 
   pack.close();
+#endif
   return 0;
 }

@@ -88,7 +88,7 @@ public:
    * @return Stem component of this path.
    * Ex: foo/bar/fun.txt => fun
    */
-  path stem() const;
+  scl::string stem() const;
 
   /**
    * @brief Returns whether or not this path contains a wildcard (*).
@@ -231,7 +231,7 @@ public:
    */
   static std::vector<path> splitPaths(const scl::string& paths);
 
-  path& join(const path& rhs, bool relative = true);
+  path& join(const path& rhs);
 
   /**
    * @brief Returns this path, with a component appended, seperated by the host

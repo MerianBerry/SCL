@@ -11,7 +11,9 @@ FetchContent_MakeAvailable(Catch2)
 
 add_executable(scl_tests
   tests/string.cpp
+  tests/path.cpp
   tests/xml.cpp
+  tests/cswiss.cpp
 )
 
 target_link_libraries(scl_tests PRIVATE
@@ -21,6 +23,7 @@ target_link_libraries(scl_tests PRIVATE
 
 copyfile(scl_tests ${CMAKE_CURRENT_SOURCE_DIR}/sample.xml ${CMAKE_CURRENT_BINARY_DIR}/sample.xml)
 
+#[[
 add_executable(sclc_tests
   tests/cswiss.cpp
 )
@@ -29,12 +32,12 @@ target_link_libraries(sclc_tests PRIVATE
   Catch2::Catch2WithMain
   sclc
 )
-
+#]]
 include(CTest)
 include(Catch)
 
 catch_discover_tests(scl_tests)
-catch_discover_tests(sclc_tests)
+#catch_discover_tests(sclc_tests)
 
 clangd(
   INCLUDE_DIRECTORIES

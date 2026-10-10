@@ -108,7 +108,7 @@ public:
 
 template <class R> class waitable2 : public waitable {
 protected:
-  R m_data;
+  volatile R m_data;
   bool m_autodel = false;
 
 public:
@@ -465,7 +465,7 @@ public:
    * If the promise is discarded, so will be the waitable once it is completed.
    */
   template <class F, class... Args, class R = std::invoke_result_t<F, Args...>>
-  promise<R> invoke(const F& func, Args... args) {
+  promise<R> async(F&& func, Args... args) {
     static_assert(std::is_invocable<F, Args...>(),
       "invoke requires template type F to be callable");
     job2<R, Args...>* job = new job2<R, Args...>(func, args...);

@@ -75,6 +75,11 @@ public:
   const char& operator*() const;
 };
 
+class String : public std::string {
+public:
+  int32_t ffi();
+};
+
 class string {
 private:
   friend class _str_iterator;

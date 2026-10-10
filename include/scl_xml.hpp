@@ -346,6 +346,9 @@ protected:
   }
 
   template <int step> void print_text(stream& stream, const string& t) {
+    // If text is null or empty, skip
+    if (!t)
+      return;
 #define _printTilNow()                       \
   *p = '\0';                                 \
   stream.write((const scl::string&)s, step); \
