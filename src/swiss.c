@@ -27,7 +27,6 @@
 #include "scl/swiss.h"
 #include <string.h>
 #include <stdio.h>
-#define XXH_PRIVATE_API
 #include "xxhash.h"
 
 
