@@ -10,7 +10,7 @@ if (PROJECT_IS_TOP_LEVEL)
 endif()
 option(SCL_CXX "Enable SCL's c++ bindings" ON)
 
-set(ENABLE_CLANG_TIDY OFF)
+option(ENABLE_CLANG_TIDY "" OFF)
 add_subdirectory(deps/uv)
 
 if (MSVC AND OFF)

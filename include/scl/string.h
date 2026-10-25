@@ -85,6 +85,20 @@ SCLLIB const char* strlower(char* str);
 
 SCLLIB const char* strrand(int len);
 
+#define scl_stkfmtx(buf, mx, fmt, ...)             \
+  do {                                             \
+    int __l = snprintf(buf, mx, fmt, __VA_ARGS__); \
+    if(__l >= 0)                                   \
+      ((char*)(buf))[__l] = 0;                     \
+  } while(0)
+
+#define scl_vstkfmtx(buf, mx, fmt, args)     \
+  do {                                       \
+    int __l = vsnprintf(buf, mx, fmt, args); \
+    if(__l >= 0)                             \
+      ((char*)(buf))[__l] = 0;               \
+  } while(0)
+
 #define scl_stkfmt(buf, mx, fmt, ...)                                \
   do {                                                               \
     int __l = min(snprintf(NULL, 0, fmt, __VA_ARGS__), (int)mx - 1); \
@@ -94,11 +108,17 @@ SCLLIB const char* strrand(int len);
     ((char*)(buf))[__l] = 0;                                         \
   } while(0)
 
-#define scl_stkfmtx(buf, mx, fmt, ...)                               \
-  do {                                                               \
-    int __l = min(snprintf(NULL, 0, fmt, __VA_ARGS__), (int)mx - 1); \
-    snprintf((void*)buf, __l + 1, fmt, __VA_ARGS__);                 \
-    ((char*)(buf))[__l] = 0;                                         \
+#define scl_vstkfmt(buf, mx, fmt, args)          \
+  do {                                           \
+    va_list copy;                                \
+    va_copy(copy, args);                         \
+    int __l = vsnprintf(NULL, 0, fmt, copy) + 1; \
+    va_end(copy);                                \
+    if(__l <= 0 || __l >= mx)                \
+      break;                                     \
+    (buf) = alloca(__l);                         \
+    vsnprintf(buf, __l, fmt, args);                           \
+    ((char*)(buf))[__l - 1] = 0;           \
   } while(0)
 
 typedef struct strvec_header_t {
